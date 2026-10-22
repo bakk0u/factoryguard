@@ -1,0 +1,1 @@
+-- PLANNED: readings, predictions and alerts tables.

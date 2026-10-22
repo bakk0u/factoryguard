@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.venv/
+.idea/
+*.egg-info/
+.env
+reports/local/
+data/raw/*.csv
+!data/raw/demo_sensors.csv
