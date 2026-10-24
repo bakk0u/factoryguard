@@ -1,0 +1,47 @@
+{
+  "dataset_doi": "10.5281/zenodo.10868257",
+  "declared_date": "2026-10-22",
+  "selection_basis": "Official description PDF and archive metadata only, before additional signal inspection",
+  "roles": {
+    "B01": "development_existing",
+    "B02": "development_matched_conditions",
+    "B04": "development_extended_conditions",
+    "B03": "held_out_reserve_integrity_structure_only"
+  },
+  "new_downloads": [
+    "B02.zip",
+    "B03.zip",
+    "B04.zip"
+  ],
+  "held_out_experiments": [
+    "B03"
+  ],
+  "held_out_allowed_operations": [],
+  "model_training_authorized": true,
+  "labels_authorized": false,
+  "model_training_scope": {
+    "protocol": "selection-v2",
+    "outer_fitting_runs": [
+      "B01",
+      "B02"
+    ],
+    "outer_evaluations": [
+      "B01->B02",
+      "B02->B01"
+    ],
+    "inner_tuning": "three chronological expanding-window folds within each outer training run only",
+    "separate_post_selection_stress": [
+      "B04"
+    ],
+    "held_out_access_in_this_task": false,
+    "pooled_final_fit_authorized_in_this_task": false,
+    "authorization": "Current bounded preprocessing/model-selection request; supersedes forecast-v1 no-search scope"
+  },
+  "historical_held_out_acquisition_operations": [
+    "checksum",
+    "safe_extraction",
+    "inventory",
+    "csv_structure",
+    "mat_header_structure"
+  ]
+}

@@ -4,5 +4,14 @@
 project runs offline after dependencies are installed. It is not factory data.
 Reproduce it with `python scripts/generate_demo_data.py` (overwrites the demo only).
 The original generated CSV is never changed by the milestone pipeline.
-Real dataset: not selected yet; its licence, source and measurement units must
-be documented before importing it. Do not infer real failure labels from this demo.
+Selected real dataset: Paderborn University run-to-failure bearings, Zenodo
+record 10868257, CC BY 4.0. See docs/dataset_assessment.md for attribution,
+units, observed schema, checksums and B01-only handling. Raw files are stored
+outside the checkout at /workspace/datasets/paderborn-10868257/. Do not infer
+failure labels from either this demo or ambiguous B01 termination metadata.
+
+The subsequently authorized B02/B03/B04 acquisition is complete. See
+docs/additional_experiments.md and docs/experiment_roles.md: B02/B04 are
+development runs; B03 is a held-out reserve with integrity/structure checks
+only. The outside-Git download_manifest.json records actual local files;
+record.json lists remote availability and is not a pending-download list.

@@ -9,3 +9,7 @@ Custom input: `python run_step1.py --input data/raw/your_readings.csv`.
 Tests: `python -m unittest discover -s tests -v`.
 No private PyCharm settings or machine-specific interpreter paths are included.
 PyCharm will create its own .idea directory when you open the folder.
+
+The real-data forecasting/local-dashboard prototype has separate [setup and runnable commands](forecast_demo.md). Use its already saved artifact to start a replay without fitting again. No extra Python dependency is needed. The synthetic milestone above remains independent; its injected trends have no verified industrial failure labels.
+
+The latest bounded model-selection workflow and selected exponential-smoothing dashboard use [selection_demo.md](selection_demo.md). Install updated project dependencies (now including scikit-learn) through `python -m pip install -e .`. For the completed replay, save/open `reports/local/selection-v2/dashboard.html`; it needs no server or network connection.

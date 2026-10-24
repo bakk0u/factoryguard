@@ -7,3 +7,7 @@ __pycache__/
 reports/local/
 data/raw/*.csv
 !data/raw/demo_sensors.csv
+# External dataset archives and extracted experiments are local-only.
+data/raw/paderborn/
+data/external/
+*.zip

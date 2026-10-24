@@ -1,0 +1,17 @@
+{
+  "protocol": "forecast-v1",
+  "training_run": "B02",
+  "validation_run": "B01",
+  "stress_run": "B04",
+  "model": "ridge_delta",
+  "alpha": 10.0,
+  "gap_limit_s": 24.0,
+  "support_min_count": 20,
+  "inputs": ["feature__A_ac_rms_v", "feature__C_ac_rms_v", "feature__T1_above_room_c", "feature__T2_above_room_c", "context__measured_speed_rpm", "context__measured_static_load_n", "context__measured_dynamic_peak_n"],
+  "targets": ["feature__A_ac_rms_v", "feature__C_ac_rms_v"],
+  "tables": {
+    "B01": "reports/local/b01-features-v1/features.csv",
+    "B02": "reports/local/development-assessment-20261023-final/B02/features.csv",
+    "B04": "reports/local/development-assessment-20261023-final/B04/features.csv"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "protocol": "selection-v2",
+  "development_runs": ["B01", "B02"],
+  "stress_run": "B04",
+  "gap_limit_s": 24,
+  "history_bursts": 3,
+  "split_fractions": [[0.4, 0.6], [0.6, 0.8], [0.8, 1.0]],
+  "ridge_alpha": [100.0, 10.0, 1.0],
+  "smoothing_alpha": [0.8, 0.5, 0.2],
+  "tree_grid": [{"max_depth": 2, "min_samples_leaf": 30}, {"max_depth": 2, "min_samples_leaf": 10}, {"max_depth": 4, "min_samples_leaf": 30}, {"max_depth": 4, "min_samples_leaf": 10}],
+  "random_state": 42,
+  "inner_tie_tolerance": 0.01,
+  "selection_min_macro_improvement": 0.02,
+  "selection_max_run_ratio": 1.0,
+  "selection_max_channel_ratio": 1.05,
+  "selection_simplicity_tolerance": 0.02,
+  "complexity_order": ["persistence", "smoothing", "ridge_current", "ridge_temporal", "tree_current", "tree_temporal"],
+  "trial_budget": {"configurations_per_outer_training_run": 18, "inner_folds": 3, "outer_directions": 2, "candidate_fold_evaluations": 108, "learned_pipeline_inner_fits": 84, "learned_pipeline_outer_refits": 8},
+  "tables": {
+    "B01": "reports/local/b01-features-v1/features.csv",
+    "B02": "reports/local/development-assessment-20261023-final/B02/features.csv",
+    "B04": "reports/local/development-assessment-20261023-final/B04/features.csv"
+  }
+}
