@@ -55,6 +55,11 @@ class Block:
 def prepare(frame, run, start=0, stop=None):
     """Build independent replay block, retaining every row; no history before start."""
     validate_frame(frame, run)
+    return _prepare_validated(frame, run, start, stop)
+
+
+def _prepare_validated(frame, run, start=0, stop=None):
+    """Pure feature primitive after schema/access validation by the caller."""
     stop = len(frame) if stop is None else stop
     if not 0 <= start < stop <= len(frame):
         raise ValueError('Invalid chronological block')

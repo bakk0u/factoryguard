@@ -97,7 +97,7 @@ def assess_table(run, frame, output):
         "missing_features": int(frame[[c for c in frame if c.startswith("feature__")]].isna().sum().sum()),
         "measured_context_ranges": {c: [float(frame[c].min()), float(frame[c].max())] for c in frame if c.startswith("context__measured_")},
     }
-    (output / run / "assessment.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+    (output / run / "assessment.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     return report
 
 
@@ -231,7 +231,7 @@ def main():
             extract_b01(raw_base / run, tables[run], expected_measurements=DEVELOPMENT_COUNTS[run], experiment_id=run)
     frames, reports = {}, {}
     for run in RUNS:
-        baseline = json.loads((tables[run] / "raw_integrity.json").read_text())["files"]
+        baseline = json.loads((tables[run] / "raw_integrity.json").read_text(encoding="utf-8"))["files"]
         if raw_manifest(raw_base / run) != baseline:
             raise ValueError(f"{run} raw integrity differs from extracted table provenance")
         frame = pd.read_csv(tables[run] / "features.csv")
@@ -250,7 +250,7 @@ def main():
               "loaded_bins_B01_B02_n_ge20": int((loaded[[r+"_n" for r in ("B01", "B02")]] >= 20).all(axis=1).sum()),
               "loaded_bins_B04_with_any_B01_B02": int((loaded.B04_n.gt(0) & (loaded.B01_n.gt(0) | loaded.B02_n.gt(0))).sum()),
               "held_out_access_performed": False, "normalization_fitted": False, "model_trained": False, "labels_created": False}
-    (output / "assessment.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+    (output / "assessment.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
 
 

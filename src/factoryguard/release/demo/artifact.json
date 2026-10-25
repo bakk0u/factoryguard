@@ -1,0 +1,23 @@
+{
+  "protocol": "release-v3",
+  "candidate": {
+    "id": "smoothing_0.2",
+    "group": "smoothing",
+    "kind": "smoothing",
+    "features": "current",
+    "formulation": "direct",
+    "params": {
+      "alpha": 0.2
+    },
+    "rank": 2
+  },
+  "training_runs": [
+    "B02"
+  ],
+  "features": [
+    "feature__A_ac_rms_v",
+    "feature__C_ac_rms_v"
+  ],
+  "config_sha256": "bc122cfe29f22cb6e80528161ef509b994257c83498441cb6a5be2df6314b46f",
+  "gap_limit_s": 24
+}

@@ -1,0 +1,870 @@
+{
+  "B02": {
+    "persistence": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "smoothing": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_current_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_current_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_temporal_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_temporal_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_current_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_current_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_temporal_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_temporal_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_current_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_current_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_temporal_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_temporal_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_current_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_current_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1114,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_temporal_delta": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_temporal_direct": {
+      "observations": 1116,
+      "common_pairs": 1110,
+      "exclusion_reasons": {
+        "insufficient_history": 4,
+        "common": 1110,
+        "expired_gap": 1,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 1114,
+          "candidate_available_pairs": 1110,
+          "candidate_unavailable_on_broad": 4,
+          "negative_forecasts_issued": 0
+        }
+      }
+    }
+  },
+  "B01": {
+    "persistence": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "smoothing": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_current_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_current_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_temporal_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "ridge_temporal_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_current_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_current_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_temporal_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "extra_temporal_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_current_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_current_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_temporal_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "boost_temporal_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_current_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_current_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 372,
+          "candidate_unavailable_on_broad": 0,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_temporal_delta": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    },
+    "xgb_temporal_direct": {
+      "observations": 377,
+      "common_pairs": 363,
+      "exclusion_reasons": {
+        "insufficient_history": 9,
+        "common": 363,
+        "expired_gap": 4,
+        "pending_block_end": 1
+      },
+      "channels": {
+        "A": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        },
+        "C": {
+          "broad_persistence_pairs": 372,
+          "candidate_available_pairs": 363,
+          "candidate_unavailable_on_broad": 9,
+          "negative_forecasts_issued": 0
+        }
+      }
+    }
+  }
+}

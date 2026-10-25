@@ -11,3 +11,10 @@ data/raw/*.csv
 data/raw/paderborn/
 data/external/
 *.zip
+# Reproducible local application/model state, wherever the output is configured.
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.joblib
+build/
+dist/

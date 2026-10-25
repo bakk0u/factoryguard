@@ -50,6 +50,11 @@ def load_recording(path: str | Path, *, experiment: str = "B01") -> Recording:
     clipping, unit conversion, or filling. MATLAB v7.3/HDF5 is not this format.
     """
     require_development(experiment)
+    return _read_recording(path, experiment)
+
+
+def _read_recording(path, experiment):
+    """Validated one-burst primitive; reserve caller must enforce its authorization gate."""
     path = Path(path)
     match = re.fullmatch(rf"data_{experiment}_M(\d{{4}})\.mat", path.name)
     if match is None or int(match[1]) < 1:

@@ -1,0 +1,14 @@
+{
+  "reviewer": "REQUIRED",
+  "authorization": "REQUIRED after pipeline review",
+  "documentation_evidence": "REQUIRED: per-run log pages and interpretation, no trend-driven corrections",
+  "plan_sha256": "e7f2a0f7f6be1a3798c9a002890e17aa0b9f4ab1397572c444744121eb81186f",
+  "review_complete": false,
+  "independent_documentation_review": false,
+  "units_volts_10g_per_v_0db": false,
+  "documented_128khz_1p6s": false,
+  "warmup_and_command_ranges_match_frozen_policy": false,
+  "ordinal_alignment_and_clock_limits_accepted": false,
+  "termination_not_used_as_label": false,
+  "no_feature_or_outcome_inspection_for_model_selection": false
+}

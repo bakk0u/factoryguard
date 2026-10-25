@@ -1,0 +1,30 @@
+/* Browser acceptance for the exact standalone release artifact, no CDN. */
+const {chromium}=require('playwright');const fs=require('fs');
+(async()=>{
+ const root=process.argv[2]||'reports/local/release-demo';
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+ const page=await browser.newPage({viewport:{width:1440,height:1050}});const errors=[],requests=[];
+ page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url())});
+ await page.setContent(fs.readFileSync(root+'/dashboard.html','utf8'));
+ await page.waitForFunction(()=>document.querySelector('#progress').textContent==='0 / 377 observations');
+ await page.locator('#step').click();await page.waitForFunction(()=>document.querySelector('#progress').textContent==='1 / 377 observations');
+ if(!(await page.locator('#model').innerText()).includes('0.2'))throw Error('Wrong out-of-run setting');
+ await page.locator('#play').click();await page.waitForFunction(()=>Number(document.querySelector('#progress').textContent.split(' / ')[0])>=3);await page.locator('#play').click();
+ await page.waitForTimeout(700);const paused=await page.locator('#progress').innerText();await page.waitForTimeout(700);if(paused!==await page.locator('#progress').innerText())throw Error('Pause failed');
+ await page.evaluate(async()=>{cursors.B01=120;state=await api('/api/state?run=B01');focus=-1;render();});
+ if(await page.locator('svg').count()!==6)throw Error('Missing history plots');
+ await page.screenshot({path:root+'/dashboard-desktop.png',fullPage:true});
+ await page.evaluate(async()=>{cursors.B01=377;state=await api('/api/state?run=B01');focus=-1;render();});
+ if(!(await page.locator('#score').innerText()).includes('n=372'))throw Error('Broad replay coverage mismatch');
+ if(!await page.locator('#step').isDisabled())throw Error('End-of-replay control enabled');
+ if(!(await page.locator('#notices').innerText()).includes('110'))throw Error('Missing documented temperature reference');
+ await page.locator('#inspect').fill('100');await page.locator('#inspect').dispatchEvent('input');
+ if(!(await page.locator('#inspectionLabel').innerText()).includes('101'))throw Error('Inspection slider wrong');
+ await page.setViewportSize({width:390,height:844});
+ if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Mobile overflow');
+ await page.screenshot({path:root+'/dashboard-mobile.png',fullPage:true});
+ await page.locator('#reset').click();await page.waitForFunction(()=>document.querySelector('#progress').textContent==='0 / 377 observations');
+ if(errors.length||requests.length)throw Error(JSON.stringify({errors,requests}));
+ fs.writeFileSync(root+'/browser-verification.json',JSON.stringify({passed:true,checks:['step','play/pause','reset','six history charts','inspection slider','372 broad pairs','temperature reference','mobile layout','no network requests'],page_errors:errors},null,2)+'\n');
+ await browser.close();console.log('Release browser acceptance passed');
+})().catch(e=>{console.error(e);process.exit(1)});

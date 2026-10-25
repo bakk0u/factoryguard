@@ -1,6 +1,7 @@
 """Train, evaluate, replay and locally serve the frozen development prototype."""
 import argparse
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -12,7 +13,7 @@ from factoryguard.models.forecast import (RUNS, digest, evaluate, fit, guard_run
 
 def fresh(path):
     path = Path(path).resolve()
-    raw = Path('/workspace/datasets/paderborn-10868257').resolve()
+    raw = Path(os.environ.get('FACTORYGUARD_RAW_ROOT', '/workspace/datasets/paderborn-10868257')).resolve()
     if path == raw or raw in path.parents:
         raise ValueError('Outputs must be separate from immutable source storage')
     if path.exists() and any(path.iterdir()):

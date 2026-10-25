@@ -1,0 +1,10 @@
+{
+  "exact_csv_matches": {
+    "inner_trials.csv": true,
+    "development_metrics.csv": true,
+    "stress_metrics.csv": true,
+    "quality_strata.csv": true
+  },
+  "selection_identical": true,
+  "same_grid_no_tuning_expansion": true
+}

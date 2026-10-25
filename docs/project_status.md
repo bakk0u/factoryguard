@@ -1,4 +1,76 @@
-# Current project status: bounded model selection and selected replay
+# Current project status: development release v3
+
+Verified 2026-10-25. The complete-release request supersedes earlier milestone
+scope/search limits. B03 remains completely sealed; B04 remains a separate
+diagnostic stress case. Raw archives and all raw measurements remain outside Git.
+
+Implemented: streaming development ingestion/validation/features; 32-configuration
+frozen modeling campaign (persistence, smoothing, Ridge, Extra Trees, histogram
+boosting and CPU XGBoost; direct/delta and current/enriched features); complete
+trial/error/coverage reporting; final artifact; persistent SQLite replay and a
+loopback API; responsive history/context/event dashboard; portable offline HTML;
+319 kB attributed real-data demo; full reproduction CLI, pinned dependencies,
+Linux/Windows CI configuration and derived review-bundle script. Legacy synthetic
+demo remains intact; unused scaffolds are explicitly documented in architecture.md.
+
+All **192 candidate-fold evaluations** completed with no fitting failures, plus
+32 learned outer refits. The chosen final smoother needs no learned pooled fit.
+Smoothing retains **12.83% macro MAE gain** over persistence in development
+selection. Extra Trees enriched-delta gains 7.98%, histogram boosting current-delta
+6.88%, XGBoost current-delta 4.17%; direct models and Ridge often lose. Every
+configuration and per-run/channel MAE/RMSE is in results/release-v3/. No outcome-
+driven search expansion, damage labels, alarms, RUL or fault-performance claims.
+
+Final-source campaign reproduced in a fresh pinned environment: inner-trial,
+development, stress and quality-stratum CSVs are **byte-identical** to the initial
+campaign, with identical selection. This was one unchanged-grid reproducibility
+run, not another tuning round. Both runs/audits remain in reports/local/release-v3
+and reports/local/release-v3-reproduction. Independent audit verified all 192
+fold scaler/dependency records, 72 artifact replays and primary metrics without
+refitting. Exact evidence is committed with the compact results.
+
+Local verification: **109 tests pass**, no failures/skips. Tests cover causal
+features, split/preprocessing isolation, direct/delta definitions, serialization,
+missingness, gap resets, SQLite restart/reset, API visibility, sparse reference
+counts, gradual/abrupt synthetic changes and failed-family retention. Dedicated
+reserve tests use generated files only. The synthetic CLI validates 1080 rows /
+3 machines with no errors/warnings. Desktop/mobile Playwright acceptance passed
+after fixing long-warning mobile overflow: step/play/pause/reset, six histories,
+inspection slider, 372 B01 broad replay pairs, temperature reference, no external
+requests. Package installation from the pinned environment and wheel succeeded.
+
+Raw integrity check: all **380 B01 +1119 B02 +1117 B04 =2616 files** match their
+recorded SHA256 values. B03 was not traversed, hashed, opened or evaluated.
+Ordinary loaders still deny it. A hash-frozen plan and gated executable procedure
+are prepared in configs/reserve_plan.json / release.holdout; the supplied
+attestation is all false. Actual B03 execution remains unperformed and requires
+later user approval after review. See review_handoff.md for the agenda and limits.
+
+Local artifacts: reports/local/release-demo-final/dashboard.html (small demo),
+reports/local/release-full/ (all development runs), and reports/local/reserve-plan-final/.
+The source branch is development-release-v3. Clean-checkout and remote CI outcomes
+are recorded in the completion note below after execution; no Windows pass is
+inferred from merely adding its CI job. No public deployment or new data download.
+
+## Completion verification
+
+An exported clean Git-index checkout (no local reports, raw data or repository
+virtual environment) was installed as a wheel into a separately created pinned
+environment. All 109 tests passed there, pip check passed, and the bundled demo
+and standalone export ran without dataset downloads. The unchanged-grid clean-
+environment model reproduction produced byte-identical result CSVs. Git whitespace
+checks pass; the attributed CSV retains its original CRLF bytes/hash explicitly.
+The derived review ZIP contains 108 files, about 8.1 MB, with verified member
+SHA256/CRC checks and no raw data. It remains ignored under reports/local/.
+
+GitHub CLI authentication currently reports an invalid GH_TOKEN; therefore remote
+CI execution cannot be claimed from that tool. Linux tests/browser workflow are
+verified locally; Windows remains a configured CI target pending execution evidence.
+This is an integration/verification limitation, not a claim that Windows failed.
+
+## Historical project status: selection-v2
+
+<!-- The following sections are retained historical evidence. -->
 
 Verified 2026-10-23. Selection-v2 is complete: a predeclared small grid, fold-local preprocessing/estimator pipelines, causal temporal feature comparison, reciprocal B01→B02 and B02→B01 outer evaluations, full candidate/coverage reports, and an updated selected-method dashboard. **B03 stayed entirely sealed**. B04 was loaded only after method selection and used only for diagnostic stress predictions; its measurements are unchanged.
 

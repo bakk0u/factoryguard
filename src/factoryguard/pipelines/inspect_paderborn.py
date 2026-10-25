@@ -4,7 +4,7 @@ import csv
 from datetime import datetime, timezone
 import json
 from pathlib import Path
-import resource
+from factoryguard.util import peak_rss_mib
 import time
 
 import matplotlib
@@ -114,7 +114,7 @@ def inspect_b01(root: Path, output: Path) -> dict:
         report["errors"].append(str(error))
     report["valid"] = not report["errors"] and report["files_inspected"] == 377
     report["elapsed_processing_seconds"] = round(time.perf_counter() - started, 3)
-    report["peak_process_rss_mib"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 2)
+    report["peak_process_rss_mib"] = peak_rss_mib()
     report["memory_strategy"] = "one 204800-sample MAT at a time; retain only per-record statistics and small CSV tables"
     (output / "inspection.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     return report
