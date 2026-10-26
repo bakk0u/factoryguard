@@ -1,5 +1,37 @@
 # Current project status: development release v3
 
+## Investigation application follow-up
+
+The investigation-reliability branch now adds six-observation same-bin descriptive
+change evidence (two consecutive windows of three), including RMS/thermal/context
+deltas and retained warning counts. Windows reset at runs, gaps and bin changes;
+missingness and insufficient history remain unavailable. References remain fixed
+and versioned, never absorbing replay observations. B04 remains uncorrected.
+
+Notebook notes are stored separately in SQLite, survive replay reset/restart, and
+require explicit deletion. Users select revealed 1-based periods and export JSON
+reports separating generated evidence from user notes, with context, provenance,
+reference support, model settings and software version. Portable HTML supports
+browser-local notes where file-origin storage is available; reports are portable
+copies. Controls serialize step/reset/run-switch/notebook actions and show errors.
+Unused PLANNED-only code/config/tests and empty Docker/Compose scaffolds were
+removed after active-import checks. Historical scientific records are preserved.
+
+Local complete suite: 115 tests passed, no skips/failures. Desktop/mobile browser
+acceptance covers notes, report content, reload, reset, controls and layout; the
+existing replay browser acceptance also passes. No real-data fits/search occurred.
+All 377 B01 observations, issued forecasts and settled errors exactly match the
+previous standalone release. A clean Git-index checkout installed as a wheel in
+the separate pinned environment passed all 115 tests and pip check, then created
+and exported its bundled demo without dataset access. Notebook/browser checks
+also verify the report's period length and separate notes, reload persistence
+and reset preservation. Screenshots are committed under docs/images/.
+Raw data and B03 were not accessed. The user reports both Windows and Ubuntu passed
+for ae41254 in run 40400560440; that result does not cover these later changes.
+Remote API access still returns Forbidden, so final-commit CI needs verification
+through the user's other integration. See investigation_workflow.md for screenshots
+and usage. The prior release history follows.
+
 Verified 2026-10-25. The complete-release request supersedes earlier milestone
 scope/search limits. B03 remains completely sealed; B04 remains a separate
 diagnostic stress case. Raw archives and all raw measurements remain outside Git.

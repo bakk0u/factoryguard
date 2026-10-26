@@ -11,6 +11,7 @@ import pandas as pd
 from factoryguard.models.forecast import RUN, TIME, ID, clean, validate_frame
 from factoryguard.release import modeling as m
 from factoryguard.release.context import compare, notices
+from factoryguard.release.investigation import evidence
 
 
 def encode(value):return json.dumps(clean(value),ensure_ascii=False,allow_nan=False)
@@ -48,6 +49,22 @@ class Store:
 
     def metadata(self):
         with self.connect() as con:return {k:json.loads(v) for k,v in con.execute('SELECT key,value FROM meta')}
+
+    def notes(self,run,action=None,body=None):
+        with self.connect() as con:
+            con.execute('BEGIN IMMEDIATE')
+            state=self._state(con,run)
+            con.execute('CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY,run TEXT,start INTEGER,stop INTEGER,text TEXT)')
+            if action=='save':
+                start,stop,text=body.get('start'),body.get('stop'),body.get('text')
+                if (type(start) is not int or type(stop) is not int or not 1<=start<=stop<=state['revealed']
+                    or not isinstance(text,str) or not text.strip() or len(text)>4000):
+                    raise ValueError('Notes require a revealed 1-based period and 1–4000 characters')
+                con.execute('INSERT INTO notes(run,start,stop,text) VALUES (?,?,?,?)',(run,start,stop,text))
+            elif action=='delete':
+                if type(body.get('id')) is not int:raise ValueError('Integer note id required')
+                con.execute('DELETE FROM notes WHERE run=? AND id=?',(run,body['id']))
+            return [dict(zip(('id','start','stop','text'),r)) for r in con.execute('SELECT id,start,stop,text FROM notes WHERE run=? ORDER BY id',(run,))]
 
     def state(self,run):
         with self.connect() as con:return self._state(con,run)
@@ -93,6 +110,7 @@ class Store:
             rolling=block.current[-3:].mean(0) if block.history_ready[-1] else None
             anchor=block.current[start:start+3].mean(0) if block.history_ready[-1] else None
             event={'measurement_id':row[ID],'source_time':row[TIME],'rms_v':block.current[-1],
+                   'change_evidence':evidence(block),
                    'issued_v':prediction,'issued_status':'pending' if np.isfinite(prediction).all() else 'unavailable',
                    'history_ready':bool(block.history_ready[-1]),'interval_s':interval,
                    'resolved':resolved,'context_reference':context,'observation':row,

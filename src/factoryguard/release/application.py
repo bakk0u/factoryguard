@@ -45,7 +45,10 @@ def create(output,frames,artifacts,references,metadata):
         joblib.dump(a,out/f'{run}.joblib')
         write(out/f'{run}.json',{'artifact_sha256':digest(out/f'{run}.joblib')})
     write(out/'references.json',references)
-    metadata={**metadata,'runs':list(frames),'models':{r:a['candidate'] for r,a in artifacts.items()},
+    import importlib.metadata
+    metadata={**metadata,'software_version':importlib.metadata.version('factoryguard'),
+              'reference_sha256':digest(out/'references.json'),
+              'runs':list(frames),'models':{r:a['candidate'] for r,a in artifacts.items()},
               'mode':'Offline recorded-data replay; no live sensor connection',
               'B03':'sealed','clock':'CSV clock proxy; ordinal alignment and timestamp meaning provisional'}
     Store(out/'replay.sqlite').initialize(frames,metadata)
@@ -74,6 +77,8 @@ def html(payload=None):
 def export(workspace,output):
     """Render from a temporary DB clone, preserving the user's persisted cursor."""
     import tempfile
+    from factoryguard.util import protect_output
+    output=protect_output(output)
     workspace=Path(workspace);store=Store(workspace/'replay.sqlite');meta=store.metadata()
     refs=read(workspace/'references.json');states={}
     with tempfile.TemporaryDirectory() as tmp:
@@ -98,6 +103,10 @@ def export(workspace,output):
 def server(workspace,port=8765):
     workspace=Path(workspace);store=Store(workspace/'replay.sqlite');meta=store.metadata()
     refs=read(workspace/'references.json');artifacts={r:load_artifact(workspace/f'{r}.joblib') for r in meta['runs']}
+    actual_reference_hash=digest(workspace/'references.json')
+    if meta.get('reference_sha256',actual_reference_hash)!=actual_reference_hash:
+        raise ValueError('Fixed development references changed; restore the original workspace references')
+    meta['reference_sha256']=actual_reference_hash
     class Handler(BaseHTTPRequestHandler):
         def reply(self,value,status=200,kind='application/json; charset=utf-8'):
             body=(value if isinstance(value,str) else json.dumps(clean(value),ensure_ascii=False,allow_nan=False)).encode('utf-8')
@@ -110,6 +119,7 @@ def server(workspace,port=8765):
                 elif route.path=='/health':self.reply({'status':'ok','mode':meta['mode'],'B03':'sealed'})
                 elif route.path=='/api/meta':self.reply(meta)
                 elif route.path=='/api/state':self.reply(store.state(parse_qs(route.query).get('run',['B01'])[0]))
+                elif route.path=='/api/notes':self.reply(store.notes(parse_qs(route.query).get('run',['B01'])[0]))
                 else:self.reply({'error':'not found'},404)
             except (ValueError,KeyError) as exc:self.reply({'error':str(exc)},400)
         def do_POST(self):
@@ -119,12 +129,16 @@ def server(workspace,port=8765):
                 if origin and origin not in (f'http://127.0.0.1:{self.server.server_port}',f'http://localhost:{self.server.server_port}'):
                     self.reply({'error':'foreign origin rejected'},403);return
                 n=int(self.headers.get('Content-Length','0'))
-                if n<1 or n>1024:raise ValueError('Small JSON control body required')
+                if n<1 or n>20000:raise ValueError('JSON control body exceeds size limit')
                 if not self.headers.get('Content-Type','').startswith('application/json'):raise ValueError('JSON required')
-                body=json.loads(self.rfile.read(n));run=body['run']
+                body=json.loads(self.rfile.read(n))
+                if not isinstance(body,dict) or not isinstance(body.get('run'),str):raise ValueError('JSON object with string run required')
+                run=body['run']
                 if run not in artifacts:raise ValueError('Run unavailable; B03 sealed')
                 if self.path=='/api/step':self.reply(store.step(run,artifacts[run],refs[run]))
                 elif self.path=='/api/reset':self.reply(store.reset(run))
+                elif self.path=='/api/notes/save':self.reply(store.notes(run,'save',body))
+                elif self.path=='/api/notes/delete':self.reply(store.notes(run,'delete',body))
                 else:self.reply({'error':'not found'},404)
             except (ValueError,KeyError,TypeError) as exc:self.reply({'error':str(exc)},400)
         def log_message(self,*args):pass

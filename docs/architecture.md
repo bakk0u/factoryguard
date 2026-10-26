@@ -24,6 +24,13 @@ remain local; compact results and demo are committed.
 
 ## Legacy placeholders and compatibility
 
+Update: unused PLANNED-only modules, YAML files, empty tests and Docker/Compose
+scaffolds listed historically below have now been removed after import checks.
+The active notebook persists in release/store.py; release/investigation.py computes
+causal descriptive windows. The dashboard exports period reports with user notes
+separate from machine-generated evidence. Historical inventories below are records
+of prior releases, not current file lists.
+
 The older `api/`, `storage/`, `alerts/` scaffold modules and files marked PLANNED
 are **not** used by the release. The actual API and SQLite implementation live
 in `release/` as above. Legacy generic `pipelines/train.py`, `infer.py`,

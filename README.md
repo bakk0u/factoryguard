@@ -12,6 +12,10 @@ diagnostic case with unresolved speed/load interpretation.
 
 ## Run the small demo — no dataset download
 
+The [investigation workflow](docs/investigation_workflow.md) adds same-condition
+change windows, local notes retained across resets, and selected-period JSON
+reports. Experiments are separate bearing runs; A/C are vibration channels.
+
 Use CPython **3.12** for the pinned environment. From a clone of this branch:
 
 ```bash
