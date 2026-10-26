@@ -35,7 +35,9 @@ class ArchiveTests(unittest.TestCase):
 
     def test_unsafe_members_rejected_before_writing(self):
         for names in [["../escape"], ["/escape"], ["B01\\escape"],
-                      ["B01/a", "B01/A"], ["B01/a", "B01/a/b"]]:
+                      ["B01/a", "B01/A"], ["B01/a", "B01/a/b"],
+                      ["B01/CON.txt"], ["B01/file."], ["B01/file "],
+                      ["B01//file"], ["B01/./file"]]:
             with self.subTest(names=names):
                 archive, kwargs = self.make(names)
                 with self.assertRaises(ValueError):

@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import sqlite3
+from contextlib import contextmanager
 from datetime import datetime
 
 import numpy as np
@@ -19,10 +20,15 @@ class Store:
     def __init__(self,path):
         self.path=Path(path)
 
+    @contextmanager
     def connect(self):
         con=sqlite3.connect(self.path,timeout=30)
-        con.execute('PRAGMA foreign_keys=ON')
-        return con
+        try:
+            con.execute('PRAGMA foreign_keys=ON')
+            with con:
+                yield con
+        finally:
+            con.close()
 
     def initialize(self,frames,metadata):
         if self.path.exists():raise ValueError('Refusing to overwrite a replay database')
@@ -55,6 +61,7 @@ class Store:
 
     def reset(self,run):
         with self.connect() as con:
+            con.execute('BEGIN IMMEDIATE')
             self._state(con,run)
             con.execute('DELETE FROM events WHERE run=?',(run,))
             con.execute('UPDATE cursors SET position=0 WHERE run=?',(run,))
