@@ -217,10 +217,12 @@ def main():
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--reuse-features", action="store_true", help="Reuse current assessment's B02/B04 tables after integrity checks")
     args = parser.parse_args()
-    output = args.output
-    raw_base = Path("/workspace/datasets/paderborn-10868257/raw")
-    if output.resolve() == raw_base or raw_base in output.resolve().parents:
-        parser.error("Assessment output must be outside all raw experiment directories")
+    from factoryguard.util import raw_storage_root, protect_output
+    raw_base = (raw_storage_root() / 'raw').resolve()
+    try:
+        output = protect_output(args.output)
+    except ValueError as error:
+        parser.error(str(error))
     output.mkdir(parents=True, exist_ok=True)
     if (output / "assessment.json").exists():
         parser.error("Assessment already exists; use a fresh output directory")

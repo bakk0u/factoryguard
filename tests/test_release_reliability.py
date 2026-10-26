@@ -8,9 +8,27 @@ from unittest.mock import patch
 from test_release_modeling import data
 from test_release_application import artifact
 from factoryguard.release.store import Store
+from factoryguard.pipelines.assess_development import main
+from factoryguard.pipelines.forecast import fresh
+import contextlib
+import io
 
 
 class ReliabilityTests(unittest.TestCase):
+    def test_configured_source_root_rejected_before_mkdir(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)/'source storage'
+            with patch.dict('os.environ', {'FACTORYGUARD_RAW_ROOT':str(root)}):
+                for output in (root,root/'raw'/'B01'/'derived',root/'raw'/'..'/'archives'):
+                    with patch.object(Path,'mkdir',side_effect=AssertionError('Source write')):
+                        with self.assertRaises(ValueError):fresh(output)
+                        with patch('sys.argv',['assess_development','--output',str(output)]), contextlib.redirect_stderr(io.StringIO()):
+                            with self.assertRaises(SystemExit) as error:main()
+                            self.assertEqual(error.exception.code,2)
+                # A sibling sharing the prefix must remain usable.
+                target=fresh(Path(directory)/'source storage-derived')
+                self.assertTrue(target.is_dir())
+
     def test_connections_close_on_success_and_exception(self):
         with tempfile.TemporaryDirectory() as directory:
             store=Store(Path(directory)/'replay.sqlite')

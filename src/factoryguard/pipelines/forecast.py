@@ -12,10 +12,8 @@ from factoryguard.models.forecast import (RUNS, digest, evaluate, fit, guard_run
 
 
 def fresh(path):
-    path = Path(path).resolve()
-    raw = Path(os.environ.get('FACTORYGUARD_RAW_ROOT', '/workspace/datasets/paderborn-10868257')).resolve()
-    if path == raw or raw in path.parents:
-        raise ValueError('Outputs must be separate from immutable source storage')
+    from factoryguard.util import protect_output
+    path = protect_output(path)
     if path.exists() and any(path.iterdir()):
         raise ValueError('Use a fresh output directory; existing artifacts are never overwritten')
     path.mkdir(parents=True, exist_ok=True)
