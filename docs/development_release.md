@@ -43,7 +43,9 @@ parameters or arbitrary model loading are exposed through the API.
 
 Portable HTML embeds computed events and requires no server after export. It has
 no future-observation access boundary; reveal is presentation and progress is not
-persisted. Notes use browser-local storage (or a warned in-tab fallback), not SQLite.
+persisted. Portable notes use browser-local storage where permitted, not SQLite;
+the reviewer-site layer additionally provides a warned in-tab fallback when
+storage is unavailable.
 The local-server application persists both notes and replay state in SQLite.
 Export uses a database clone without altering the user's cursor. Quality, gaps,
 forecast differences, context differences and the general 110 °C reference stay
