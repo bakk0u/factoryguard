@@ -1,5 +1,22 @@
 # Reviewer site (prepared, unpublished)
 
+Final targeted handover: report `reference_identifiers.sha256` denotes only an
+actual reference artifact when available. `pinned_replay_snapshot_sha256` instead
+identifies the existing replay.json containing reference evidence, with an explicit
+label and experiment reference source runs. Selected-period matched source runs
+are listed separately (possibly empty for unsupported periods). Full manifest and
+unknown original commit/time explanations remain in every report. Period summaries
+survive presentation toggles; run/boundary/revealed-history changes invalidate them.
+The overview explicitly describes its best-evaluated-variant-per-family scope.
+
+Final checks preserve all 2,607 events including predictions/errors and 432 saved
+comparison rows exactly. Browser regressions also check actual downloaded report
+JSON, explicit note deletion, browser-profile restart and Pages-style subpath use.
+Local direct-file testing is blocked by managed Chromium policy
+(`ERR_BLOCKED_BY_ADMINISTRATOR` for file URLs); CI requires this check without a
+policy skip. Final Windows/Linux results must be verified through the connected
+GitHub integration. No further feature development is planned before review.
+
 The dashboard opens on **Overview**: purpose, data coverage, the saved 12.83%
 equal-run/channel development-selection MAE improvement, best variant per method
 family, and rounded direction-specific errors. **Explore an experiment** opens

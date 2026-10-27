@@ -1,24 +1,32 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 const {spawn}=require('node:child_process');
+const fs=require('node:fs');const path=require('node:path');const os=require('node:os');const {pathToFileURL}=require('node:url');
 let server;
 (async()=>{
  if(!process.argv[2]){server=spawn(process.env.PYTHON||'python',['-m','http.server','8781','--directory','reports/local'],{stdio:'ignore'});}
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||chromium.executablePath(),args:['--no-sandbox']});
- const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[],external=[];
  page.on('pageerror',e=>errors.push(e.message));
+ page.on('request',r=>{if(!r.url().startsWith('http://127.0.0.1:'))external.push(r.url());});
  const url=process.argv[2]||'http://127.0.0.1:8781/reviewer-site/';
  for(let i=0;i<50;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
  await page.goto(url);await page.waitForSelector('body[data-reviewer-ready="true"]');
  await page.screenshot({path:'docs/images/reviewer-desktop.png',fullPage:true});
  assert.ok((await page.locator('[data-view="0"]').innerText()).includes('12.83%'));
+ assert.equal(await page.locator('#comparisonScope').innerText(),'Best-performing evaluated variant within each model family; development selection results, not independent final-test performance.');
  await page.locator('#exploreAction').click();assert.equal(await page.evaluate(()=>state.events.length),377);
  await page.locator('#historyPanel summary').click();
  await page.locator('tr[data-index]').first().focus();await page.keyboard.press('Enter');
  assert.equal(await page.evaluate(()=>focus),376);
  assert.equal(await page.locator('tr[data-index]').first().evaluate(el=>el===document.activeElement),true);
+ assert.equal(await page.locator('tr[data-index]').first().evaluate(el=>getComputedStyle(el).outlineStyle),'solid');
  await page.locator('#periodStop').fill('8');await page.locator('#note').fill('Snapshot-specific reviewer note');
  await page.locator('#reviewPeriod').click();await page.waitForFunction(()=>!busy);assert.ok((await page.locator('#periodSummary').innerText()).includes('8 bursts'));
+ const periodText=await page.locator('#periodSummary').innerText();
+ await page.locator('#commands').check();assert.equal(await page.locator('#periodSummary').innerText(),periodText);
+ await page.locator('#periodStop').fill('7');assert.ok(!(await page.locator('#periodSummary').innerText()).includes('8 bursts'));
+ await page.locator('#periodStop').fill('8');await page.locator('#reviewPeriod').click();await page.waitForFunction(()=>!busy);
  await page.locator('#saveNote').click();await page.waitForFunction(()=>!busy);
  assert.ok((await page.locator('#notes').innerText()).includes('Snapshot-specific'));
  const report=await page.evaluate(()=>investigationReport());
@@ -28,18 +36,37 @@ let server;
  assert.equal(report.machine_generated_evidence.length,8);
  assert.deepEqual(report.model_settings,await page.evaluate(()=>meta.models.B01));
  assert.equal(report.reference_identifiers.sha256,await page.evaluate(()=>meta.reference_sha256??null));
- const download=page.waitForEvent('download');await page.locator('#report').click();await download;
+ assert.equal(report.reference_identifiers.pinned_replay_snapshot_sha256,report.source_manifest.files['replay.json']);
+ assert.match(report.reference_identifiers.pinned_replay_snapshot_sha256_identifies,/not a reference-only hash/);
+ assert.deepEqual(report.reference_identifiers.sources,['B02']);
+ assert.deepEqual(report.reference_identifiers.selected_period_matched_sources,[]);
+ assert.ok(report.unknown_provenance_explanation);
+ const savedHash=await page.evaluate(()=>meta.reference_sha256??null);
+ const explicit=await page.evaluate(()=>{meta.reference_sha256='reference-only-test-hash';return investigationReport();});
+ assert.equal(explicit.reference_identifiers.sha256,'reference-only-test-hash');assert.match(explicit.reference_identifiers.sha256_identifies,/Reference-only/);
+ await page.evaluate(h=>meta.reference_sha256=h,savedHash);
+ const download=page.waitForEvent('download');await page.locator('#report').click();const downloaded=await download;
+ const stream=await downloaded.createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);
+ const actualReport=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+ assert.deepEqual(actualReport.machine_generated_evidence,await page.evaluate(()=>state.events.slice(0,8)));
+ assert.deepEqual(actualReport.source_manifest,report.source_manifest);
  await page.evaluate(()=>localStorage.setItem(legacyKey(),JSON.stringify([{id:1,start:1,stop:1,text:'Legacy only'}])));
  await page.evaluate(()=>showNotes());assert.ok((await page.locator('#notes').innerText()).includes('Export legacy notes'));
+ const legacyDownload=page.waitForEvent('download');await page.getByText('Export legacy notes',{exact:true}).click();await legacyDownload;
  assert.equal(await page.evaluate(()=>notebook.some(n=>n.text==='Legacy only')),false);
  await page.evaluate(()=>localStorage.setItem(noteKey().replace(snapshot,'different-snapshot'),JSON.stringify([{text:'Other snapshot'}])));
  await page.reload();await page.waitForSelector('body[data-reviewer-ready="true"]');await page.locator('#exploreAction').click();
  assert.ok((await page.locator('#notes').innerText()).includes('Snapshot-specific'));
  assert.equal(await page.evaluate(()=>notebook.some(n=>n.text==='Other snapshot')),false);
  await page.locator('#reset').click();await page.waitForFunction(()=>!busy&&state.revealed===0);
+ assert.ok(!(await page.locator('#periodSummary').innerText()).includes('8 bursts'));
  assert.ok((await page.locator('#notes').innerText()).includes('Snapshot-specific'));
+ await page.locator('#step').click();await page.waitForFunction(()=>!busy&&state.revealed===1);
+ await page.locator('#play').click();await page.waitForFunction(()=>state.revealed>=2);await page.locator('#play').click();
  await page.locator('#showAll').click();await page.waitForFunction(()=>!busy&&state.revealed===377);
- for(const run of ['B02','B04','B01']){await page.selectOption('#run',run);await page.waitForFunction(r=>!busy&&state.run===r,run);}
+ for(const run of ['B02','B04','B01']){await page.selectOption('#run',run);await page.waitForFunction(r=>!busy&&state.run===r,run);if(run!=='B01')assert.equal(await page.evaluate(()=>notebook.length),0);}
+ page.once('dialog',dialog=>dialog.accept());await page.locator('[data-note]').first().click();await page.waitForFunction(()=>!busy);
+ assert.equal(await page.evaluate(()=>notebook.length),0);
  await page.setViewportSize({width:390,height:844});
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:'docs/images/reviewer-mobile.png'});
@@ -52,5 +79,22 @@ let server;
  assert.ok((await blocked.locator('#notes').innerText()).includes('Volatile note'));
  assert.ok((await blocked.locator('#noteMode').innerText()).includes('tab only'));
  assert.equal(await blocked.evaluate(()=>investigationReport().user_notes[0].text),'Volatile note');
- assert.deepEqual(errors,[]);await browser.close();server?.kill();console.log('Reviewer views, keyboard, report provenance, isolated/legacy notes, blocked storage, resets, run switching and mobile passed');
+ const filePage=await browser.newPage();filePage.on('pageerror',e=>errors.push(e.message));
+ let fileBlocked=false;
+ try{await filePage.goto(pathToFileURL(path.resolve('reports/local/reviewer-site/index.html')).href);}catch(e){if(!process.env.CI&&e.message.includes('ERR_BLOCKED_BY_ADMINISTRATOR')){fileBlocked=true;console.log('PENDING: direct-file opening blocked by local managed-browser URL policy; CI must verify.');}else throw e;}
+ if(!fileBlocked){await filePage.waitForSelector('body[data-reviewer-ready="true"]');
+ await filePage.locator('#exploreAction').click();assert.equal(await filePage.evaluate(()=>state.revealed),377);
+ await filePage.locator('#periodStop').fill('3');await filePage.locator('#reviewPeriod').click();await filePage.waitForFunction(()=>!busy);
+ const fileSummary=await filePage.locator('#periodSummary').innerText();await filePage.locator('#commands').check();assert.equal(await filePage.locator('#periodSummary').innerText(),fileSummary);
+ }
+ // Close and reopen a persistent browser profile to exercise actual restart recovery.
+ const profile=fs.mkdtempSync(path.join(os.tmpdir(),'factoryguard-reviewer-profile-'));
+ const launch={executablePath:process.env.CHROMIUM_PATH||chromium.executablePath(),args:['--no-sandbox']};
+ let persistent=await chromium.launchPersistentContext(profile,launch),restarted=persistent.pages()[0];
+ await restarted.goto(url);await restarted.waitForSelector('body[data-reviewer-ready="true"]');await restarted.locator('#exploreAction').click();
+ await restarted.locator('#note').fill('Restart-persisted note');await restarted.locator('#saveNote').click();await restarted.waitForFunction(()=>!busy);
+ await persistent.close();persistent=await chromium.launchPersistentContext(profile,launch);restarted=persistent.pages()[0];
+ await restarted.goto(url);await restarted.waitForSelector('body[data-reviewer-ready="true"]');
+ assert.equal(await restarted.evaluate(()=>notebook[0].text),'Restart-persisted note');await persistent.close();
+ assert.deepEqual(external,[]);assert.deepEqual(errors,[]);await browser.close();server?.kill();console.log('Reviewer views, keyboard focus, period preservation/invalidation, downloaded report provenance, isolated/legacy notes/deletion, blocked storage, restart, replay, run switching, mobile and subpath passed. Direct file: '+(fileBlocked?'pending (managed-browser policy)':'passed'));
 })().catch(e=>{server?.kill();console.error(e);process.exit(1)});

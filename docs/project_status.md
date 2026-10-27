@@ -1,5 +1,18 @@
 # Current project status: development release v3
 
+## Final targeted reviewer handover
+
+Reports explicitly distinguish reference-only hashes from the pinned containing
+replay snapshot, with source runs and full manifest. Unknown producing commit/time
+remain explained nulls. Selected-period summaries survive presentation changes and
+invalidate on underlying selection/history changes. Overview comparison scope now
+uses the requested evaluated-variant qualification. No saved results were changed:
+2,607 complete events and 432 comparison rows are checked exactly by export tests.
+116 Python tests passed. Final browser/CI status and publication steps are in
+`docs/reviewer_site.md`; final PR description is in `docs/pr1_description.md` if
+GitHub access blocks the authorized update. Site unpublished; feature work stops
+for review. B03 sealed, raw unchanged, B04 uncorrected.
+
 ## Simplified reviewer dashboard
 
 Three views now separate overview, measurement exploration and methods/evidence.

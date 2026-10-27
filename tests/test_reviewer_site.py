@@ -1,5 +1,7 @@
 import importlib.util
 import json
+import csv
+import io
 from pathlib import Path
 import tempfile
 import unittest
@@ -24,6 +26,13 @@ class ReviewerSiteTests(unittest.TestCase):
             exported=json.loads(page.split('const embedded=',1)[1].split(';\nlet meta',1)[0])
             self.assertEqual(exported['states'],payload['states'])
             self.assertEqual(exported['metadata']['models'],payload['metadata']['models'])
+            self.assertEqual(sum(len(s['events']) for s in exported['states'].values()),2607)
+            metrics=json.loads(page.split('const reviewerMetrics=',1)[1].split(';const savedSelection=',1)[0])
+            expected=[]
+            for name in ('development_metrics.csv','stress_metrics.csv'):
+                expected.extend(csv.DictReader(io.StringIO((ROOT/'site/source'/name).read_text(encoding='utf-8'))))
+            self.assertEqual(len(metrics),432)
+            self.assertEqual(metrics,expected)
             self.assertIn('snapshot_id',exported['metadata']['reviewer_source_manifest'])
             self.assertEqual(len(payload['states']['B01']['events']),377)
             for state in payload['states'].values():
