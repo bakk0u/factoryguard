@@ -21,6 +21,10 @@ class ReviewerSiteTests(unittest.TestCase):
             self.assertEqual(manifest['experiments'],['B01','B02','B04'])
             self.assertIsNone(manifest['result_code_commit'])
             payload=json.loads((ROOT/'site/source/replay.json').read_text())
+            exported=json.loads(page.split('const embedded=',1)[1].split(';\nlet meta',1)[0])
+            self.assertEqual(exported['states'],payload['states'])
+            self.assertEqual(exported['metadata']['models'],payload['metadata']['models'])
+            self.assertIn('snapshot_id',exported['metadata']['reviewer_source_manifest'])
             self.assertEqual(len(payload['states']['B01']['events']),377)
             for state in payload['states'].values():
                 self.assertNotIn('notes',state)

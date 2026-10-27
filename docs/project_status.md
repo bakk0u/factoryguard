@@ -1,5 +1,18 @@
 # Current project status: development release v3
 
+## Simplified reviewer dashboard
+
+Three views now separate overview, measurement exploration and methods/evidence.
+Saved 12.83% improvement is explicitly equal-run/channel development selection,
+not held-out performance. All original measurements, predictions and exclusions
+are unchanged (exact exported-event comparison). Reports include available source
+manifest/build/model/reference metadata; unknown fields stay null. Browser notes
+are snapshot-isolated, with explicit legacy export and blocked-storage fallback.
+116 tests passed; desktop/mobile keyboard, period, report and note workflows passed.
+Windows/Ubuntu browser checks are now in CI; final remote results still require
+verification through the other GitHub integration. Site remains unpublished and
+available as the complete `factoryguard-reviewer-site` CI artifact.
+
 ## Investigation application follow-up
 
 The investigation-reliability branch now adds six-observation same-bin descriptive

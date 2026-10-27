@@ -1,5 +1,28 @@
 # Reviewer site (prepared, unpublished)
 
+The dashboard opens on **Overview**: purpose, data coverage, the saved 12.83%
+equal-run/channel development-selection MAE improvement, best variant per method
+family, and rounded direction-specific errors. **Explore an experiment** opens
+populated histories with optional replay, chart hover/click inspection, keyboard
+history, measured context, period selection and notes. **Methods and evidence**
+holds the filterable complete comparison table, reference coverage, selected raw
+fields and provenance. Commanded values are optional.
+
+Report downloads include the actual source manifest, website-build commit,
+experiment-specific model settings and available reference identifiers. Unknown
+producing commit, generation time or reference hash remain null. Notes use the
+replay snapshot SHA256 and experiment as their namespace. Legacy notes are neither
+merged nor deleted; an explicit legacy-note export is offered. If browser storage
+is blocked, notes remain in the current tab with a warning and report export.
+
+Run `node scripts/verify_reviewer_workflow.cjs` after building to test the views,
+keyboard history, periods, provenance, missing metadata, legacy/snapshot-isolated
+notes, blocked storage, reset and experiment switching. It starts a local static
+server automatically. Both CI operating systems install Playwright Chromium and
+run it. The complete site remains the `factoryguard-reviewer-site` artifact.
+The Python site test compares every exported event and model setting exactly
+against the pinned snapshot; no numerical/evidence calculation is replaced.
+
 Build with `python scripts/build_reviewer_site.py --output reports/local/reviewer-site`.
 Open the generated index.html directly, or preview under a Pages-like subpath:
 `python -m http.server 8080 --directory reports/local`, then visit
