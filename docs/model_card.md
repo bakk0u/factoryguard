@@ -40,9 +40,12 @@ Values stay in volts with documented 10 g/V conversion; no physical correction
 is inferred. More independent compatible runs and reliable physical endpoints
 are needed before broader scientific claims. One B03 case cannot resolve that.
 
-Deployment status: local offline replay with SQLite and loopback API; portable
-HTML is embedded/prerecorded. No live connector, multiuser/authenticated service,
-external deployment or calibrated safety function. See review_handoff.md before
+Presentation status: a public static prerecorded dashboard has been reported
+published; direct verification is blocked in this documentation environment
+(see [verification record](release_verification.md)). Optional local replay uses
+SQLite and a loopback API. Website notes are browser-local, not server/SQLite
+storage. No live connector, multiuser service or calibrated safety function is
+claimed. See review_handoff.md and [B03 readiness](b03_readiness.md) before
 any later reserve access. The material below records historical milestones.
 
 # Historical selected method: exponential smoothing (selection-v2)

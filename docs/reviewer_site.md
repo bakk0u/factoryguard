@@ -1,107 +1,77 @@
-# Reviewer site (prepared, unpublished)
+# Recorded-results website
 
-Final targeted handover: report `reference_identifiers.sha256` denotes only an
-actual reference artifact when available. `pinned_replay_snapshot_sha256` instead
-identifies the existing replay.json containing reference evidence, with an explicit
-label and experiment reference source runs. Selected-period matched source runs
-are listed separately (possibly empty for unsupported periods). Full manifest and
-unknown original commit/time explanations remain in every report. Period summaries
-survive presentation toggles; run/boundary/revealed-history changes invalidate them.
-The overview explicitly describes its best-evaluated-variant-per-family scope.
+Dashboard: <https://bakk0u.github.io/factoryguard/>.
+The owner reports successful [Pages publication](https://github.com/bakk0u/factoryguard/actions/runs/40520283007).
+The release-documentation environment cannot reach the host, so public populated
+results, navigation, report download and the deployed source commit remain
+unverified here. See [verification record](release_verification.md).
 
-Final checks preserve all 2,607 events including predictions/errors and 432 saved
-comparison rows exactly. Browser regressions also check actual downloaded report
-JSON, explicit note deletion, browser-profile restart and Pages-style subpath use.
-Local direct-file testing is blocked by managed Chromium policy
-(`ERR_BLOCKED_BY_ADMINISTRATOR` for file URLs); CI requires this check without a
-policy skip. Final Windows/Linux results must be verified through the connected
-GitHub integration. No further feature development is planned before review.
+## Review workflow
 
-The dashboard opens on **Overview**: purpose, data coverage, the saved 12.83%
-equal-run/channel development-selection MAE improvement, best variant per method
-family, and rounded direction-specific errors. **Explore an experiment** opens
-populated histories with optional replay, chart hover/click inspection, keyboard
-history, measured context, period selection and notes. **Methods and evidence**
-holds the filterable complete comparison table, reference coverage, selected raw
-fields and provenance. Commanded values are optional.
+**Overview** explains the problem, experiment roles and saved model comparisons.
+**Explore an experiment** opens populated charts; optional reset/play/step controls
+reveal a precomputed replay. Inspect a chart, slider or keyboard-accessible history
+row, select period boundaries and review evidence alongside operating conditions.
+**Methods and evidence** contains filterable full results, coverage and provenance.
+Commanded values are optional. Matching coarse bins does not prove identical
+conditions. References are development distributions, not healthy ranges.
 
-Report downloads include the actual source manifest, website-build commit,
-experiment-specific model settings and available reference identifiers. Unknown
-producing commit, generation time or reference hash remain null. Notes use the
-replay snapshot SHA256 and experiment as their namespace. Legacy notes are neither
-merged nor deleted; an explicit legacy-note export is offered. If browser storage
-is blocked, notes remain in the current tab with a warning and report export.
+The static site includes B01 (377 observations), B02 (1,116) and diagnostic B04
+(1,114), all selected recorded forecasts/errors and 432 saved comparison rows.
+B03, raw waveforms, model pickles, SQLite databases and private notes are excluded.
+It needs no Python, external APIs or CDN resources. Opening the page does not
+retrain models or connect to equipment.
 
-Run `node scripts/verify_reviewer_workflow.cjs` after building to test the views,
-keyboard history, periods, provenance, missing metadata, legacy/snapshot-isolated
-notes, blocked storage, reset and experiment switching. It starts a local static
-server automatically. Both CI operating systems install Playwright Chromium and
-run it. The complete site remains the `factoryguard-reviewer-site` artifact.
-The Python site test compares every exported event and model setting exactly
-against the pinned snapshot; no numerical/evidence calculation is replaced.
+## Notes and evidence exports
 
-Build with `python scripts/build_reviewer_site.py --output reports/local/reviewer-site`.
-Open the generated index.html directly, or preview under a Pages-like subpath:
-`python -m http.server 8080 --directory reports/local`, then visit
-`http://localhost:8080/reviewer-site/`. Visitors need only a browser.
+Website notes use browser-local storage, keyed by replay-snapshot SHA256 and
+experiment. They survive browser restart where storage is available, remain
+separate from generated evidence and are retained through replay resets. Legacy
+notes are offered for explicit export, never silently merged/deleted. When storage
+is blocked, notes remain in the current tab with a warning; export before closing.
+Replay progress is not persisted. The optional local-server application uses
+SQLite for both notes and replay state instead.
 
-The source manifest pins the explicitly selected release-v3 campaign snapshot by
-SHA256, independent of filesystem timestamps. B01/B02 development observations
-and B04 diagnostic observations are included, together with direction-specific
-selected predictions, settled errors, fixed reference support and every saved
-model-comparison metric. B03, raw waveforms, SQLite, model pickles and private
-notes are excluded. Data attribution: Osarenren Kennedy Aimiyekagbon, Paderborn
-University, DOI 10.5281/zenodo.10868257, CC BY 4.0. Derived descriptors retain
-measurement warnings and provisional timestamp semantics.
+Reports include the selected recorded events, separate user notes, full source
+manifest, website-build commit, model settings and available reference identifiers.
+A reference-only hash, if available, is distinct from the containing replay.json
+SHA256. Source runs in the snapshot are distinguished from sources matched to the
+selected period. Unknown result-producing commit and generation time remain null
+with explanations; a website-build commit is not substituted for either.
 
-The original campaign did not record producing commit or generation time.
-These remain explicitly unknown. The independently reported d5be7be Windows/Linux
-CI identifies verified software, not the original result-generating commit.
-The build manifest separately records the website checkout commit. Hashes prove
-snapshot consistency, not scientific validity or historical authorship.
+[Source manifest](../site/source-manifest.json) pins results by hashes, not file
+dates. [Dataset attribution](../README.md#data-attribution-and-licensing) applies to
+these transformed laboratory descriptors. No raw waveform is redistributed.
 
-The page opens with all observations visible. Reset starts sequential replay.
-Notes use browser-local storage; they are neither uploaded nor included in the
-published snapshot. Exported investigation reports include chosen notes separately.
-No external APIs, CDN scripts, fonts or services are needed. Links to the source
-DOI are optional navigation. Historical selection is not unbiased final performance;
-reference distributions do not establish healthy ranges. B04 remains uncorrected.
+## Optional build and local review
 
-## Publication requires separate authorization
+With the [Python environment](development_release.md) installed:
 
-1. Review and authorize publication of these attributed derived results explicitly.
-2. Confirm GitHub plan eligibility: Pages works from public repositories on Free;
-   private repository Pages requires an eligible paid plan (Pro/Team/Enterprise).
-   A private repository does not generally make its Pages website private; confirm
-   access policy and any Enterprise access-control options before enabling it.
-3. Configure Pages to use GitHub Actions and require a reviewer on the `github-pages`
-   environment. Make the workflow available on the default branch through a separately
-   authorized review/merge (this task does not merge anything).
-4. Manually dispatch `Authorized reviewer Pages publication` with `PUBLISH`, then
-   approve the protected environment. It has no push/PR trigger.
-5. Verify the actual URL reported by deployment and only then put it at the top of
-   README. No live URL is claimed while unpublished.
+```bash
+python scripts/build_reviewer_site.py --output reports/local/reviewer-site
+python -m http.server 8080 --directory reports/local
+```
 
-## Verification of this snapshot
+Visit `http://localhost:8080/reviewer-site/`, or open the generated `index.html`
+directly. Direct-file storage support depends on browser policy. The
+`factoryguard-reviewer-site` CI artifact contains this complete static site.
 
-- Exact comparison with saved forecast ledgers: B01 377, B02 1,116 and B04 1,114
-  observations and selected forecasts, including nulls and acquisition intervals.
-- `python scripts/verify_reviewer_metrics.py`: 432 saved development/stress metric
-  rows checked against existing model artifacts, including training partitions,
-  with no fits. Requires the original local release-v3 artifacts; visitors do not.
-- `python -m unittest discover -s tests -q`: 116 tests passed.
-- `node scripts/verify_reviewer_browser.cjs`: populated first load, all experiments,
-  Pages subpath, desktop/mobile layout, no console errors or external requests.
-- `node scripts/verify_investigation_browser.cjs reports/local/reviewer-site http://127.0.0.1:8777/reviewer-site/`:
-  reset, stepping, notes persistence and report content passed.
-- [Desktop](images/reviewer-desktop.png) · [Mobile](images/reviewer-mobile.png).
+`node scripts/verify_reviewer_workflow.cjs` runs the actual browser workflow after
+building (requires Playwright 1.62.1 and its Chromium). It starts a static server
+automatically. CI runs Windows/Ubuntu tests, browser checks, demos and export.
+Local managed Chromium blocks file URLs; CI requires the direct-file check.
 
-To regenerate the pinned source from the original verified workspace, export it
-with the release CLI and run `python scripts/freeze_reviewer_source.py EXPORT.html`.
-This explicitly compares against release-v3 ledgers; missing files fail the build
-rather than generating substitute measurements. Review and commit changed manifest
-hashes deliberately. Routine site builds require only the committed snapshot.
+Regeneration of the pinned snapshot requires the original release-v3 artifacts:
+export the verified workspace, then run
+`python scripts/freeze_reviewer_source.py EXPORT.html`. This compares against
+saved ledgers and fails on missing files. Routine site builds use only committed
+derived results. Do not regenerate data or refit models merely to publish docs.
 
-Final-commit remote Windows/Linux CI remains to be checked through the connected
-GitHub integration; local GitHub API access returns Forbidden. The earlier verified
-CI run applies to d5be7be, not automatically to this website change.
+## Publication maintenance
+
+Publication is separate from CI artifacts and documentation. The Pages workflow
+has a manual dispatch with explicit `PUBLISH` authorization and the `github-pages`
+environment. Future updates require owner authorization; this documentation task
+does not redeploy, enable Pages, change visibility, merge or publish a release.
+GitHub Pages plan/access policies must be checked before any visibility change.
+[Desktop screenshot](images/reviewer-desktop.png) · [Mobile screenshot](images/reviewer-mobile.png).

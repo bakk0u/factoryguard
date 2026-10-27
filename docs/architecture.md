@@ -1,5 +1,14 @@
 # Development release architecture
 
+Public presentation uses `scripts/build_reviewer_site.py` to integrity-check
+`site/source-manifest.json`, embed the pinned derived replay/results and reuse
+the portable dashboard with `site/reviewer.js` presentation controls. Visitors
+require no Python, SQLite, model fitting, API or CDN. Notes stay browser-local;
+replay progress is not persistent. A manual Pages workflow publishes static files;
+ordinary CI only uploads the downloadable reviewer-site artifact. Publication was
+reported by the owner; [served-content verification](release_verification.md)
+remains blocked here. Local-server SQLite persistence described below is separate.
+
 The active workflow is `python -m factoryguard.release`: existing streaming
 `data/paderborn.py` and `pipelines/features_paderborn.py` validate/extract raw
 bursts; `release/modeling.py` adds causal features and candidate Pipelines;

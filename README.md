@@ -1,120 +1,82 @@
-# FactoryGuard — recorded experiment results
-
-**Reviewer demo prepared, not published.** No public demo URL exists yet.
-
-![FactoryGuard investigation dashboard](docs/images/reviewer-desktop.png)
-
-Investigate vibration and temperature changes alongside speed, load, acquisition
-quality and comparable development history. Experiments are separate bearing runs;
-A/C are sensor channels. These recorded development results do not establish fault
-detection or remaining useful life.
-
-[Static reviewer site, provenance and publication instructions](docs/reviewer_site.md).
-Windows/Ubuntu checks passed for d5be7be; new website checks are recorded separately.
-
-## Optional installation and reproduction
-
 # FactoryGuard
 
-A local **offline bearing-measurement monitoring application**. Follow vibration,
-temperature and operating conditions, compare completed observations with relevant
-development history, and inspect next-observed-burst RMS forecasts and deviations.
-It does not establish bearing health, fault-detection accuracy or remaining life.
+[**Live dashboard — recorded experiment results**](https://bakk0u.github.io/factoryguard/)
 
-The development release integrates streaming ingestion, validated burst features,
-a recorded model campaign, SQLite replay history, a loopback API, a responsive
-dashboard and portable HTML export. **B03 remains sealed.** B04 is a separate
-diagnostic case with unresolved speed/load interpretation.
+Open in your browser; no installation, sign-in or dataset download required.
 
-## Run the small demo — no dataset download
+![FactoryGuard dashboard overview](docs/images/reviewer-desktop.png)
 
-The [investigation workflow](docs/investigation_workflow.md) adds same-condition
-change windows, local notes retained across resets, and selected-period JSON
-reports. Experiments are separate bearing runs; A/C are vibration channels.
+FactoryGuard helps an engineer investigate changes in bearing vibration and
+temperature alongside measured speed, load, acquisition gaps and measurement
+warnings. The website presents **real, precomputed laboratory results** from a
+variable-speed, variable-load bearing rig. Opening it neither retrains a model nor
+connects to live equipment. Experiments are separate bearing runs; A/C are
+vibration channels on the same run.
 
-Use CPython **3.12** for the pinned environment. From a clone of this branch:
+Start with **Overview**, choose **Explore measurements**, select an experiment and
+an observation or period, then inspect its operating context and reference support.
+Use **Methods and evidence** to inspect every evaluated model and detailed provenance.
 
-```bash
-python -m venv .venv
-# Linux: source .venv/bin/activate
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-python -m pip install -r requirements-lock.txt
-python -m pip install --no-deps -e .
-python -m factoryguard.release demo --output reports/local/demo
-python -m factoryguard.release serve --workspace reports/local/demo --port 8765
-```
+- Observed RMS, forecasts, persistence and settled errors, with gaps retained.
+- Temperature above ambient, measured operating context and optional commanded values.
+- Descriptive sudden/sustained changes and fixed development-reference support.
+- Browser-local notes and downloadable selected-period investigation reports.
 
-Open **http://127.0.0.1:8765 on the same machine**. Play, pause or step through
-observations; inspect context, warnings and reference counts. SQLite preserves
-progress across restarts. This is recorded-data replay, not a live sensor service.
+## Results and limits
 
-Without a server or cloud port forwarding:
+Exponential smoothing was selected from a bounded comparison with persistence,
+Ridge, randomized trees, gradient boosting and XGBoost. The saved procedure reports
+**12.83% equal-run/channel MAE improvement** over persistence on reciprocal B01/B02
+development evaluations. This is development-selection improvement, **not held-out
+accuracy or fault-detection performance**. The overview shows the best-performing
+evaluated variant within each family, not exhaustive optimization. Every evaluated
+variant remains available, including worse results.
 
-```bash
-python -m factoryguard.release export --workspace reports/local/demo --output reports/local/demo/dashboard.html
-```
+| Experiment | Role and interpretation |
+| --- | --- |
+| B01 / B02 | Development bearings; repeatedly inspected and used for selection. |
+| B04 | Diagnostic only; unresolved measured speed/load scaling, retained uncorrected. |
+| B03 | Still sealed; no inspection or evaluation authorized by this release task. |
 
-Download/save that HTML and open it locally. The full prerecorded replay is
-embedded; no CDN/API is needed and reveal controls are a presentation feature.
-HTML does not persist progress. Output directories/files must be fresh.
+Only two independent development bearings support selection. Timestamps and
+CSV/MAT alignment are provisional; sensor-range warnings and ambiguous termination
+information remain. Next-observed-burst forecasts have a variable horizon.
+Development reference distributions are not healthy/safe ranges. These results
+do not establish damage onset, fault probabilities, bearing health or RUL.
 
-The bundled real-data demo is **319 kB**: all 377 B01 feature rows with flags and
-provenance, B02 reference-bin summaries and the B02-selected smoothing rule.
-Source: Osarenren Kennedy Aimiyekagbon, Paderborn University,
-[Zenodo DOI 10.5281/zenodo.10868257](https://doi.org/10.5281/zenodo.10868257),
-CC BY 4.0. [Attribution and changes](src/factoryguard/release/demo/ATTRIBUTION.md).
-No raw vibration recordings are bundled. The legacy `python run_step1.py`
-demonstration remains available and is explicitly **synthetic**.
+The reviewer handover recorded **116 passing local tests**, exact preservation of
+**2,607 observations/predictions/errors** and **432 comparison rows**, plus browser
+workflow checks. [Verification and publication evidence](docs/release_verification.md)
+distinguishes local checks, independently reported CI and checks still pending.
+[Model card](docs/model_card.md) · [Complete results](docs/results/release-v3/results.md)
 
-## What the results establish
+## Notes, downloads and optional reproduction
 
-32 frozen configurations compare persistence, smoothing, Ridge, Extra Trees,
-histogram gradient boosting and CPU XGBoost; direct/increment targets and current/
-history features. All 192 inner candidate-fold evaluations completed.
-**Smoothing remains selected**, with 12.83% equal-run/channel MAE improvement over
-persistence on B01/B02 development comparisons. Final alpha is .5;
-direction-specific evaluation settings are retained in the dashboard.
-These are selection results, not unbiased final performance or fault detection.
+The static website keeps notes in **your browser**, isolated by result snapshot
+and experiment. They are not uploaded; export a report to share them. If storage
+is unavailable, notes last only in the current tab. Replay progress is not saved.
+The optional local Python application instead persists notes and replay state in
+SQLite across resets/restarts. [Reviewer-site guide](docs/reviewer_site.md)
 
-- [All model comparisons and per-channel results](docs/results/release-v3/results.md)
-- [Frozen campaign and supported decisions](docs/release_protocol.md)
-- [Setup, reproduction and release bundles](docs/development_release.md)
-- [Model card and limitations](docs/model_card.md)
-- [Review agenda and prepared B03 procedure](docs/review_handoff.md)
-- [Verification and status](docs/project_status.md)
+The `factoryguard-reviewer-site` artifact from
+[CI](https://github.com/bakk0u/factoryguard/actions/workflows/ci.yml) can be extracted
+and its `index.html` opened without installing Python or downloading raw data.
+GitHub artifact downloads may require sign-in, unlike the public Pages site.
 
-## Full-data reproduction
+[Installation and full reproduction](docs/development_release.md) are optional.
+[Architecture](docs/architecture.md) · [B03-readiness checklist](docs/b03_readiness.md)
+· [Proposed v0.3.0 release notes](docs/releases/v0.3.0.md)
 
-Raw B01/B02/B04 must already exist outside Git. Nothing below downloads data.
-Set `FACTORYGUARD_RAW_ROOT` to the dataset directory for custom storage; this
-also protects it from application output writes. Quote paths with spaces.
+## Data attribution and licensing
 
-```bash
-python -m pip install -r requirements-campaign.txt
-python -m factoryguard.release extract --raw-root /path/to/dataset/raw --output reports/local/features
-python -m factoryguard.release campaign --config reports/local/features/release_v3.json --output reports/local/campaign
-python -m factoryguard.release audit --results reports/local/campaign
-python -m factoryguard.release report --results reports/local/campaign --output reports/local/campaign/report
-python -m factoryguard.release prepare --results reports/local/campaign --output reports/local/full-demo
-python -m factoryguard.release serve --workspace reports/local/full-demo --port 8765
-```
-
-Extraction processes one burst at a time, validates all samples and checks raw
-hashes before/after. Existing verified tables can instead be specified in a copy
-of configs/release_v3.json; change only the three paths. No B03 access, scaling
-correction, new labels or additional downloads occur.
-
-## Verification
-
-```bash
-python -m pip install -r requirements-campaign.txt
-python -m unittest discover -s tests -v
-python -m pip check
-python run_step1.py --output reports/local/synthetic-check
-```
-
-CI targets CPython 3.12 on Linux and Windows; executed results are recorded
-separately in project status. [Architecture](docs/architecture.md) distinguishes
-active components from legacy placeholders. Raw archives, SQLite workspaces,
-fitted artifacts, full ledgers and generated dashboards stay outside Git.
-No public deployment is made.
+Data: Osarenren Kennedy Aimiyekagbon, Paderborn University,
+[Zenodo 10868257](https://doi.org/10.5281/zenodo.10868257),
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Cite Javanmardi et al. (2024), *Remaining Useful Lifetime Estimation of Bearings
+Operating under Time-Varying Conditions*, DOI 10.36001/phme.2024.v8i1.4101.
+Waveforms were reduced to documented burst descriptors, context, warnings and
+reference summaries; no raw waveforms or B03 data are published. No endorsement
+is implied. [Attribution details](src/factoryguard/release/demo/ATTRIBUTION.md)
+describe the smaller bundled B01 demo. The legacy `run_step1.py` demo is synthetic
+and separate from the website results. No repository-wide software licence is
+currently declared; the dataset licence does not assign a software licence.
