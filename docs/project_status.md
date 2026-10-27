@@ -1,5 +1,23 @@
 # Current project status: development release v3
 
+## Public-release documentation — 2026-10-27
+
+PR #1 is merged at master `fc772e5faa4b556245322a8f7ee043d1cf5e074c`.
+The owner reports successful [Pages publication](https://github.com/bakk0u/factoryguard/actions/runs/40520283007)
+at <https://bakk0u.github.io/factoryguard/>. This environment cannot verify served
+content/navigation/reports: proxy 403 CONNECT failure and browser tunnel failure.
+The deployed source commit remains unknown, not inferred from the merge.
+[Current verification](release_verification.md) separates reported CI/publication
+from observed checks. [Proposed v0.3.0 notes](releases/v0.3.0.md) and
+[B03 readiness](b03_readiness.md) accompany a documentation-only branch from master.
+No model, result, raw file, reserve plan, publication or tag was changed.
+
+## Historical implementation and verification log
+
+Entries below retain the state reported at each milestone, including superseded
+"unpublished" and pending-CI statements. Consult the current record above for
+release status; historical scientific results and qualifications are unchanged.
+
 ## Final targeted reviewer handover
 
 Reports explicitly distinguish reference-only hashes from the pinned containing
