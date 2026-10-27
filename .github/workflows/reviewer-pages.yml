@@ -1,0 +1,30 @@
+name: Authorized reviewer Pages publication
+on:
+  workflow_dispatch:
+    inputs:
+      authorization:
+        description: 'Only after separate owner authorization: type PUBLISH'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: inputs.authorization == 'PUBLISH'
+    environment: github-pages
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-lock.txt
+      - run: python -m pip install --no-deps -e .
+      - run: python scripts/build_reviewer_site.py --output public
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - uses: actions/deploy-pages@v4

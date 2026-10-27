@@ -1,3 +1,19 @@
+# FactoryGuard — recorded experiment results
+
+**Reviewer demo prepared, not published.** No public demo URL exists yet.
+
+![FactoryGuard investigation dashboard](docs/images/reviewer-desktop.png)
+
+Investigate vibration and temperature changes alongside speed, load, acquisition
+quality and comparable development history. Experiments are separate bearing runs;
+A/C are sensor channels. These recorded development results do not establish fault
+detection or remaining useful life.
+
+[Static reviewer site, provenance and publication instructions](docs/reviewer_site.md).
+Windows/Ubuntu checks passed for d5be7be; new website checks are recorded separately.
+
+## Optional installation and reproduction
+
 # FactoryGuard
 
 A local **offline bearing-measurement monitoring application**. Follow vibration,

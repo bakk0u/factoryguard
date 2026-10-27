@@ -1,0 +1,114 @@
+{
+  "selected_group": "smoothing",
+  "method_results": [
+    {
+      "group": "persistence",
+      "macro_mae_ratio": 1.0,
+      "macro_mae_skill": 0.0,
+      "qualified": false
+    },
+    {
+      "group": "smoothing",
+      "macro_mae_ratio": 0.871719952758792,
+      "macro_mae_skill": 0.128280047241208,
+      "qualified": true
+    },
+    {
+      "group": "ridge_current_delta",
+      "macro_mae_ratio": 1.1975890108676275,
+      "macro_mae_skill": -0.19758901086762748,
+      "qualified": false
+    },
+    {
+      "group": "ridge_current_direct",
+      "macro_mae_ratio": 1.2614593589380119,
+      "macro_mae_skill": -0.26145935893801187,
+      "qualified": false
+    },
+    {
+      "group": "ridge_temporal_delta",
+      "macro_mae_ratio": 1.0507471487085038,
+      "macro_mae_skill": -0.05074714870850383,
+      "qualified": false
+    },
+    {
+      "group": "ridge_temporal_direct",
+      "macro_mae_ratio": 1.1342593038245785,
+      "macro_mae_skill": -0.1342593038245785,
+      "qualified": false
+    },
+    {
+      "group": "extra_current_delta",
+      "macro_mae_ratio": 0.9406129487465044,
+      "macro_mae_skill": 0.05938705125349564,
+      "qualified": true
+    },
+    {
+      "group": "extra_current_direct",
+      "macro_mae_ratio": 1.1251350809204486,
+      "macro_mae_skill": -0.12513508092044856,
+      "qualified": false
+    },
+    {
+      "group": "extra_temporal_delta",
+      "macro_mae_ratio": 0.9201864351796414,
+      "macro_mae_skill": 0.07981356482035862,
+      "qualified": true
+    },
+    {
+      "group": "extra_temporal_direct",
+      "macro_mae_ratio": 0.9820220438537121,
+      "macro_mae_skill": 0.017977956146287943,
+      "qualified": false
+    },
+    {
+      "group": "boost_current_delta",
+      "macro_mae_ratio": 0.9311747075897869,
+      "macro_mae_skill": 0.06882529241021307,
+      "qualified": true
+    },
+    {
+      "group": "boost_current_direct",
+      "macro_mae_ratio": 1.0821642918071726,
+      "macro_mae_skill": -0.08216429180717255,
+      "qualified": false
+    },
+    {
+      "group": "boost_temporal_delta",
+      "macro_mae_ratio": 0.9987677055754495,
+      "macro_mae_skill": 0.0012322944245505285,
+      "qualified": false
+    },
+    {
+      "group": "boost_temporal_direct",
+      "macro_mae_ratio": 1.1016576916608354,
+      "macro_mae_skill": -0.10165769166083538,
+      "qualified": false
+    },
+    {
+      "group": "xgb_current_delta",
+      "macro_mae_ratio": 0.9583291222671857,
+      "macro_mae_skill": 0.041670877732814304,
+      "qualified": true
+    },
+    {
+      "group": "xgb_current_direct",
+      "macro_mae_ratio": 1.1671042894105497,
+      "macro_mae_skill": -0.16710428941054967,
+      "qualified": false
+    },
+    {
+      "group": "xgb_temporal_delta",
+      "macro_mae_ratio": 0.9920366712780484,
+      "macro_mae_skill": 0.007963328721951601,
+      "qualified": false
+    },
+    {
+      "group": "xgb_temporal_direct",
+      "macro_mae_ratio": 1.2420575115718333,
+      "macro_mae_skill": -0.2420575115718333,
+      "qualified": false
+    }
+  ],
+  "label": "development selection results, not unbiased final performance"
+}

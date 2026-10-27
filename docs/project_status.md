@@ -261,3 +261,12 @@ The next milestone is to investigate B01's timing, calibration/range and operati
 ## Preview access correction, 2026-10-23
 
 The earlier localhost address was incorrectly presented as if accessible from the user's browser. The cloud server is healthy but no preview forwarding capability is available in this environment. Implemented a standalone B01 HTML export from existing replay outputs, preserving all forecasts/flags and gap/pending behavior. Browser checks using the exact HTML bytes passed step/play/pause/reset, gap and full-run exhaustion with zero network requests/page errors. Managed Chromium blocks direct file-URL navigation; `setContent` was used, so direct local file navigation was not verified here. No external deployment, refitting, new evaluation, raw modification or B03 access. Three export acceptance tests cover experiment guards, no network adapter, template validation and script-safe embedding.
+
+## Prepared reviewer website
+
+Static reviewer snapshot added on investigation-reliability; unpublished pending
+separate authorization. Includes B01/B02 and uncorrected diagnostic B04, no B03.
+116 tests passed; 432 saved metric rows verified without fitting; 2,607 exported
+observations/predictions match saved ledgers. Browser workflows pass. See
+[reviewer site](reviewer_site.md) for build, provenance gaps and publication steps.
+New final-commit Windows/Linux CI must be verified separately.
