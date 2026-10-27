@@ -7,8 +7,8 @@ Documentation review date: 2026-10-27 (Europe/Paris).
 | Current master | Git remote returned `fc772e5faa4b556245322a8f7ee043d1cf5e074c`, merge of PR #1. Documentation branch starts there. |
 | Publication | Owner reports [Pages run 40520283007](https://github.com/bakk0u/factoryguard/actions/runs/40520283007) succeeded. This is deployment evidence, not a served-page check. |
 | Dashboard URL | <https://bakk0u.github.io/factoryguard/>; attempted in curl and Chromium, blocked here. |
-| Public served-content check | Pending: proxy returned `403 CONNECT tunnel failed`; browser returned `ERR_TUNNEL_CONNECTION_FAILED`. Populated results, navigation and downloaded report could not be checked publicly. |
-| Deployed source commit | Unknown here. Neither served `source-manifest.json` nor deployment metadata was retrievable. Do not assume it equals current master. |
+| Public served-content check | Verified 2026-10-27 through the connected cloud browser: public Overview and populated B01 exploration loaded; a selected-period B01 JSON report downloaded and parsed successfully. The implementing workspace's proxy restriction remains environment-specific. |
+| Deployed source commit | Pages run 40520283007 succeeded with source `fc772e5faa4b556245322a8f7ee043d1cf5e074c`. The downloaded public report independently records that same website-build commit and snapshot `9a3da297dd848bf079a0c8ff1fa9fd3be1dea42894e867fb51c2fdf35efa624a`. This is not the unknown original model-result producing commit. |
 | Latest reviewer local verification | At `bb718c4458d79c774dd4014b79d815ff2eaba3e3`: 116 tests passed; exact 2,607 complete events and 432 comparison rows preserved; hosted desktop/mobile, keyboard, reports, notes/deletion/restart and presentation controls passed. Local file URLs were blocked by managed-browser policy; CI requires that check. |
 | Independently reported remote checks | Owner confirmed Windows/Ubuntu installation, dependencies, tests, synthetic/real demos and export at `d5be7be2f73889198aaf7c731510e224e2cbbf5a`: [run 40402759560](https://github.com/bakk0u/factoryguard/actions/runs/40402759560). This is earlier software evidence, not final merged-site CI. |
 | Current automation | [Windows/Ubuntu CI](https://github.com/bakk0u/factoryguard/actions/workflows/ci.yml) includes browser workflows, tests, demos, export and the complete `factoryguard-reviewer-site` artifact. Final merged-source results cannot be read here; no new pass is inferred. |
@@ -26,16 +26,9 @@ matched the documented extraction/export commands; `test_reviewer_site.py` passe
 (one test, including exact saved event/model and 432-row comparison preservation);
 `git diff --check` passed. No new scientific tests, fitting or evaluation were run.
 
-## Public verification still required
+## Public verification completed
 
-From an unrestricted browser, open the dashboard URL and confirm FactoryGuard
-Overview, switch into Explore, verify populated B01/B02/B04 charts and download
-a selected-period report. Compare the report's manifest/snapshot hash with
-`site/source-manifest.json`; record its website-build commit and the deployment
-run's source commit. Verify those agree with the intended published checkout,
-without treating either as the unknown original result-producing commit. Record
-the actual observation counts and a successful navigation/report check. Only then
-replace the README's access-pending wording with a verified **Live dashboard** link.
+On 2026-10-27 the connected browser opened the public URL, navigated from Overview to Explore, observed 377 populated B01 observations, and downloaded a report for observation 1. The downloaded JSON parsed correctly; its build commit matched the successful deployment source and its snapshot matched the pinned source manifest. This was a public-host smoke check, not a repeat of every local/browser regression or raw-data validation.
 
 ## Repository About values
 

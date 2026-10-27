@@ -1,8 +1,8 @@
 # FactoryGuard
 
-[**Recorded-results dashboard**](https://bakk0u.github.io/factoryguard/)
-— Pages publication reported successful; direct access verification is pending
-because this documentation environment blocks the host.
+[**Live dashboard — recorded experiment results**](https://bakk0u.github.io/factoryguard/)
+
+Open in your browser; no installation, sign-in or dataset download required.
 
 ![FactoryGuard dashboard overview](docs/images/reviewer-desktop.png)
 
