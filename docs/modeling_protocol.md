@@ -1,5 +1,10 @@
 # Historical modeling protocol: forecast-v1 and original proposal
 
+Current authority is release_protocol.md: the complete-release request supersedes
+prior candidate/search/pooled-training limits. Original descriptions below remain
+historical. B03 is sealed; B04 stays diagnostic. Do not apply an earlier milestone's
+restrictions or metrics to the v3 release without its explicit context.
+
 Current milestone: [selection_protocol.md](selection_protocol.md) governs the separately authorized bounded selection-v2 search. Its reciprocal outer evaluations supersede forecast-v1's no-search/B02-only restrictions. The text below is historical.
 
 Forecast-v1 status: implemented under explicit user authorization. **The execution amendment below remains authoritative for reproducing forecast-v1**; the original proposal paragraphs describe the earlier milestone, including its then-required separate authorization. B03 remains sealed.

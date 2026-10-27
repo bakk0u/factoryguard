@@ -20,7 +20,7 @@
   "model_training_authorized": true,
   "labels_authorized": false,
   "model_training_scope": {
-    "protocol": "selection-v2",
+    "protocol": "release-v3",
     "outer_fitting_runs": [
       "B01",
       "B02"
@@ -34,8 +34,8 @@
       "B04"
     ],
     "held_out_access_in_this_task": false,
-    "pooled_final_fit_authorized_in_this_task": false,
-    "authorization": "Current bounded preprocessing/model-selection request; supersedes forecast-v1 no-search scope"
+    "pooled_final_fit_authorized_in_this_task": true,
+    "authorization": "Complete development release request; supersedes earlier scope/search budgets; B03 stays sealed"
   },
   "historical_held_out_acquisition_operations": [
     "checksum",

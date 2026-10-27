@@ -82,7 +82,7 @@ def strata_rows(block, prediction, support, common=True, **context):
 
 def ledger(block, forecasts, path, support):
     """Every source row, including expired/pending, retains original observation/flags."""
-    with Path(path).open('w') as stream:
+    with Path(path).open('w', encoding='utf-8') as stream:
         for i,row in enumerate(block.frame.to_dict('records')):
             source={'run':block.run,'source_index':block.start+i,'source_id':row[ID],
                     'observation':row,'target_id':None if i==len(block.frame)-1 else int(block.frame.iloc[i+1][ID]),

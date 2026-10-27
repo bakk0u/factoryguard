@@ -1,4 +1,51 @@
-# Project inventory
+# Development release architecture
+
+The active workflow is `python -m factoryguard.release`: existing streaming
+`data/paderborn.py` and `pipelines/features_paderborn.py` validate/extract raw
+bursts; `release/modeling.py` adds causal features and candidate Pipelines;
+`release/campaign.py` performs frozen nested development evaluation;
+`release/reporting.py` audits saved results without fitting. Ordinary development
+I/O rejects B03. The dedicated future reserve entry point is separately gated,
+hash-frozen and unexecuted on real reserve data.
+
+`release/application.py` creates replay workspaces and a loopback HTTP API.
+`release/store.py` uses SQLite tables for immutable observations, metadata,
+cursors and derived events, with transactional steps and restart persistence.
+`release/context.py` computes descriptive other-run bin references and separated
+notice evidence. `release/dashboard.html` renders history, comparisons, events
+and gaps. Portable export computes replay into a database clone and embeds its
+events in a standalone HTML; it is not a live service or a future-access boundary.
+The small attributed demo is package data under `release/demo/`.
+
+Training code never receives B04/B03; only B01/B02 blocks are accepted. Pipelines
+own learned transforms. Deployment artifact settings are separate from the
+out-of-run artifacts used in development replay. Full ledgers and artifacts
+remain local; compact results and demo are committed.
+
+## Legacy placeholders and compatibility
+
+Update: unused PLANNED-only modules, YAML files, empty tests and Docker/Compose
+scaffolds listed historically below have now been removed after import checks.
+The active notebook persists in release/store.py; release/investigation.py computes
+causal descriptive windows. The dashboard exports period reports with user notes
+separate from machine-generated evidence. Historical inventories below are records
+of prior releases, not current file lists.
+
+The older `api/`, `storage/`, `alerts/` scaffold modules and files marked PLANNED
+are **not** used by the release. The actual API and SQLite implementation live
+in `release/` as above. Legacy generic `pipelines/train.py`, `infer.py`,
+`evaluate.py`, generic model bundle/fault metrics, notebooks, YAML configurations,
+Docker/compose scaffolds and placeholder test modules are not active capabilities
+or deployment instructions. They remain explicitly historical for compatibility;
+empty placeholder test files do not contribute to the test count. Real tests
+are discovered executable unittest cases. Use README release commands.
+
+`run_step1.py` preserves the original synthetic validation/plot demo. Historical
+forecast-v1 and selection-v2 CLIs remain usable; `dashboard/app.py` is their
+compatibility launcher and now defaults to the v3 workspace. The primary v3
+entry point is `factoryguard.release`. No external service is required.
+
+## Historical project inventory
 
 Implemented behavior is documented in README.md and docs/project_status.md.
 The following inventory originated with milestone 1. New ingestion modules are

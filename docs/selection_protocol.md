@@ -1,5 +1,10 @@
 # Bounded preprocessing and model selection: selection-v2
 
+Historical reproducibility document. The current complete development release
+uses release_protocol.md and configs/release_v3.json; its broader frozen campaign
+supersedes this milestone's budgets and proposal-only final fit limit. B03 stays
+sealed. Earlier results below remain the original selection-v2 evidence.
+
 ## Inspected starting point (before search)
 
 Directly inspected `models/forecast.py`, `pipelines/forecast.py`, configs/forecast_v1.json, the recorded protocol, and the actual reports/local/forecast-v1/model/model.json artifact. There is one model.json under the local reports tree. The existing estimator is a handwritten two-output ridge correction to persistence: predict next RMS minus current RMS, then add current RMS back. Its seven inputs, in order, are current A RMS, C RMS, T1 minus ambient, T2 minus ambient, measured speed, measured static load and measured dynamic peak. All become available after the completed current 1.6 s burst, conditional on provisional ordinal CSV/MAT association. It does not use next-burst context, commands, IDs, timestamps, warnings, crest/kurtosis or temporal history.

@@ -1,5 +1,15 @@
 # B01 burst features, version 1
 
+Current release-v3 adds a separate 27-input modeling variant without altering
+these burst tables/formulas. It extends selection-v2's 14 inputs with trailing
+three RMS means/std (population, ddof=0), prior-to-current thermal and measured
+context changes, and current crest/kurtosis. Changes are per observation, not
+time rates; histories reset at experiment/gap/split boundaries. See
+release_protocol.md for the frozen definitions, complete-feature availability
+and current-versus-enriched comparison. Selected smoothing uses only A/C RMS.
+Contextual completed-observation comparisons are explicitly separate from future
+forecast inputs. Earlier milestone-specific model prohibitions below are history.
+
 Extension 2026-10-23: the same candidate formulas, centering, kurtosis estimator,
 units, missing-value conventions and column roles are now reused for B02/B04.
 See [development_assessment.md](development_assessment.md) for per-run log

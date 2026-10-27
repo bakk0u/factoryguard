@@ -1,4 +1,51 @@
-# Current selected method: exponential smoothing (selection-v2)
+# Current model card: development release v3
+
+Purpose: local investigation of bearing measurements and next-observed A/C
+centered voltage RMS forecasting. No healthy distribution, fault labels, damage
+probability, maintenance decision, RUL or fault-detection accuracy is established.
+
+The 32-configuration / 192-fold frozen campaign includes Ridge, Extra Trees,
+histogram boosting and CPU XGBoost, current/enriched features and direct/increment
+targets. Smoothing remains selected at 12.83% equal-run/channel MAE improvement
+over persistence. See [all results](results/release-v3/results.md). These are
+development selection results from only two compatible bearing experiments.
+Final artifact: alpha .5, derived from inner scores; no learned coefficient or
+scaler fit is required. Outer B01/B02 views retain their .2/.5 settings selected
+in the opposite run. The final rule must not inherit the outer scores as an
+unbiased evaluation. B04 remains diagnostic; B03 remains completely sealed.
+
+At completed burst t, update per-channel s_t=alpha*x_t+(1-alpha)*s_(t-1) and
+forecast the next observed burst. Initialize at first finite RMS; missing RMS
+clears that channel. Reset at experiment boundaries and gaps >24 CSV-clock
+seconds. Next arrival/context is unknown at issuance; expire late forecasts and
+leave the last pending. This is not a fixed horizon or known operating time.
+
+Preprocessing alternatives use a finite gate and estimator in one Pipeline;
+Ridge alone standardizes on training rows. No imputation/clipping, target-time
+inputs, automatic metadata predictors or B04 scaling correction. Three-burst
+features reset across splits/gaps, and target-crossing pairs are purged. Common
+evaluation includes warnings; broad baseline availability is reported separately.
+
+Completed-observation monitoring uses the other development run's fixed-bin
+quartiles, including suspect measurements and counts. n<20 comparisons are
+labelled sparse; median differences are withheld. These are development
+references, not healthy ranges. Causal three-burst level changes complement
+forecast errors: gradual deterioration could be tracked accurately, so forecasting
+improvement does not prove useful fault detection. No deviation alarm is tuned.
+
+Limits include provisional ordinal alignment/clock meaning, irregular gaps,
+changing operating conditions, sensor-range/response limitations, contradictory
+B01 termination, changed B02 stopping rules and unresolved B04 context scaling.
+Values stay in volts with documented 10 g/V conversion; no physical correction
+is inferred. More independent compatible runs and reliable physical endpoints
+are needed before broader scientific claims. One B03 case cannot resolve that.
+
+Deployment status: local offline replay with SQLite and loopback API; portable
+HTML is embedded/prerecorded. No live connector, multiuser/authenticated service,
+external deployment or calibrated safety function. See review_handoff.md before
+any later reserve access. The material below records historical milestones.
+
+# Historical selected method: exponential smoothing (selection-v2)
 
 Intended use: descriptive next-observed-burst A/C RMS forecasting in volts, with separate measurement/gap/temperature notices. No fault probabilities, alarms, labels or RUL. B03 remains sealed.
 

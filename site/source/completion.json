@@ -1,0 +1,22 @@
+{
+  "candidate_fold_evaluations": 192,
+  "failures": [],
+  "seconds": 18.15857940200658,
+  "B03_accessed": false,
+  "final_candidate": {
+    "id": "smoothing_0.5",
+    "group": "smoothing",
+    "kind": "smoothing",
+    "features": "current",
+    "formulation": "direct",
+    "params": {
+      "alpha": 0.5
+    },
+    "rank": 1
+  },
+  "table_sha256": {
+    "B01": "e5d99fc000c3b79b7334bb767554b0f084cfdf7d25a3d31f4e93408ac731b47a",
+    "B02": "c08eba074449e1e2173e1260826923afe1937ca0ab58c0a537038bb3a226669f",
+    "B04": "83d2dde7e3aa8a982fb99d11654e082a117299256a4e64d9db79f8430b1a71ce"
+  }
+}

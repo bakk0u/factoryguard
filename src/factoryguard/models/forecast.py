@@ -51,11 +51,16 @@ def clean(value):
 
 
 def write_json(path, value):
-    Path(path).write_text(json.dumps(clean(value), indent=2, allow_nan=False) + '\n')
+    Path(path).write_text(json.dumps(clean(value), indent=2, allow_nan=False) + '\n', encoding='utf-8')
 
 
 def validate_frame(frame, run):
     guard_run(run)
+    return _validate_frame_fields(frame, run)
+
+
+def _validate_frame_fields(frame, run):
+    """Schema primitive; ordinary callers must use validate_frame's run guard."""
     required = set(INPUTS) | {RUN, ID, TIME, WARM}
     if not required.issubset(frame.columns) or frame.empty:
         raise ValueError('Missing required columns or empty feature table')
@@ -80,7 +85,7 @@ def load_table(path, run, expected_sha=None):
         raise ValueError('Held-out path is forbidden')
     if expected_sha is not None and digest(path) != expected_sha:
         raise ValueError(f'{run} feature table checksum differs from frozen ledger')
-    frame = pd.read_csv(path)
+    frame = pd.read_csv(path, encoding='utf-8')
     validate_frame(frame, run)
     return frame
 

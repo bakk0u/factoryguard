@@ -1,14 +1,19 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools==80.9.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "factoryguard"
-version = "0.1.0"
-description = "Industrial sensor monitoring: milestone 1"
+version = "0.3.0"
+description = "Local bearing measurement monitoring and next-observed RMS forecasting"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24,<3", "pandas>=2.0,<3", "matplotlib>=3.7,<4", "scipy>=1.11,<2", "scikit-learn>=1.5,<2"]
+[project.optional-dependencies]
+campaign = ["xgboost-cpu==3.0.5"]
+[project.scripts]
+factoryguard = "factoryguard.release.__main__:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
 "factoryguard.monitoring" = ["dashboard.html"]
+"factoryguard.release" = ["dashboard.html", "demo/*.csv", "demo/*.json", "demo/*.md"]

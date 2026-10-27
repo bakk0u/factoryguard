@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
-import resource
+from factoryguard.util import peak_rss_mib
 import time
 
 import numpy as np
@@ -33,12 +33,12 @@ def raw_manifest(root: Path) -> dict[str, str]:
     return result
 
 
-def burst_rows(experiment: B01Experiment, source_hashes: dict):
+def burst_rows(experiment: B01Experiment, source_hashes: dict, *, record_loader=None):
     """Only the current burst, its table row and previous context affect output."""
     previous_time, previous_warmup, segment = None, None, 0
     for index, path in enumerate(experiment.paths):
         # Do not advance a recording generator while retaining its prior arrays.
-        recording = load_recording(path, experiment=experiment.experiment)
+        recording = (record_loader or load_recording)(path, experiment=experiment.experiment)
         temp = experiment.temperatures.iloc[index]
         operating = experiment.operating.iloc[index]
         now = temp["source_time"]
@@ -165,11 +165,11 @@ def extract_b01(root: Path, output: Path, *, expected_measurements: int = 377,
         timestamp_format="%d-%b-%Y %H:%M:%S; timezone unspecified",
         gap_policy="Flag preceding CSV interval >24 s; heuristic only, no filling or removal",
     )
-    (output / "schema.json").write_text(json.dumps(schema, indent=2) + "\n")
+    (output / "schema.json").write_text(json.dumps(schema, indent=2) + "\n", encoding="utf-8")
     (output / "raw_integrity.json").write_text(json.dumps({
         "algorithm": "sha256", "all_source_files_unchanged": True,
         "verified_file_count": len(before), "files": before,
-    }, indent=2) + "\n")
+    }, indent=2) + "\n", encoding="utf-8")
     if make_plots:
         from factoryguard.features.b01_plots import plot_comparisons
         comparison_summary = plot_comparisons(frame, output)
@@ -187,7 +187,7 @@ def extract_b01(root: Path, output: Path, *, expected_measurements: int = 377,
         "undefined_candidate_cells": int(frame[schema["candidate_input_columns"]].isna().sum().sum()),
         "comparison_summary": comparison_summary,
         "elapsed_seconds": round(time.perf_counter() - started, 3),
-        "peak_process_rss_mib_linux": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 2),
+        "peak_process_rss_mib_linux": peak_rss_mib(),
         "warnings": [
             "Ordinal MAT/CSV association and timestamp start/end meaning remain provisional.",
             {"B01": "Termination information conflicts; no failure or RUL labels inferred.",
@@ -197,7 +197,7 @@ def extract_b01(root: Path, output: Path, *, expected_measurements: int = 377,
             "Candidate fields are descriptors, not approved model inputs. No fitted normalization.",
         ],
     }
-    (output / "extraction.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+    (output / "extraction.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     return report
 
 

@@ -1,0 +1,30 @@
+{
+  "source_run": "release-v3 explicitly selected complete development campaign; no mtime selection",
+  "result_code_commit": null,
+  "result_generation_time": null,
+  "missing_provenance": "Producing commit and generation timestamp were not recorded in the campaign artifacts. They are unknown, not inferred from CI or file times.",
+  "verified_software_commit": "d5be7be2f73889198aaf7c731510e224e2cbbf5a",
+  "reported_independent_ci": "https://github.com/bakk0u/factoryguard/actions/runs/40402759560",
+  "checks": "All exported observations and selected forecasts compared exactly to saved experiment forecast JSONL. Audit.json reports campaign metric and selection checks; CI independently reported by user.",
+  "experiments": [
+    "B01",
+    "B02",
+    "B04"
+  ],
+  "B04": "diagnostic only, uncorrected",
+  "B03": "excluded, not accessed",
+  "files": {
+    "completion.json": "c4f20f35527955885f4946c3fc7bdabdc1c6ccf5a031ebc9b16b8930c898d917",
+    "replay.json": "9a3da297dd848bf079a0c8ff1fa9fd3be1dea42894e867fb51c2fdf35efa624a",
+    "audit.json": "dfbd4bca2374fe0c384a682f27ef969bc08fd6f99fafa372f13b503ec8cfd119",
+    "stress_metrics.csv": "f37df5d26c033fc5820582d3038508d9f62572e170c46ba3f014eaf3b9c52feb",
+    "selection.json": "766f8c40fdebc8211491ca60951e8101446f64a7bf89e516109c0fc7d22bd9a7",
+    "development_metrics.csv": "f5c0eb6a9187a63be9f6ae3944e171df08e1dca51534237a9ec7548cef3003a4"
+  },
+  "source_ledger_sha256": {
+    "B01_outer_forecasts.jsonl": "220b49861a12ed5ae970b595a55865f43b818799f7f5f7c7a57eaff7685cd769",
+    "B02_outer_forecasts.jsonl": "c649b8f96e5c51811fc01659f958c43e23da7fbc9fa9242e1737ae2eda37bcdc",
+    "B04_from_B02_forecasts.jsonl": "1261bda277ca0e5ceced80b0ee48e4a621ab49c85fe67521d7e26e5930e17a70"
+  },
+  "local_metric_check": "432 saved rows verified against existing artifacts without fitting"
+}

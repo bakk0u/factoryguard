@@ -1,5 +1,14 @@
 # Working on FactoryGuard
 
+## Current development release authorization
+
+The latest user request authorizes completing and integrating release-v3 without
+milestone approval pauses, including a bounded broader model campaign and final
+development fitting. It supersedes earlier scope/search limits below. Read
+docs/release_protocol.md for the frozen campaign. B03 stays completely sealed;
+B04 stays diagnostic only. No additional dataset downloads or raw edits. Commit
+release work to a reviewable branch, not directly to master.
+
 ## Scope and communication
 
 - Work in small, reviewable milestones with a concrete outcome and acceptance checks. Finish the current milestone before expanding into modelling or services.

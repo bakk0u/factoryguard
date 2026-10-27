@@ -1,0 +1,15 @@
+{
+  "protocol": "release-v3",
+  "development_runs": ["B01", "B02"],
+  "stress_run": "B04",
+  "split_fractions": [[0.4, 0.6], [0.6, 0.8], [0.8, 1.0]],
+  "gap_limit_s": 24,
+  "random_state": 42,
+  "budget_seconds": 1800,
+  "expected_candidates": 32,
+  "tables": {
+    "B01": "reports/local/b01-features-v1/features.csv",
+    "B02": "reports/local/development-assessment-20261023-final/B02/features.csv",
+    "B04": "reports/local/development-assessment-20261023-final/B04/features.csv"
+  }
+}

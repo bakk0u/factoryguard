@@ -1,0 +1,19 @@
+{
+  "source": "Run-to-failure data set of ball bearings subjected to time-varying load and speed conditions",
+  "creator": "Osarenren Kennedy Aimiyekagbon, Paderborn University",
+  "doi": "10.5281/zenodo.10868257",
+  "record": "https://zenodo.org/records/10868257",
+  "license": "CC BY 4.0 https://creativecommons.org/licenses/by/4.0/",
+  "citation": "Javanmardi et al. (2024), Remaining Useful Lifetime Estimation of Bearings Operating under Time-Varying Conditions, DOI 10.36001/phme.2024.v8i1.4101",
+  "changes": "All 377 B01 recordings reduced to documented burst descriptors and flags; B02 summarized into fixed-bin reference quartiles. No raw waveforms redistributed. No endorsement implied.",
+  "evaluation": "B01 out-of-run development selection replay; alpha selected inside B02. This sample is not an independent test.",
+  "derived_csv_sha256": "e5d99fc000c3b79b7334bb767554b0f084cfdf7d25a3d31f4e93408ac731b47a",
+  "source_feature_sha256": {
+    "B01": "e5d99fc000c3b79b7334bb767554b0f084cfdf7d25a3d31f4e93408ac731b47a",
+    "B02": "c08eba074449e1e2173e1260826923afe1937ca0ab58c0a537038bb3a226669f"
+  },
+  "reference_sha256": "3af938625954103d6a0b334ef7c56aa524ceadaf9eb57e2ac3b8798e2e284756",
+  "artifact_sha256": "e9aff42dd237e79a81befc9cf226179886f24335e7fbd4791e1c3c032be43093",
+  "rows": 377,
+  "B03_accessed": false
+}

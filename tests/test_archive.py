@@ -18,7 +18,15 @@ class ArchiveTests(unittest.TestCase):
         archive = self.root / "test.zip"
         with zipfile.ZipFile(archive, "w") as stream:
             for name in names:
-                stream.writestr(name, b"fixture")
+                # ZipInfo's constructor normalizes backslashes on Windows.
+                # Assign afterwards so the fixture actually contains the unsafe
+                # original name in both ZIP headers on every platform.
+                member = zipfile.ZipInfo('fixture')
+                member.filename = name
+                member.orig_filename = name
+                stream.writestr(member, b"fixture")
+        with zipfile.ZipFile(archive) as stream:
+            self.assertEqual([item.orig_filename for item in stream.infolist()], names)
         return archive, {"size": archive.stat().st_size,
                          "checksum": "md5:" + hashlib.md5(archive.read_bytes()).hexdigest(),
                          "max_bytes": 1000}
@@ -34,13 +42,16 @@ class ArchiveTests(unittest.TestCase):
             extract_verified_zip(archive, self.root / "raw", **kwargs)
 
     def test_unsafe_members_rejected_before_writing(self):
-        for names in [["../escape"], ["/escape"], ["B01\\escape"],
-                      ["B01/a", "B01/A"], ["B01/a", "B01/a/b"]]:
+        for index, names in enumerate([["../escape"], ["/escape"], ["B01\\escape"],
+                      ["B01/a", "B01/A"], ["B01/a", "B01/a/b"],
+                      ["B01/CON.txt"], ["B01/file."], ["B01/file "],
+                      ["B01//file"], ["B01/./file"]]):
             with self.subTest(names=names):
                 archive, kwargs = self.make(names)
                 with self.assertRaises(ValueError):
-                    extract_verified_zip(archive, self.root / "raw", **kwargs)
-                self.assertFalse((self.root / "raw.extracting").exists())
+                    extract_verified_zip(archive, self.root / f"raw-{index}", **kwargs)
+                self.assertFalse((self.root / f"raw-{index}.extracting").exists())
+                self.assertFalse((self.root / f"raw-{index}").exists())
 
     def test_size_checksum_and_budget(self):
         archive, kwargs = self.make(["file"])

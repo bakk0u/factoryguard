@@ -1,0 +1,10 @@
+{
+  "candidate_folds_audited": 192,
+  "artifact_replays": 72,
+  "metrics_match": true,
+  "training_only_scalers_verified": true,
+  "inner_choices_reproduced": true,
+  "selection_reproduced": true,
+  "B03_accessed": false,
+  "additional_fits": 0
+}

@@ -45,11 +45,17 @@ def extract_verified_zip(path: Path, destination: Path, *, size: int,
             raise ValueError("Insufficient disk space including 512 MiB margin")
         seen, files = set(), set()
         for item in members:
-            name = item.filename.rstrip("/")
+            original = item.orig_filename
+            if original != item.filename or "\\" in original or "\x00" in original:
+                raise ValueError(f"Unsafe original ZIP member: {original!r}")
+            name = original[:-1] if original.endswith('/') else original
             parts = PurePosixPath(name).parts
             mode = item.external_attr >> 16
             if (not parts or name.startswith("/") or "\\" in name
-                    or ":" in name or any(p in ("", ".", "..") for p in name.split("/"))
+                    or ":" in name or any(p in ("", ".", "..") or p.endswith((' ', '.'))
+                    or p.split('.')[0].upper() in {'CON','PRN','AUX','NUL',
+                        *('COM'+str(i) for i in range(1,10)), *('LPT'+str(i) for i in range(1,10))}
+                    for p in name.split("/"))
                     or (stat.S_IFMT(mode) not in (0, stat.S_IFREG, stat.S_IFDIR))):
                 raise ValueError(f"Unsafe ZIP member: {item.filename}")
             key = name.casefold()
