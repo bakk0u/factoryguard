@@ -1,6 +1,6 @@
 # FactoryGuard
 
-[**Live dashboard — recorded experiment results**](https://bakk0u.github.io/factoryguard/)
+[**Live dashboard**](https://bakk0u.github.io/factoryguard/)
 
 Open in your browser; no installation, sign-in or dataset download required.
 
