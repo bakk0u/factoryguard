@@ -1,5 +1,11 @@
 # Current model card: development release v3
 
+The optional [investigation assistant](assistant.md) retrieves saved evidence and
+explains it; it does not replace/retrain the forecasting rule below. Its default
+offline generator is a labelled fixture. Live LLM factuality and hybrid retrieval
+quality remain separately unverified. Its explanations do not establish faults,
+health, damage onset, calibrated safety or RUL.
+
 Purpose: local investigation of bearing measurements and next-observed A/C
 centered voltage RMS forecasting. No healthy distribution, fault labels, damage
 probability, maintenance decision, RUL or fault-detection accuracy is established.

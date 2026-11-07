@@ -11,11 +11,12 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = '0.9.103'
 OUTPUT = ROOT / 'graphify-out'
-SCOPES = ('src', 'tests', 'scripts', 'dashboard', 'configs', '.github', 'site', 'run_step1.py')
-EXCLUDED = ('site/source/',)
-SUFFIXES = {'.py', '.js', '.cjs', '.json', '.yaml', '.yml', '.sh', '.toml'}
+SCOPES = ('src', 'tests', 'scripts', 'dashboard', 'configs', '.github', 'site', 'assistant', 'run_step1.py')
+EXCLUDED = ('site/source/', 'assistant/node_modules/', 'assistant/dist/', 'assistant/evaluation/')
+SUFFIXES = {'.py', '.ts', '.tsx', '.js', '.cjs', '.json', '.yaml', '.yml', '.sh', '.toml'}
 CONTEXT_FILES = ('AGENTS.md', 'PROJECT_MEMORY.md', '.graphifyignore', '.graphifyrc',
-                 '.gitignore', 'pyproject.toml', 'docs/architecture.md', 'docs/project_context.md')
+                 '.gitignore', 'pyproject.toml', 'docs/architecture.md', 'docs/project_context.md',
+                 'assistant/package-lock.json', 'assistant/evaluation/cases.json', 'requirements-assistant-lock.txt')
 
 
 def digest(path):
@@ -93,7 +94,8 @@ def verify_graph(graph, root=ROOT):
         if source:
             path = Path(source)
             if path.is_absolute() or '..' in path.parts or source.startswith(
-                    ('data/', 'reports/', 'site/source/', '.tools/', '.venv/', '.codex/', 'docs/')):
+                    ('data/', 'reports/', 'site/source/', '.tools/', '.venv/', '.codex/', 'docs/',
+                     'assistant/node_modules/', 'assistant/dist/')):
                 raise ValueError(f'Excluded graph source: {source}')
             if not (root / path).is_file():
                 raise ValueError(f'Graph source no longer exists: {source}')

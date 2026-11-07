@@ -1,0 +1,365 @@
+{
+  "mode": "lexical",
+  "case_manifest_sha256": "f1f3e0cb9433dd30acd5944c4e1b2f3cdd86bb50287f8a4aa7081f9265ef8ded",
+  "review": "Expectations authored and reviewed against source by the implementation author; independent human review remains pending. Frozen before running retrieval evaluation; not a fault-detection benchmark.",
+  "summary": {
+    "development": {
+      "cases": 20,
+      "passed": 20,
+      "documentation_recall_at_4": 1.0,
+      "documentation_mrr_at_4": 1.0
+    },
+    "held_out": {
+      "cases": 20,
+      "passed": 20,
+      "documentation_recall_at_4": 1.0,
+      "documentation_mrr_at_4": 1.0
+    }
+  },
+  "cases": [
+    {
+      "id": "D01",
+      "split": "development",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.2267550000283336
+    },
+    {
+      "id": "D02",
+      "split": "development",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.04910100000188322
+    },
+    {
+      "id": "D03",
+      "split": "development",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.08074999999507781
+    },
+    {
+      "id": "D04",
+      "split": "development",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.04224499997462772
+    },
+    {
+      "id": "D05",
+      "split": "development",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.029648999998244108
+    },
+    {
+      "id": "D06",
+      "split": "development",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.06154900000865382
+    },
+    {
+      "id": "D07",
+      "split": "development",
+      "task": "summary",
+      "passed": true,
+      "latency_ms": 0.05065699997430784
+    },
+    {
+      "id": "D08",
+      "split": "development",
+      "task": "summary",
+      "passed": true,
+      "latency_ms": 0.01927400001022761
+    },
+    {
+      "id": "D09",
+      "split": "development",
+      "task": "quality",
+      "passed": true,
+      "latency_ms": 0.023847000022669818
+    },
+    {
+      "id": "D10",
+      "split": "development",
+      "task": "quality",
+      "passed": true,
+      "latency_ms": 0.49555800001144235
+    },
+    {
+      "id": "D11",
+      "split": "development",
+      "task": "quality",
+      "passed": true,
+      "latency_ms": 0.028714000052332267
+    },
+    {
+      "id": "D12",
+      "split": "development",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.06258100000877675
+    },
+    {
+      "id": "D13",
+      "split": "development",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.009811000040826912
+    },
+    {
+      "id": "D14",
+      "split": "development",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.00536800001782467
+    },
+    {
+      "id": "D15",
+      "split": "development",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.021806999995988008
+    },
+    {
+      "id": "D16",
+      "split": "development",
+      "task": "docs",
+      "sources": [
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 6.382053999971049
+    },
+    {
+      "id": "D17",
+      "split": "development",
+      "task": "docs",
+      "sources": [
+        "docs/release_protocol.md",
+        "docs/investigation_workflow.md",
+        "docs/release_protocol.md",
+        "docs/feature_definitions.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 3.590282000004663
+    },
+    {
+      "id": "D18",
+      "split": "development",
+      "task": "docs",
+      "sources": [
+        "docs/investigation_workflow.md",
+        "docs/release_protocol.md",
+        "docs/release_protocol.md",
+        "docs/feature_definitions.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 5.646061999982521
+    },
+    {
+      "id": "D19",
+      "split": "development",
+      "task": "no_docs",
+      "sources": [],
+      "passed": true,
+      "reciprocal_rank": 0,
+      "latency_ms": 4.096096000012039
+    },
+    {
+      "id": "D20",
+      "split": "development",
+      "task": "comparison_withheld",
+      "passed": true,
+      "latency_ms": 0.0465999999619271
+    },
+    {
+      "id": "E01",
+      "split": "held_out",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.07725400001845628
+    },
+    {
+      "id": "E02",
+      "split": "held_out",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.03618599998844729
+    },
+    {
+      "id": "E03",
+      "split": "held_out",
+      "task": "lookup",
+      "passed": true,
+      "latency_ms": 0.04628499999626001
+    },
+    {
+      "id": "E04",
+      "split": "held_out",
+      "task": "summary",
+      "passed": true,
+      "latency_ms": 0.37025599999651604
+    },
+    {
+      "id": "E05",
+      "split": "held_out",
+      "task": "summary",
+      "passed": true,
+      "latency_ms": 2.4212789999751294
+    },
+    {
+      "id": "E06",
+      "split": "held_out",
+      "task": "summary",
+      "passed": true,
+      "latency_ms": 2.638142999956017
+    },
+    {
+      "id": "E07",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.023226999985581642
+    },
+    {
+      "id": "E08",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.005452999971566896
+    },
+    {
+      "id": "E09",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.005523000027096714
+    },
+    {
+      "id": "E10",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.010549999956310785
+    },
+    {
+      "id": "E11",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.0055859999861240794
+    },
+    {
+      "id": "E12",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.004774000046836591
+    },
+    {
+      "id": "E13",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.004635999971469573
+    },
+    {
+      "id": "E14",
+      "split": "held_out",
+      "task": "invalid",
+      "passed": true,
+      "latency_ms": 0.005041000008532137
+    },
+    {
+      "id": "E15",
+      "split": "held_out",
+      "task": "docs",
+      "sources": [
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 5.878408000000945
+    },
+    {
+      "id": "E16",
+      "split": "held_out",
+      "task": "docs",
+      "sources": [
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md",
+        "docs/investigation_workflow.md",
+        "docs/release_protocol.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 7.1750409999822296
+    },
+    {
+      "id": "E17",
+      "split": "held_out",
+      "task": "docs",
+      "sources": [
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md",
+        "docs/release_protocol.md",
+        "docs/feature_definitions.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 8.47373599998491
+    },
+    {
+      "id": "E18",
+      "split": "held_out",
+      "task": "comparison",
+      "passed": true,
+      "latency_ms": 3.0146199999876444
+    },
+    {
+      "id": "E19",
+      "split": "held_out",
+      "task": "docs",
+      "sources": [
+        "docs/release_protocol.md",
+        "docs/investigation_workflow.md",
+        "docs/release_protocol.md",
+        "docs/feature_definitions.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 9.352530000001025
+    },
+    {
+      "id": "E20",
+      "split": "held_out",
+      "task": "docs",
+      "sources": [
+        "docs/release_protocol.md",
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md",
+        "docs/feature_definitions.md"
+      ],
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "latency_ms": 6.492315999992115
+    }
+  ],
+  "live_generation": "not executed",
+  "limitations": [
+    "Evidence/retrieval metrics only; no live answer-quality or human entailment score.",
+    "Held-out questions are separate from development examples, not additional independent bearing experiments.",
+    "No token usage or monetary cost is invented for unexecuted model calls."
+  ]
+}

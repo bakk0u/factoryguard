@@ -69,6 +69,7 @@ Runs are separate bearings; A/C are vibration channels. Preserve synthetic demo.
 | Reference bins / notices / sustained windows | `release/context.py`, `release/investigation.py` |
 | Portable UI and reviewer-only controls | `release/dashboard.html`, `site/reviewer.js` |
 | Static build, snapshot integrity | `scripts/build_reviewer_site.py`, `site/source-manifest.json` |
+| Optional evidence assistant | `assistant/src/` (Fastify/MCP client/Responses orchestration), `src/factoryguard/assistant/` (Python read-only evidence/MCP/index/workflows), `docs/assistant.md` |
 | Streaming loading / burst features | `src/factoryguard/data/paderborn.py`, `features/b01.py`, `pipelines/features_paderborn.py` |
 | Frozen campaign / causal features / audit | `release/campaign.py`, `release/modeling.py`, `release/reporting.py`, `models/selection.py` |
 | Scientific definitions / qualifications | `docs/feature_definitions.md`, `development_assessment.md`, `release_protocol.md`, `model_card.md` |
@@ -109,7 +110,8 @@ python scripts/project_context.py explain "Store"
 Read returned source locations, not the full graph/report. Default query budget
 is 1,200 tokens, depth 2; narrow questions instead of automatically raising it.
 For no Graphify installation, use the map and targeted rg; memory still works.
-No semantic API key, cloud, MCP server, or hooks that rebuild on Git operations.
+For Graphify, no semantic API key, cloud/MCP server, or hooks rebuilding on Git
+operations. The optional application's read-only evidence MCP server is separate.
 
 ```bash
 MPLCONFIGDIR=/tmp/factoryguard-matplotlib XDG_CACHE_HOME=/tmp/factoryguard-cache \
@@ -127,8 +129,31 @@ fallback); SQLite persistence applies to the optional local-server app, not Page
 
 ## Next work and maintenance
 
-Current task is optional persistent context integration only. No new application
-feature is implied. Scientific next step is readiness review, not B03 evaluation:
+The new optional assistant is on `evidence-assistant`, starting from `85b99af`;
+the starting 122-test baseline passed. It performs mandatory MCP numerical/doc
+retrieval, bounded context assembly, then Responses generation (or an explicitly
+labelled offline fixture), with fixed replay scope and verifiable citation IDs.
+Graphify's developer graph is separate from this application MCP service.
+Original forecasting results and static public site are unchanged. Local startup:
+`python scripts/start_assistant.py` after optional Python/npm dependencies are
+installed; see `docs/assistant.md`. Live mode is opt-in, server-key-only, and not
+verified. Optional BGE/ONNX model download was blocked by `huggingface.co` proxy
+403, so hybrid quality remains unmeasured. The lexical 40-case author-reviewed
+evaluation passed; independent human review and live answer quality remain pending.
+Latest checks: 135 Python tests, 17 TypeScript tests, real MCP integration and
+desktop/mobile offline browser passed. Counts describe this milestone, not future
+CI. See `docs/results/assistant-v1/report.md`; do not call fixture output LLM accuracy.
+Follow-up on 2026-11-07 inspected remote `d7c2806`: Ubuntu assistant and both legacy
+jobs passed; Windows assistant failed due to unclosed test fixture SQLite handles.
+Fixtures fixed; cleanup checks and evaluation CLI failure exit added. Follow-up
+local 138 Python tests (no skips/failures), 17 TypeScript tests/build and all 40
+unchanged lexical cases passed; follow-up remote CI needs checking after push.
+Weights downloaded here but automatic review blocked hybrid continuation on a
+runtime Microsoft telemetry connection. No hybrid scores or live-key/human review.
+The developer graph is refreshed for the assistant; use provenance/status for
+current counts and freshness rather than treating historical counts as permanent.
+
+Scientific next step remains readiness review, not B03 evaluation:
 freeze method/preprocessing/eligibility/metrics, compare reviewed implementation
 and artifact hashes with the existing plan, independently review measurement
 meaning before signals/outcomes, then obtain separate authorization for one
