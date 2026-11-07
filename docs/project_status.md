@@ -1,5 +1,20 @@
 # Current project status: development release v3
 
+## Optional persistent context — 2026-11-07
+
+`PROJECT_MEMORY.md` provides concise verified orientation and source pointers.
+The project-scoped official Graphify Codex integration (graphifyy 0.9.103) uses a
+local code-only graph, bounded queries and content-hash freshness checks through
+`scripts/project_context.py`. Tool environments/caches stay outside runtime and
+Git; a portable graph/report/provenance is versioned. Raw/data storage, result
+payloads, B03, docs and credentials are excluded from indexing. No semantic backend,
+cloud/MCP service, automatic Git rebuild hook or model campaign is enabled.
+See [context setup and maintenance](project_context.md). Newer visual README and
+public-verification commits from master `589f502` were preserved during integration.
+Local verification: 122 tests passed, including six new context tests. Query,
+explain and EXTRACTED export-to-Store path retrieval passed; the code-only graph
+has 688 nodes / 1,926 relationships, and a no-change incremental update reused it.
+
 ## Public-release documentation — 2026-10-27
 
 PR #1 is merged at master `fc772e5faa4b556245322a8f7ee043d1cf5e074c`.

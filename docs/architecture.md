@@ -1,5 +1,10 @@
 # Development release architecture
 
+Contributor context is separate from runtime: [PROJECT_MEMORY.md](../PROJECT_MEMORY.md)
+provides the short orientation, while the optional local AST graph and
+[context helper](project_context.md) support scoped navigation and stale detection.
+Neither changes the application architecture or scientific data-access rules.
+
 Public presentation uses `scripts/build_reviewer_site.py` to integrity-check
 `site/source-manifest.json`, embed the pinned derived replay/results and reuse
 the portable dashboard with `site/reviewer.js` presentation controls. Visitors

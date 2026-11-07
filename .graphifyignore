@@ -1,0 +1,20 @@
+# Code-only graph. Prune these directories before visiting their contents.
+data/
+reports/
+site/source/
+docs/
+.tools/
+.venv/
+.git/
+.codex/
+build/
+dist/
+graphify-out/
+node_modules/
+.env*
+*.mat
+*.zip
+*.csv
+*.sqlite*
+*.joblib
+*.pdf

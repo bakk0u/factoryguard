@@ -1,5 +1,33 @@
 # Working on FactoryGuard
 
+## Persistent context bootstrap
+
+- Start with `PROJECT_MEMORY.md` (short verified orientation), then
+  `python scripts/project_context.py status`. Do not reread the full historical log.
+- For a code question, use `python scripts/project_context.py query "<focused question>"`
+  or `explain "Store"`, then read the returned source locations to verify details.
+  These delegate to the official local Graphify CLI with a bounded output budget.
+- If stale, run `python scripts/project_context.py update`; on a fresh machine,
+  run `setup` first. Missing tooling is not a blocker: use the memory's file map
+  and targeted `rg`, and report that the graph is unavailable. Never fabricate edges.
+- Graphify is optional development tooling, not an application dependency. Keep
+  `GRAPHIFY_BACKEND=none`; use code-only builds. Do not index raw/data storage,
+  B03, result payloads, private notes or secrets. Do not enable cloud/MCP servers,
+  semantic extraction, automatic Git hooks or parallel agents for this setup.
+- Update memory after material changes with source paths, exact checks and known
+  blockers; distinguish independently reported verification from observed checks.
+  Keep it concise; detailed history belongs in docs/ and Git, not duplicated here.
+- Existing milestone authorizations below are historical context, not permission
+  to run another campaign, access B03, publish, merge or change raw data in a new
+  task. Current user instructions define scope. This memory task changes no models.
+
+The installed Graphify block below uses bare `graphify` commands. In this project,
+prefer the wrapper above (isolated `.tools/` install, backend disabled, freshness
+checks). Its project policy takes precedence over generic skill workflows; the
+graph is a structural aid and never overrides source, scientific protocols or data
+access restrictions. HTML-embedded JavaScript and documentation are not covered
+by the local code-only graph; use the memory's pointers for those.
+
 ## Current development release authorization
 
 The latest user request authorizes completing and integrating release-v3 without
@@ -56,3 +84,17 @@ The current forecast-v1 milestone explicitly authorizes B02-only fitting and pre
 ## Authorized bounded selection milestone
 
 The current user request authorizes selection-v2: B01/B02 reciprocal outer development evaluations and bounded expanding-window inner tuning under docs/selection_protocol.md and configs/selection_v2.json. This supersedes forecast-v1's no-search/B02-only scope for this new milestone. B04 is post-selection diagnostic only; B03 stays entirely sealed. Freeze the search before running it and retain unsuccessful trials. Propose, but do not execute, pooled final training or B03 evaluation.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+Rules:
+- When graphify-out/graph.json exists, run `graphify query "<question>"` before your first grep, search or source-file read for a codebase question, and put this rule in every subagent prompt that explores code. Read raw files only for lines the graph or an earlier read already located. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
