@@ -1,5 +1,15 @@
 # Current project status: development release v3
 
+## Persistent-context verification — 2026-11-07
+
+Official Graphify 0.9.103 and its wrapper returned fresh status and useful scoped
+query results. Core memory claims match the committed saved artifacts. Clarified
+that context is on `graphify-project-memory`, not master, and that AGENTS requires
+memory reads/startup commands rather than a no-op hook executing them. Native
+fresh-session prompt diagnostics are blocked by a read-only Codex filesystem;
+automatic future-session loading is not claimed end-to-end verified. No application,
+scientific result or B03/raw-data change is made. See [details](project_context.md).
+
 ## Optional persistent context — 2026-11-07
 
 `PROJECT_MEMORY.md` provides concise verified orientation and source pointers.

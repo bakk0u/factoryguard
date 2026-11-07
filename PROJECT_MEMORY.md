@@ -27,6 +27,10 @@ Runs are separate bearings; A/C are vibration channels. Preserve synthetic demo.
   2026-11-07; includes visual README (`8723456`) and merged documentation PRs #2/#3.
   Memory integration branch: `graphify-project-memory`. Check `git status -sb`
   and `git log -5 --oneline`; do not assume branch names imply current remote state.
+- Integration commits: `387afe7` added real Graphify and the memory wrapper;
+  `2dee5c5` saved the mandatory status/baseline-query/update preference. Remote
+  master still points to `589f502` at this verification: **context integration is
+  not merged**. Fresh sessions must select this branch (or a reviewed descendant).
 - PR #1 merged in `fc772e5`. Reviewer/report work: `bb718c4`; source-review fixes:
   `f10b225`, `bb718c4`; site artifact upload: `d6a69a9`. Release docs: `5491b34`,
   `c2c791e`; public verification record: `77445c8`, live link: `2b9108f`.
@@ -81,6 +85,14 @@ User preference: at the start of every session and before each new prompt, run
 the status and baseline query below. After making changes, run the context update
 before handoff. If stale, update before retrying the query; report unavailable
 tooling honestly. Additional queries should be specific to the actual task.
+
+Automatic-loading contract: launch Codex from the repository root on a branch
+containing this integration. Codex loads root AGENTS instructions; they direct
+the agent to read this file and run commands. Memory is not automatically inlined
+and the optional hook does not execute startup commands. A fresh native prompt
+diagnostic was blocked here by the Codex runtime's read-only filesystem; no
+end-to-end future-session auto-load claim is made. Fresh clones need `setup` for
+the ignored tool environment. No missing tool silently falls back to a fake graph.
 
 Run from repository root. Existing `.venv` is the application environment
 (CPython 3.12, requirements-lock.txt; campaign tests add requirements-campaign.txt).

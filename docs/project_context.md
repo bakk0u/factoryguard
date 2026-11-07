@@ -1,5 +1,28 @@
 # Persistent context and Graphify
 
+## Operational verification (2026-11-07)
+
+Real Graphify 0.9.103 is installed in `.tools/`; the custom standard-library script
+is a safety/freshness wrapper, not an alternative graph engine. Status returned
+FRESH; the required `Store replay notes reset` query returned real Store methods,
+source locations and related tests within its 1,200-token cap. Memory snapshot
+hash, 2,607 events, smoothing selection, 12.83% rounded gain and .2/.5/.2 direction
+settings were checked against the pinned artifacts.
+
+The integration and startup preference are committed on `graphify-project-memory`
+(`387afe7`, `2dee5c5`); master is still `589f502` and does not yet contain them.
+Selecting master in a future task will therefore not supply these instructions.
+Use the integration branch or merge after review; no merge is performed here.
+
+Root AGENTS provides the automatic instruction-discovery entry point. Reading
+PROJECT_MEMORY and running the commands are agent actions required by those
+instructions, not automatic memory injection or hook execution. The installed
+Codex CLI 0.163.0 `debug prompt-input` diagnostic failed with read-only filesystem
+errors, so this environment could not independently exercise a fresh-session
+prompt assembly/skill discovery. Do not call that test passed. Existing-session
+CLI retrieval, memory integrity and instruction files are verified. Restart from
+the repository root with this branch selected; on a fresh clone run `setup`.
+
 FactoryGuard now has two complementary context layers:
 
 1. `PROJECT_MEMORY.md`: short, human-reviewed purpose, constraints, source map,
