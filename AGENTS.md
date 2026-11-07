@@ -3,7 +3,16 @@
 ## Persistent context bootstrap
 
 - Start with `PROJECT_MEMORY.md` (short verified orientation), then
-  `python scripts/project_context.py status`. Do not reread the full historical log.
+  run these commands from the repository root at the start of each session and
+  before handling each new user prompt:
+  `python scripts/project_context.py status` followed by
+  `python scripts/project_context.py query "Store replay notes reset"`.
+  Use the existing `.venv` Python when system Python lacks the project environment.
+  Do not reread the full historical log.
+- After making changes, run `python scripts/project_context.py update` before
+  handoff. If startup status is stale, update before retrying the required query.
+  If tools/files are unavailable, report the exact blocker rather than claiming
+  the commands ran successfully.
 - For a code question, use `python scripts/project_context.py query "<focused question>"`
   or `explain "Store"`, then read the returned source locations to verify details.
   These delegate to the official local Graphify CLI with a bounded output budget.

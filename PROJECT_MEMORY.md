@@ -77,6 +77,11 @@ a long historical log; read only relevant milestones. Source overrides stale pro
 
 ## Session and verification commands
 
+User preference: at the start of every session and before each new prompt, run
+the status and baseline query below. After making changes, run the context update
+before handoff. If stale, update before retrying the query; report unavailable
+tooling honestly. Additional queries should be specific to the actual task.
+
 Run from repository root. Existing `.venv` is the application environment
 (CPython 3.12, requirements-lock.txt; campaign tests add requirements-campaign.txt).
 Graphify lives separately in ignored `.tools/`, never install it into `.venv`.

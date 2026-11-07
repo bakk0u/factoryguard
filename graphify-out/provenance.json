@@ -1,7 +1,7 @@
 {
   "graphify_version": "0.9.103",
   "mode": "local code-only AST; no semantic backend",
-  "source_commit": "589f50297b32af9b3e4b7baee66462b5c67227f0",
+  "source_commit": "387afe7c80028c5c9eb01d4e39f685e4e148fabb",
   "freshness_rule": "Compare content hashes, not HEAD or file timestamps alone.",
   "graph_sha256": "fde7f952cce28d5e6e39fe2cd640fc73d42df77aa3ac50e28db78b0c10a4b1b9",
   "source_sha256": {
@@ -10,8 +10,8 @@
     ".gitignore": "97340af4e0f28c56c4fee96a49c471408d8fa20e0a0b4eb36a1a58155d8e5934",
     ".graphifyignore": "90343a5c5f00a840d8b6f572748af29c58c9b8ab85f868ad0a626234af3b4b49",
     ".graphifyrc": "da2de3ecc9f73312318bc052c7b6bd9827d29e9b0c05eab0ba36dea27b3d107d",
-    "AGENTS.md": "47f0781ca84da06c8d8eb473e8388fe955f1a50b49ad7938fb4a81b8b5aad01c",
-    "PROJECT_MEMORY.md": "9fed0d241d47e9e48c6554f4b3fc45001b38cfb1f41ac2308726e2506d0ac890",
+    "AGENTS.md": "5b39deeaa86cad5a9df39e999f7aa4f1a54926c31a0093c62a8b291c6405cf44",
+    "PROJECT_MEMORY.md": "c98e9380b72f07563650c8c921c064a0696e5fb2bcd45e7158d76453968e1825",
     "configs/dataset_roles.json": "2372a69f61b61940e501c1ec2ce9e94a3fbedc1f6643adf5ae87177a8be6607b",
     "configs/forecast_v1.json": "4d24be91b7d417a4bca09aca7afd0b0db5d9acf5173993e0ce31a32c223e252e",
     "configs/release_v3.json": "bc122cfe29f22cb6e80528161ef509b994257c83498441cb6a5be2df6314b46f",
