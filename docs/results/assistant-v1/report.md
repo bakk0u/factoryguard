@@ -8,6 +8,41 @@ author, 20 development and 20 held-out questions. Independent human review remai
 pending; the two question splits are not new independent bearing experiments.
 No search/tuning was performed to improve held-out scores after evaluating them.
 
+## Follow-up verification — 2026-11-07
+
+GitHub API access worked in a fresh checkout of `d7c2806`. The original
+[assistant run](https://github.com/bakk0u/factoryguard/actions/runs/42392110001)
+passed on Ubuntu but failed on Windows: two tests left fixture SQLite connections
+open and temporary-directory cleanup raised `WinError 32`. Application connections
+already used explicit closing. The fixtures now close deterministically; new
+checks verify application connection closure on success, cursor rejection,
+interrupted transactions and SQL exceptions.
+
+The evaluation CLI now exits 1 if any frozen case fails, retaining its complete
+JSON report. Previously it printed failed counts but exited 0. A subprocess test
+checks the failed-index path. The case manifest and retrieval ranking are unchanged.
+
+Local follow-up: **138 Python tests passed**, no skips or failures; **17 TypeScript
+tests passed**, and TypeScript build passed. The unchanged 40-case lexical suite
+again passed: [review-lexical.json](review-lexical.json). The `tsx` CLI could not open
+its local IPC pipe here; the same tests ran via `node --import tsx --test
+test/*.test.ts` from `assistant/`, with `FACTORYGUARD_PYTHON` pointing to the project
+Python. Browser tests were not rerun for this test/evaluation-only fix; original
+desktop/mobile results below remain the implementation milestone's evidence.
+
+The original [legacy release run](https://github.com/bakk0u/factoryguard/actions/runs/42392109861)
+passed Windows and Ubuntu. These remote results describe `d7c2806`, not the fixes;
+follow-up remote CI must be inspected after pushing.
+
+The approved embedding model downloaded here, but automatic approval review blocked
+continuation because the runtime attempted a Microsoft telemetry connection outside
+the model download. That check was stopped; no hybrid metrics are claimed. Live
+OpenAI smoke remains unexecuted because no server API key is configured. Independent
+human review remains pending: review all 40 frozen expectations and real generated
+answers for claim support, missingness, conflicts, malicious passages and replay
+scope; record reviewer identity/date and per-case judgments separately without
+rewriting the frozen expectations.
+
 ## Executed results
 
 The [complete lexical result](lexical.json) records the case-manifest hash,
@@ -59,8 +94,9 @@ Screenshots: [desktop](../../images/assistant-desktop.png),
 - **Human review:** an independent reviewer should review at least these 40 cases
   and real generated answers, especially conflicting evidence and malicious
   passages. No automated judge is claimed to replace that review.
-- **Remote CI:** new Windows/Ubuntu assistant workflow is configured, but final
-  remote results must be checked separately if the local API remains Forbidden.
+- **Remote CI:** the original run was independently inspected above. Ubuntu
+  assistant and both legacy jobs passed; Windows assistant fixture cleanup failed.
+  Follow-up CI must verify the fix on Windows.
 
 The application returns source-member citation IDs only, but membership alone is
 not entailment. Inspect claim text against its cited record and passage. Default

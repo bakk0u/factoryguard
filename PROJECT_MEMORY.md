@@ -143,6 +143,13 @@ evaluation passed; independent human review and live answer quality remain pendi
 Latest checks: 135 Python tests, 17 TypeScript tests, real MCP integration and
 desktop/mobile offline browser passed. Counts describe this milestone, not future
 CI. See `docs/results/assistant-v1/report.md`; do not call fixture output LLM accuracy.
+Follow-up on 2026-11-07 inspected remote `d7c2806`: Ubuntu assistant and both legacy
+jobs passed; Windows assistant failed due to unclosed test fixture SQLite handles.
+Fixtures fixed; cleanup checks and evaluation CLI failure exit added. Follow-up
+local 138 Python tests (no skips/failures), 17 TypeScript tests/build and all 40
+unchanged lexical cases passed; follow-up remote CI needs checking after push.
+Weights downloaded here but automatic review blocked hybrid continuation on a
+runtime Microsoft telemetry connection. No hybrid scores or live-key/human review.
 The developer graph is refreshed for the assistant; use provenance/status for
 current counts and freshness rather than treating historical counts as permanent.
 

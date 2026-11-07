@@ -123,6 +123,11 @@ python -m factoryguard.assistant.workflows bundle --selection '{"experiment":"B0
 python -m factoryguard.assistant.evaluate
 ```
 
+Evaluation writes the per-case JSON report and exits 1 when any case fails, so
+CI can detect retrieval regressions. Keep the frozen case manifest unchanged.
+See the [verification follow-up](results/assistant-v1/report.md#follow-up-verification--2026-11-07)
+for the Windows fixture cleanup fix and current dependency/review limitations.
+
 All outputs default to ignored `reports/local/assistant/`. Validation checks pinned
 source hashes/allowed experiments; refresh reuses content-addressed derived
 summaries when unchanged; bundles are atomic selected-period evidence outputs.

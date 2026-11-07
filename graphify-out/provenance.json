@@ -1,9 +1,9 @@
 {
   "graphify_version": "0.9.103",
   "mode": "local code-only AST; no semantic backend",
-  "source_commit": "fbe9feef608874b528e186b220668b02c1049b97",
+  "source_commit": "d7c2806b168145a4cc93c1d18e313f2711b96280",
   "freshness_rule": "Compare content hashes, not HEAD or file timestamps alone.",
-  "graph_sha256": "c6ed72129aa1e9b5b778a15ac060f65901c73b8cebeed2f9bde0edd448f5f89f",
+  "graph_sha256": "9f563c99250ab68a9fd74e1953fedec8011a324653f9d5559744073ef86176be",
   "source_sha256": {
     ".github/workflows/assistant.yml": "81601e43100fe9c5f298865a0587df2280ab9f4159f30fe05c88aabf7c91567d",
     ".github/workflows/ci.yml": "a09ecb89a21ec3c0eac282e6b26b3be72d8533ee6689c12aa1d3b8e75b42d1cc",
@@ -12,7 +12,7 @@
     ".graphifyignore": "a9653fbb0bfd8b2e38ec44a8e9b4388bd01d3b3f630b0606b4ff7bf571a99236",
     ".graphifyrc": "da2de3ecc9f73312318bc052c7b6bd9827d29e9b0c05eab0ba36dea27b3d107d",
     "AGENTS.md": "7e07c0966258e3a228cc4263f2e0739719d71a116c741dc9a111ccc58b575653",
-    "PROJECT_MEMORY.md": "0e2cdb8d9d07872e38cf1752a99c01d735f2a6762a915e69f14cde785027054f",
+    "PROJECT_MEMORY.md": "c1582bf6a3b0bad7507a77841c92d3e86af3ad62519adb43fdf8530d66af86d3",
     "assistant/evaluation/cases.json": "f1f3e0cb9433dd30acd5944c4e1b2f3cdd86bb50287f8a4aa7081f9265ef8ded",
     "assistant/package-lock.json": "6401e1c3e415f2aa70327abe1c30e85b0a75b60f2676df4a6c7e1eea9512fda4",
     "assistant/package.json": "aab3fcd784161ae75b47fc42adc187e6fc1f68a11b0645db2fecaa11b38c315f",
@@ -65,7 +65,7 @@
     "src/factoryguard/alerts/__init__.py": "75a97c12f3732356384505e9d4b325231f5053623add7aa9306ee5ce0ab6f2d3",
     "src/factoryguard/api/__init__.py": "c51d3d396770c64833ee6fbf4b2a96421d4854bf0e6c99b0717930f1fdad59e6",
     "src/factoryguard/assistant/__init__.py": "daff5df44b991c0d89e7a72e33cb3dd7504ae659c24c1ea6bb5d425c417ab88e",
-    "src/factoryguard/assistant/evaluate.py": "ccfeedbee0f519c58e53a90f6efcd3344089d0f205305f57cfdaa99965f1dc9f",
+    "src/factoryguard/assistant/evaluate.py": "54a241a82deaf07520a6886bbc538339a921fba58e118967c35341d6f88ad355",
     "src/factoryguard/assistant/evidence.py": "99eee7b87029e015aa4af44335701ee334786655597cf64b4a5065abda9f9024",
     "src/factoryguard/assistant/mcp_server.py": "58d0a7bf8d0bae5352e020008e84daa86d1a5d1dca660dad75f10d43c45749c5",
     "src/factoryguard/assistant/retrieval.py": "dfa851bc61b71de37ad5ee6a7fc2efcc443f33c2eec901d6faac230500688bac",
@@ -112,7 +112,7 @@
     "src/factoryguard/storage/__init__.py": "1dbd8e9f0c5a1cf63223092c168c46c8fbd886face5fadfff6a664a0f958ea95",
     "src/factoryguard/util.py": "1c206f479746fc454731f2f48b62373f3db4e2b1289def29c492e4da97671c62",
     "tests/test_archive.py": "a1d8e461580c7c6de2eb10cb1ac1ec8a044db01a2e1a8dee803236c2f5c9f49c",
-    "tests/test_assistant_evidence.py": "c48a3f7c2556849ae6b1ec27980ec7911b03bb9f214cef6eee7c61ab2d280a93",
+    "tests/test_assistant_evidence.py": "9f01868ce41b8abeec484e93b5d5866a20d065d48960e3bfce017ace0d55952c",
     "tests/test_b01_features.py": "fccb05f10b8c9c1ac7b7cd90bdbc696e59b2fa5ea1d8396babdee015e957b219",
     "tests/test_development_assessment.py": "a752f81183b753c0738929fccec62d5034fecd94a9f18bc8961aced85791af56",
     "tests/test_forecasting.py": "5610df3720ba5dcd15c5764bf52779a6550163b2cceb0a3ba2a3d1b972b41613",
@@ -131,6 +131,6 @@
     "tests/test_selection_dashboard.py": "9be5d902ca6f15b8b63eee5b90569b954f13f399564ff5213471cb39aa4510e6",
     "tests/test_validation.py": "85c07b317a1b86db4361fdb04cf7717b092bbcd587c742e793d1228ddcd1fc5e"
   },
-  "nodes": 891,
-  "edges": 2364
+  "nodes": 918,
+  "edges": 2410
 }

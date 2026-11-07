@@ -66,3 +66,4 @@ def evaluate(index, mode='lexical', output=None):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--index',default=str(ROOT/'reports/local/assistant/docs.sqlite'));p.add_argument('--mode',choices=['lexical','hybrid'],default='lexical');p.add_argument('--output',default=str(ROOT/'reports/local/assistant/evaluation.json'));a=p.parse_args()
     result=evaluate(DocumentationIndex(a.index),a.mode,a.output);print(json.dumps(result['summary'],indent=2))
+    raise SystemExit(0 if all(case['passed'] for case in result['cases']) else 1)

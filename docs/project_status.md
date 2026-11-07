@@ -1,5 +1,20 @@
 # Current project status: development release v3
 
+## Assistant verification follow-up — 2026-11-07
+
+Inspected remote `d7c2806` CI: Ubuntu assistant and Windows/Ubuntu legacy jobs
+passed; Windows assistant failed because fixture SQLite connections were not
+closed. Fixed the fixtures and added deterministic application cleanup checks.
+The evaluation command now exits nonzero on failed cases, retaining its JSON
+report. Local checks: 138 Python tests (no skips/failures), 17 TypeScript tests,
+TypeScript build and all 40 unchanged lexical cases passed. Browser checks below
+were not rerun for this follow-up. Remote verification of the fix follows pushing.
+Embedding download succeeded here, but automatic approval review blocked continuing
+the hybrid check because of a runtime Microsoft telemetry connection. No hybrid
+metrics are claimed. Live smoke needs a server API key; independent human review
+remains pending. No scientific/model/data changes, merge or deployment.
+See [verification details](results/assistant-v1/report.md#follow-up-verification--2026-11-07).
+
 ## Optional evidence-grounded assistant — 2026-11-07
 
 Feature branch `evidence-assistant` began at `85b99af` with a clean 122-test
