@@ -153,8 +153,9 @@ no installed Graphify, API or raw files. Full existing application tests should
 still pass using the project's documented environment. No numerical results,
 features, model settings, raw files or reserve plans are changed by this integration.
 
-Verified locally on 2026-11-07: all 122 tests passed (116 existing plus six context
-tests). The graph contains 688 nodes / 1,926 relationships with real relative
+At the initial context integration on 2026-11-07, all 122 tests passed (116 existing
+plus six context tests). The graph then contained 688 nodes / 1,926 relationships; use
+provenance/status for the latest counts after subsequent feature work. Real relative
 locations. Query/explain retrieval and the one-hop EXTRACTED `export() → Store`
 path succeeded; an unchanged incremental run skipped extraction. Zero LLM token
 cost is reported for this AST build; no percentage token-savings claim is made

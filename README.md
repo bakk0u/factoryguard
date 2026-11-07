@@ -16,6 +16,11 @@
 
 ## Explore the dashboard
 
+Optional local extension: [evidence-grounded investigation assistant](docs/assistant.md)
+retrieves recorded evidence through MCP before generating an answer. The public
+static dashboard remains independent; offline fixture mode and opt-in live mode
+are labelled separately. No new forecasting-model training is involved.
+
 <a href="https://bakk0u.github.io/factoryguard/">
   <picture>
     <source media="(max-width: 600px)" srcset="docs/images/reviewer-mobile.png">

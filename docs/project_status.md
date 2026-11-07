@@ -1,5 +1,31 @@
 # Current project status: development release v3
 
+## Optional evidence-grounded assistant — 2026-11-07
+
+Feature branch `evidence-assistant` began at `85b99af` with a clean 122-test
+baseline. The new optional Fastify/TypeScript service discovers/calls seven real
+Python MCP tools over stdio, retrieves scoped numerical/doc evidence before the
+first generation call, assembles bounded deduplicated context and validates
+structured answers/citations. Additional retrieval, progress, cancellation and
+retrieval/assembly/generation traces are implemented. Python owns read-only evidence
+and transactional index/refresh/bundle workflows. The optional local dashboard
+injects Ask about this period; the static public site and old CLI remain independent.
+
+Verification: 135 Python tests and 17 TypeScript tests passed; 40 frozen offline
+evidence/retrieval cases passed (20 development, 20 held-out questions; eight
+documentation source queries). Browser desktop/mobile, real MCP-backed fixture
+answers, selected replay/channel/period and old reports passed. Synthetic demo,
+real B01 demo/export and dependency checks passed. Original 2,607 reviewer events,
+432 saved comparison rows, forecasts and scientific exclusions remain unchanged.
+
+Limitations: actual BGE embeddings could not download from `huggingface.co` (proxy
+403); hybrid retrieval comparison remains pending, with no fake-vector fallback.
+Live OpenAI smoke and independent human review are not executed. Offline fixtures
+are labelled; citation membership is not semantic entailment. New Windows/Ubuntu
+assistant CI is configured but remote results need independent verification when
+API access is unavailable. No real-data fitting, B03/raw access, B04 correction,
+merge or deployment. [Setup/contracts](assistant.md) · [Evaluation](results/assistant-v1/report.md).
+
 ## Persistent-context verification — 2026-11-07
 
 Official Graphify 0.9.103 and its wrapper returned fresh status and useful scoped

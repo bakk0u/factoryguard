@@ -23,6 +23,8 @@
   `GRAPHIFY_BACKEND=none`; use code-only builds. Do not index raw/data storage,
   B03, result payloads, private notes or secrets. Do not enable cloud/MCP servers,
   semantic extraction, automatic Git hooks or parallel agents for this setup.
+  The separately authorized optional investigation assistant uses a local read-only
+  evidence MCP server; this does not enable a Graphify MCP/cloud service.
 - Update memory after material changes with source paths, exact checks and known
   blockers; distinguish independently reported verification from observed checks.
   Keep it concise; detailed history belongs in docs/ and Git, not duplicated here.

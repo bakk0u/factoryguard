@@ -11,6 +11,9 @@ build/
 dist/
 graphify-out/
 node_modules/
+assistant/dist/
+assistant/package-lock.json
+assistant/evaluation/
 .env*
 *.mat
 *.zip
