@@ -1,0 +1,3 @@
+# Local AST queries only. No semantic backend or credentials are configured here.
+query_budget=1200
+query_depth=2

@@ -9,6 +9,8 @@ requires-python = ">=3.10"
 dependencies = ["numpy>=1.24,<3", "pandas>=2.0,<3", "matplotlib>=3.7,<4", "scipy>=1.11,<2", "scikit-learn>=1.5,<2"]
 [project.optional-dependencies]
 campaign = ["xgboost-cpu==3.0.5"]
+assistant = ["mcp==1.30.0"]
+retrieval = ["fastembed==0.9.1"]
 [project.scripts]
 factoryguard = "factoryguard.release.__main__:main"
 [tool.setuptools.packages.find]

@@ -1,5 +1,18 @@
 # Development release architecture
 
+The optional [evidence assistant](assistant.md) adds a local Fastify/TypeScript
+request orchestrator and official MCP stdio client, with Python read-only evidence
+and documentation services. Its mandatory retrieve → assemble → generate sequence
+uses the existing pinned replay or revealed SQLite events; it does not replace
+the core application or the static site. Only the local assistant route injects
+the new investigation entry point. Python owns numerical/index workflows; browser
+notes, old exports and all saved forecasting results retain their existing roles.
+
+Contributor context is separate from runtime: [PROJECT_MEMORY.md](../PROJECT_MEMORY.md)
+provides the short orientation, while the optional local AST graph and
+[context helper](project_context.md) support scoped navigation and stale detection.
+Neither changes the application architecture or scientific data-access rules.
+
 Public presentation uses `scripts/build_reviewer_site.py` to integrity-check
 `site/source-manifest.json`, embed the pinned derived replay/results and reuse
 the portable dashboard with `site/reviewer.js` presentation controls. Visitors

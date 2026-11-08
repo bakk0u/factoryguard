@@ -1,5 +1,71 @@
 # Current project status: development release v3
 
+## Assistant verification follow-up — 2026-11-07
+
+Inspected remote `d7c2806` CI: Ubuntu assistant and Windows/Ubuntu legacy jobs
+passed; Windows assistant failed because fixture SQLite connections were not
+closed. Fixed the fixtures and added deterministic application cleanup checks.
+The evaluation command now exits nonzero on failed cases, retaining its JSON
+report. Local checks: 138 Python tests (no skips/failures), 17 TypeScript tests,
+TypeScript build and all 40 unchanged lexical cases passed. Browser checks below
+were not rerun for this follow-up. Remote verification of the fix follows pushing.
+Embedding download succeeded here, but automatic approval review blocked continuing
+the hybrid check because of a runtime Microsoft telemetry connection. No hybrid
+metrics are claimed. Live smoke needs a server API key; independent human review
+remains pending. No scientific/model/data changes, merge or deployment.
+See [verification details](results/assistant-v1/report.md#follow-up-verification--2026-11-07).
+
+## Optional evidence-grounded assistant — 2026-11-07
+
+Feature branch `evidence-assistant` began at `85b99af` with a clean 122-test
+baseline. The new optional Fastify/TypeScript service discovers/calls seven real
+Python MCP tools over stdio, retrieves scoped numerical/doc evidence before the
+first generation call, assembles bounded deduplicated context and validates
+structured answers/citations. Additional retrieval, progress, cancellation and
+retrieval/assembly/generation traces are implemented. Python owns read-only evidence
+and transactional index/refresh/bundle workflows. The optional local dashboard
+injects Ask about this period; the static public site and old CLI remain independent.
+
+Verification: 135 Python tests and 17 TypeScript tests passed; 40 frozen offline
+evidence/retrieval cases passed (20 development, 20 held-out questions; eight
+documentation source queries). Browser desktop/mobile, real MCP-backed fixture
+answers, selected replay/channel/period and old reports passed. Synthetic demo,
+real B01 demo/export and dependency checks passed. Original 2,607 reviewer events,
+432 saved comparison rows, forecasts and scientific exclusions remain unchanged.
+
+Limitations: actual BGE embeddings could not download from `huggingface.co` (proxy
+403); hybrid retrieval comparison remains pending, with no fake-vector fallback.
+Live OpenAI smoke and independent human review are not executed. Offline fixtures
+are labelled; citation membership is not semantic entailment. New Windows/Ubuntu
+assistant CI is configured but remote results need independent verification when
+API access is unavailable. No real-data fitting, B03/raw access, B04 correction,
+merge or deployment. [Setup/contracts](assistant.md) · [Evaluation](results/assistant-v1/report.md).
+
+## Persistent-context verification — 2026-11-07
+
+Official Graphify 0.9.103 and its wrapper returned fresh status and useful scoped
+query results. Core memory claims match the committed saved artifacts. Clarified
+that context is on `graphify-project-memory`, not master, and that AGENTS requires
+memory reads/startup commands rather than a no-op hook executing them. Native
+fresh-session prompt diagnostics are blocked by a read-only Codex filesystem;
+automatic future-session loading is not claimed end-to-end verified. No application,
+scientific result or B03/raw-data change is made. See [details](project_context.md).
+
+## Optional persistent context — 2026-11-07
+
+`PROJECT_MEMORY.md` provides concise verified orientation and source pointers.
+The project-scoped official Graphify Codex integration (graphifyy 0.9.103) uses a
+local code-only graph, bounded queries and content-hash freshness checks through
+`scripts/project_context.py`. Tool environments/caches stay outside runtime and
+Git; a portable graph/report/provenance is versioned. Raw/data storage, result
+payloads, B03, docs and credentials are excluded from indexing. No semantic backend,
+cloud/MCP service, automatic Git rebuild hook or model campaign is enabled.
+See [context setup and maintenance](project_context.md). Newer visual README and
+public-verification commits from master `589f502` were preserved during integration.
+Local verification: 122 tests passed, including six new context tests. Query,
+explain and EXTRACTED export-to-Store path retrieval passed; the code-only graph
+has 688 nodes / 1,926 relationships, and a no-change incremental update reused it.
+
 ## Public-release documentation — 2026-10-27
 
 PR #1 is merged at master `fc772e5faa4b556245322a8f7ee043d1cf5e074c`.
