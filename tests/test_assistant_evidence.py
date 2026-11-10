@@ -55,6 +55,38 @@ class AssistantEvidenceTests(unittest.TestCase):
         self.assertIsNone(result['records'][0]['data']['values']['settled_error']['value'])
         self.assertTrue(result['missing'])
 
+    def test_channel_isolation_preserves_selected_changes_and_source_snapshot(self):
+        import copy
+        before=copy.deepcopy(self.service.replay)
+        for channel,other in (('A','C'),('C','A')):
+            s=self.selection(channel=channel,stop=3,as_of=3)
+            records=self.service.get_measurements(s)['records']
+            changes=self.service.get_investigation_summary(s)['records'][0]['data']['last_recorded_changes']
+            for change in [changes,*[r['data']['recorded_change_evidence'] for r in records]]:
+                self.assertNotIn(f'feature__{other}_ac_rms_v',change['sudden'])
+                self.assertNotIn(f'feature__{other}_ac_rms_v',change['sustained'])
+                self.assertIn(f'feature__{channel}_ac_rms_v',change['sudden'])
+            for record in records:
+                for warning in record['data']['warnings']:
+                    if warning['kind']=='forecast':
+                        text=' '.join(warning['evidence'])
+                        self.assertIn(f'forecast {channel}:',text)
+                        self.assertNotIn('A/C:',text)
+            for record in records:
+                position=record['data']['position']
+                expected=self.service.replay['states']['B01']['events'][position-1]['rms_v']['AC'.index(channel)]
+                self.assertEqual(record['data']['values']['rms'],{'value':expected,'unit':'V'})
+        self.assertEqual(self.service.replay,before)
+        supported=next(i for i,e in enumerate(self.service.replay['states']['B01']['events'],1) if e['context_reference']['measures'])
+        for channel,other in (('A','C'),('C','A')):
+            s=self.selection(channel=channel,start=supported,stop=supported,as_of=supported)
+            original=self.service.replay['states']['B01']['events'][supported-1]['context_reference']['measures']
+            reference=self.service.get_measurements(s)['records'][0]['data']['reference_support']['measures']
+            self.assertNotIn(f'feature__{other}_ac_rms_v',reference)
+            self.assertEqual(reference[f'feature__{channel}_ac_rms_v'],original[f'feature__{channel}_ac_rms_v'])
+            summary=self.service.get_investigation_summary(s)['records'][0]['data']['last_reference_support']['measures']
+            self.assertEqual(summary,reference)
+
     def test_summary_matches_saved_scored_pairs(self):
         summary=self.service.get_investigation_summary(self.selection())['records'][0]['data']
         errors=[e['resolved']['error_v'][0] for e in self.service.replay['states']['B01']['events'][1:8]]
@@ -108,6 +140,13 @@ class AssistantEvidenceTests(unittest.TestCase):
             service=EvidenceService(workspace=tmp)
             service.get_measurements(self.selection(stop=3,as_of=3))
             with self.assertRaises(ValueError):service.get_measurements(self.selection())
+            # Reusing the service never caches evidence across an authoritative cursor reset.
+            with closing(sqlite3.connect(db)) as con, con:
+                con.execute('UPDATE cursors SET position=1 WHERE run=?',('B01',))
+            with self.assertRaisesRegex(ValueError,'not been revealed'):
+                service.get_measurements(self.selection(stop=3,as_of=3))
+            with closing(sqlite3.connect(db)) as con, con:
+                con.execute('UPDATE cursors SET position=3 WHERE run=?',('B01',))
             with closing(sqlite3.connect(db)) as con, con:
                 e=copy.deepcopy(events[1]);e['resolved']['error_v'][0]=999
                 con.execute('UPDATE events SET body=? WHERE position=1',(json.dumps(e),))

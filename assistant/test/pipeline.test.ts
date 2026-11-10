@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, mkdtempSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
+import { withoutCredentials } from "../src/config.js";
 import os from "node:os";
 import path from "node:path";
 import { connectEvidence, ROOT } from "../src/mcp.js";
@@ -41,7 +42,7 @@ execFileSync(
         : ".venv/bin/python",
     ),
   ["-m", "factoryguard.assistant.workflows", "index"],
-  { cwd: ROOT, stdio: "pipe" },
+  { cwd: ROOT, stdio: "pipe", env: withoutCredentials() },
 );
 
 test("N01 real MCP discovers seven tools and executes a scoped Python summary", async () => {

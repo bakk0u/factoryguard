@@ -4,6 +4,7 @@ import {
   type InvestigationRequest,
   type EvidenceRecord,
 } from "./contracts.js";
+import { isDeepStrictEqual } from "node:util";
 export function assembleContext(
   request: InvestigationRequest,
   retrieved: unknown[],
@@ -21,8 +22,8 @@ export function assembleContext(
   };
   const ids = new Set<string>(),
     passages = new Set<string>();
-  for (const raw of retrieved) {
-    const item = envelopeSchema.parse(raw);
+  const envelopes = retrieved.map(raw => envelopeSchema.parse(raw));
+  for (const item of envelopes) {
     if (
       item.snapshot !== request.selection.snapshot ||
       JSON.stringify(item.selection) !== JSON.stringify(request.selection)
@@ -40,24 +41,34 @@ export function assembleContext(
   }
   context.warnings = [...new Set(context.warnings)];
   context.limitations = [...new Set(context.limitations)];
-  context.missing = [
+  const missing = [
     ...new Map(context.missing.map((m) => [JSON.stringify(m), m])).values(),
-  ].slice(0, 40);
+  ];
+  context.missing = missing.length > 40 ? [...missing.slice(0,39), {
+    code: "missing_evidence_truncated",
+    detail: `${missing.length - 39} additional missing-evidence entries omitted; null measurements remain unavailable, never imputed.`,
+  }] : missing;
   // Summaries and quality are first so sparse per-observation pages cannot crowd them out.
-  const records = retrieved
-    .flatMap((raw) => envelopeSchema.parse(raw).records)
+  const records = envelopes
+    .flatMap(item => item.records)
     .sort((a, b) => priority(a) - priority(b));
+  let size = JSON.stringify(context).length;
+  const recordsById = new Map<string, EvidenceRecord>();
   for (const record of records) {
+    const prior = recordsById.get(record.id);
+    if (prior && !isDeepStrictEqual(prior,record)) throw Error("Conflicting evidence for stable citation ID");
+    recordsById.set(record.id,record);
     const doc = record.kind === "documentation";
     const key = record.content_sha256 || record.text || record.id;
     if (ids.has(record.id) || (doc && passages.has(key))) continue;
     const target = doc ? context.passages : context.facts;
-    target.push(record);
-    if (JSON.stringify(context).length > maxChars - 700) {
-      target.pop();
+    const addition = JSON.stringify(record).length + (target.length ? 1 : 0);
+    if (size + addition > maxChars - 700) {
       context.budget.omitted_records++;
       continue;
     }
+    target.push(record);
+    size += addition;
     ids.add(record.id);
     if (doc) passages.add(key);
   }
@@ -79,6 +90,24 @@ export function assembleContext(
   if (JSON.stringify(context).length > maxChars)
     throw Error("Context package exceeds budget");
   return context;
+}
+
+/** Lossless provider transport: share provenance, retaining every ID/value/unit/warning. */
+export function providerContext(context: ContextPackage) {
+  const sources: EvidenceRecord["source"][] = [];
+  const indices = new Map<string, number>();
+  const compact = (record: EvidenceRecord) => {
+    const { source, ...rest } = record;
+    const key = JSON.stringify(source);
+    let index = indices.get(key);
+    if (index === undefined) {
+      index = sources.length;
+      indices.set(key, index);
+      sources.push(source);
+    }
+    return { ...rest, source_ref: index };
+  };
+  return { ...context, facts: context.facts.map(compact), passages: context.passages.map(compact), sources };
 }
 function priority(r: EvidenceRecord) {
   return r.kind === "period"

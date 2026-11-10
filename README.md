@@ -37,7 +37,15 @@ are labelled separately. No new forecasting-model training is involved.
   <img src="docs/images/readme/workflow.svg" width="100%" alt="Three investigation steps: locate the change, inspect its context, capture the evidence.">
 </picture>
 
-Start in **Overview → Explore measurements**, select an experiment and an observation or period, then inspect its operating context and reference support. Open **Methods and evidence** to examine every evaluated model and its provenance.
+The local reviewer redesign opens on **Start here → Walk through an investigation**:
+a deterministic B01/A example needs no API key. **Explore measurements** retains
+replay, notes and evidence exports; **AI assistant** sits beside the selected
+measurements. **Methods & results** and **Engineering** provide deeper evidence
+and reproducibility. See the [local reviewer guide](docs/reviewer_site.md).
+The local Layout 3 presentation adds a revealed-notice rail and a clickable
+Engineering system map, with short examples and expandable technical details.
+The public deployment and historical screenshots have not been updated by this
+local redesign.
 
 | Investigate | What you can inspect |
 | :--- | :--- |

@@ -1,6 +1,7 @@
 import Fastify from "fastify";
+import { loadLocalConfig } from "./config.js";
 import { EventEmitter } from "node:events";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,6 +10,7 @@ import {
   investigate,
   InvestigationFailure,
   type Activity,
+  publicActivity,
 } from "./orchestrator.js";
 import { ROOT } from "./mcp.js";
 import {
@@ -34,6 +36,7 @@ export async function createApp(provider?: Provider) {
     error?: unknown;
     emitter: EventEmitter;
     task?: Promise<void>;
+    fingerprint: string;
   };
   const jobs = new Map<string, Job>();
   app.addHook("onRequest", async (req, reply) => {
@@ -85,6 +88,11 @@ export async function createApp(provider?: Provider) {
             message: i.message,
           })),
         });
+    const fingerprint = createHash("sha256").update(JSON.stringify(parsed.data)).digest("hex");
+    // In-flight coalescing only: no completed evidence cache that could bypass a reset cursor.
+    const duplicate = [...jobs.values()].find(j => j.status === "running" && j.fingerprint === fingerprint);
+    const accepted = (id: string) => ({ request_id: id, mode, events_url: `/api/investigations/${id}/events` });
+    if (duplicate) return reply.code(202).send(accepted(duplicate.id));
     if ([...jobs.values()].filter((j) => j.status === "running").length >= 3)
       return reply.code(429).send({ error: "local_capacity" });
     if (jobs.size >= 50) {
@@ -98,6 +106,7 @@ export async function createApp(provider?: Provider) {
         controller: new AbortController(),
         events: [],
         emitter: new EventEmitter(),
+        fingerprint,
       };
     jobs.set(id, job);
     const timer = setTimeout(
@@ -111,7 +120,7 @@ export async function createApp(provider?: Provider) {
           provider: selected,
           requestId: id,
           onActivity: (e) => {
-            job.events.push(e);
+            job.events.push(publicActivity(e));
             job.emitter.emit("activity", {
               stage: e.stage,
               event: e.event,
@@ -125,7 +134,8 @@ export async function createApp(provider?: Provider) {
         job.status = "failed";
         job.error =
           e instanceof InvestigationFailure
-            ? { stage: e.stage, code: e.code }
+            ? { stage: e.stage, code: e.code,
+                ...(e.provider_error ? { provider_error: e.provider_error } : {}) }
             : {
                 stage: "validation_or_trace",
                 code: e instanceof Error ? e.name : "unknown",
@@ -137,11 +147,7 @@ export async function createApp(provider?: Provider) {
     })();
     return reply
       .code(202)
-      .send({
-        request_id: id,
-        mode,
-        events_url: `/api/investigations/${id}/events`,
-      });
+      .send(accepted(id));
   });
   app.get<{ Params: { id: string } }>(
     "/api/investigations/:id",
@@ -221,6 +227,7 @@ if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
+  loadLocalConfig(undefined, process.env, process.env.FACTORYGUARD_ASSISTANT_MODE === "live");
   const app = await createApp();
   await app.listen({
     host: "127.0.0.1",

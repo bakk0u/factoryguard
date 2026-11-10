@@ -1,5 +1,151 @@
 # Current project status: development release v3
 
+## Layout 3 and visual Engineering — 2026-11-10
+
+Local dashboard now follows Layout 3: narrow navigation, revealed-notice Attention
+rail, orange interpretation panel and three investigation stages, while retaining
+the five guidance questions and parallel desktop measurements/assistant. Start
+has 119 visible words; charts, short labels and expandable scientific/technical
+details replace long introductory/method text. Engineering has 14 clickable,
+keyboard-accessible system components with examples/source contracts; implemented,
+optional/unevaluated and future hosting are distinguished. No automatic requests.
+
+Build, 41 TS tests, 144 Python tests, all 40 frozen retrieval cases and three real
+Chrome workflows passed (desktop/tablet/mobile, architecture, replay/notes/report,
+citations, offline/mocked states and direct-file). No new paid/model evaluation,
+forecast-result change, B03 access or deployment. Memory/Graphify updated.
+See [Layout 3 verification](results/assistant-v1/layout3.md); screenshots/logs in
+`reports/local/layout3/`. Offline service: `http://127.0.0.1:8786/`.
+
+## Reviewer-friendly dashboard redesign — 2026-11-09
+
+Start here is default, with a midnight/blue/orange industrial theme, verified
+snapshot facts, plain-language introduction and a deterministic five-step B01/A
+1–3 walkthrough. No saved AI answer is substituted. Existing charts/replay/notes/
+reports/results remain; selected-channel plots sit beside the scoped assistant
+on desktop, with the assistant immediately after plots on mobile. Suggestions
+populate without submitting; fixture/new-answer labels, three answer sections,
+accessible evidence panel and expandable traces distinguish interpretation from
+evidence. Static exports remain useful with generation unavailable. Deeper queue
+filters, Methods & results and Engineering provide progressively technical detail.
+
+Source: `site/reviewer_experience.js`, `site/reviewer.css`, existing reviewer engine
+and `assistant/web/assistant.js`, inlined by the canonical build script. No router,
+app dependency or backend-scope change. Local Chrome/isolated Playwright checks
+passed for the redesign, existing reviewer workflow (including direct file) and
+MCP-backed offline assistant. Build, 41 TS tests, 144 Python tests and 40 frozen
+cases passed, no skips. Screenshots/logs: `reports/local/redesign/`. No paid calls,
+live investigation, source-result changes, B03 access, push/merge/deployment.
+Offline service: `http://127.0.0.1:8786/`. See
+[redesign verification](results/assistant-v1/reviewer-redesign.md).
+
+## Final local setup verification — 2026-11-09
+
+Resolved the optional XGBoost failure without skipping or mocking the original
+test: campaign dependency markers select the same pinned version 3.0.5 via the
+macOS wheel on Darwin and CPU distribution elsewhere. Actual import then exposed
+missing OpenMP; installed checksum-pinned libomp under ignored `.tools` with a
+repo-local interpreter link, without system changes or unrelated package upgrades.
+Original failed test passes; full Python suite **143/143**, focused assistant
+**21/21**, TS build and **41/41** tests, frozen lexical cases **40/40** pass with
+no skips. New synthetic adversarial checks exercise user/retrieved-text scope
+overrides, prohibited tools, forged citations, cursor resets, channel projection,
+fake-secret redaction and documentation boundaries; not real-model robustness.
+
+Optimized service started explicitly live at `http://127.0.0.1:8785/`; GET-only
+health/dashboard checks pass. Browser tooling is unavailable, so no final live
+investigation or CLI smoke was submitted. Offline integration complete; final
+optimized dashboard rendering/citation/claim-support/model-usage checks remain
+pending the documented manual one-request procedure. All current changes are
+local/uncommitted; no saved-result/model/raw/B03 changes. See
+[final local integration record](results/assistant-v1/final-local-integration.md).
+
+## Dashboard answer audit and offline optimization — 2026-11-09
+
+Preserved response/trace for `2d7ed00c-f795-4afe-a177-83fbfb7d5284` by read-only
+GET/file copy. Original result: B01/A 1–3/as_of=3, default dashboard question,
+`gpt-5.4-mini-2026-03-17`, 12,155 ms, one turn, 7,116 input/1,801 output tokens.
+25 citation references resolve to five records; quoted numerical values check out.
+Qualify “sudden,” two-point absolute-error reduction and endpoint-only speed/load
+decreases; concurrent changes do not establish cause. Original nested C-channel
+values were a scope defect, now fixed without altering the original artifacts.
+No original citation interaction was observed; screenshot rendering/control evidence
+is user-supplied, and new interaction tests use an offline DOM mock.
+
+Added in-flight request coalescing/lost-connection guards, compact API activities,
+one-pass/incremental context assembly, explicit missing truncation/conflicting-ID
+checks, lossless provider provenance and reduced tool schemas, refusal/incomplete
+handling, lexical normalization, selected-channel evidence projection and idempotent
+MCP close. No cross-request evidence cache, pooling or parallel retrieval: measured
+retrieval cost did not justify it. Config/model/credential and execution bounds stay.
+
+Observed offline: build, 37 TS tests, 18 assistant Python tests and all 40 frozen
+lexical cases passed. Full Python suite: 140 run, 139 passed, one existing missing
+optional-XGBoost error, zero skips. Controlled result bytes 75,430→27,283;
+tool-schema bytes 6,247→1,875; assembly median 0.1621→0.0641 ms. Canonical context
+slightly grew with more relevant passages; all selected observation values/units
+and six facts remain. These are offline sizes/timings, not actual token/billing
+savings. No live calls; changed version requires future explicit live authorization.
+Detailed findings, tradeoffs, remaining human/prompt-injection/hosting work:
+[offline review](results/assistant-v1/dashboard-offline-review.md).
+
+## Dashboard verification preparation — 2026-11-09
+
+Current checkout retains local assistant config/diagnostics. Build, 30 offline
+TypeScript tests and 17 assistant Python tests passed. Explicit live startup and
+loopback GET health/dashboard checks passed; root dotenv remains ignored,
+untracked, current-owner/0600 and no configured file credential was found in the
+scanned generated assets/reports. No browser connector or installed Playwright/
+Puppeteer is available. Per the user's fallback instruction, paused before any
+dashboard investigation submission; no smoke rerun, answer/citation/claim-support
+verification or screenshots. Manual URL: `http://127.0.0.1:8785/`, B01/A period 1–3,
+replay ending at 3. Local redacted record:
+`reports/local/assistant/dashboard-verification-20261109.json`.
+
+## Bounded live assistant smoke — 2026-11-09
+
+After one separately authorized execution returned a credit-balance HTTP 429,
+the user reported adding credits and authorized one further execution. It passed
+in 13,685 ms, one model turn, with `gpt-5.4-mini-2026-03-17`: 7,109 input and 2,174
+output tokens. Five initial retrievals and context assembly preceded generation
+for B01/A observations 1–3 (as_of=3). Schema/citation validation passed; all 29
+citation references resolve to eight retrieved IDs. Uncertainty and methodological
+limits are acknowledged. This verifies one bounded live pipeline, not general
+answer quality or fresh dashboard/browser behavior. No automatic command rerun,
+configuration/model/billing changes, push/merge/deployment/retraining or B03 access.
+
+## Safe provider diagnostics — 2026-11-09
+
+One explicitly authorized live smoke failed in generation after successful
+five-tool retrieval/context assembly (B01/A positions 1–3). Old orchestration
+discarded exception details beyond the generic name `Error`; the underlying cause
+is not recoverable from the retained log/trace. Added selected, bounded/redacted
+provider metadata (status/code/type/parameter/request ID/message) to failures,
+traces, local API and smoke output, with SDK logging forced off. Raw errors,
+headers, bodies, environment and causes are never emitted. Build and all 30
+TypeScript offline tests passed; mock authentication/quota/invalid-request/
+connection cases and secret-isolation checks included. No additional live request;
+a new smoke needs fresh explicit authorization. Saved results and B03 unchanged.
+
+## Secure local assistant preparation — 2026-11-09
+
+Installed the existing assistant locks with local Python 3.12.16 and Node 24.22.1;
+TypeScript builds. Startup/live smoke explicitly parse only root `.env.local`
+with Node `util.parseEnv`; process values win and file values cannot enable live
+mode. Offline remains default. Python site-build/MCP and Git subprocesses exclude
+the API credential; the configured model is preserved. Existing ignored/untracked
+dotenv contents were preserved and POSIX permissions restricted to 0600.
+
+Observed: 22 TypeScript tests, 17 focused assistant Python tests, six dashboard
+Python tests and 40 frozen offline evaluation cases passed. Local startup/dashboard
+and real MCP-backed offline request passed. Full Python regression: 139 run,
+138 passed, one error because optional XGBoost is absent; initial socket/temp-path
+environment errors cleared with loopback access and `TMPDIR=/private/tmp`.
+Playwright unavailable, so no fresh browser automation. Credential-presence and
+artifact-isolation checks returned metadata only. No paid requests; live smoke
+awaits explicit user confirmation. Saved results/site sources and B03 unchanged.
+Graphify remains local AST-only. See [startup and bounded smoke](assistant.md).
+
 ## Assistant verification follow-up — 2026-11-07
 
 Inspected remote `d7c2806` CI: Ubuntu assistant and Windows/Ubuntu legacy jobs

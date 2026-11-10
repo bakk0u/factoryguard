@@ -18,6 +18,16 @@ DOCUMENTS = {
 }
 MODEL = 'BAAI/bge-small-en-v1.5'
 MODEL_REPO = 'Qdrant/bge-small-en-v1.5-onnx-Q'
+RETRIEVAL_VERSION = 2
+STOPWORDS = set('a an the this that these those what which when where why how is are was were be been '
+                'and or but if for from to of in on at by with as it its during remains remain only show shows'.split())
+
+
+def search_tokens(text):
+    # Small explicit lexical normalization; no learned expansion or semantic fallback.
+    aliases = {'changed': 'change', 'changes': 'change', 'warnings': 'warning',
+               'limitations': 'limitation', 'measurements': 'measurement', 'observations': 'observation'}
+    return [aliases.get(t, t) for t in tokens(text) if t not in STOPWORDS]
 
 
 def sha(value):
@@ -117,7 +127,7 @@ class DocumentationIndex:
         if {p['id'] for p, _ in rows} != actual:
             raise ValueError('Documentation index stale; run the index workflow')
         rows = [(p, v) for p, v in rows if not replay or p['availability'] == 'pre_replay_method']
-        query = Counter(tokens(question)); docs = [Counter(tokens(p['text'] + ' ' + p['source']['section'])) for p, _ in rows]
+        query = Counter(search_tokens(question)); docs = [Counter(search_tokens(p['text'] + ' ' + p['source']['section'])) for p, _ in rows]
         frequencies = Counter(t for d in docs for t in d)
         scores = [sum(min(d[t], 3) * n * math.log(1 + len(docs) / (1 + frequencies[t])) for t, n in query.items()) for d in docs]
         ranked = sorted(range(len(rows)), key=lambda i: (-scores[i], rows[i][0]['id']))
@@ -154,6 +164,6 @@ class DocumentationIndex:
             if len(found) == limit:
                 break
         return {'records': found, 'missing': [] if found else [{'code': 'no_document_match', 'detail': 'No supporting passage found'}],
-                'retrieval': {'version': 1, 'mode': mode, 'limit': limit, 'warnings': warnings,
+                'retrieval': {'version': RETRIEVAL_VERSION, 'mode': mode, 'limit': limit, 'warnings': warnings,
                               'corpus_sha256': sha(json.dumps(sorted(p['id'] for p, _ in rows)).encode()),
                               'embedding_model': MODEL if mode == 'hybrid' else None}}
