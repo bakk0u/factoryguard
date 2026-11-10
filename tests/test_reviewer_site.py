@@ -5,12 +5,24 @@ import io
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('reviewer',ROOT/'scripts/build_reviewer_site.py')
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
 class ReviewerSiteTests(unittest.TestCase):
+    def test_reviewer_sources_include_guidance_without_generation_and_scrub_build_child(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.dict('os.environ',{'OPENAI_API_KEY':'synthetic-build-secret'}), patch.object(module.subprocess,'check_output',return_value='fixture-commit\n') as git:
+                module.build(tmp)
+                self.assertNotIn('OPENAI_API_KEY',git.call_args.kwargs['env'])
+            page=(Path(tmp)/'index.html').read_text()
+            for text in ('Start here','Walk through an investigation','Guided walkthrough · deterministic guidance','Ask about these measurements','--midnight:#02070A','--blue:#0297DE','--orange:#FC734D'):
+                self.assertIn(text,page)
+            self.assertNotIn('synthetic-build-secret',page)
+            self.assertNotIn('<script src="/assistant-ui.js">',page)
+
     def test_pinned_build_and_safe_contents(self):
         with tempfile.TemporaryDirectory() as tmp:
             module.build(tmp)

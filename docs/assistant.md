@@ -3,8 +3,8 @@
 This extension adds an optional TypeScript application service; the existing Python
 CLI, SQLite replay app, saved forecasting results and static public site stay usable
 independently. No forecasting model is retrained. The static site has no assistant
-backend, credentials or misleading live preview: the new entry point is injected
-only when the local assistant service serves the existing reviewer dashboard.
+backend or credentials. Shared dashboard markup has an honest static unavailable
+state; only the local assistant service injects the API integration script.
 
 ## Setup and one-command startup
 
@@ -17,22 +17,101 @@ npm ci --prefix assistant
 python scripts/start_assistant.py
 ```
 
-Open <http://127.0.0.1:8785/> on the same machine. Choose Explore, a channel and
-period, then Ask about this period. Default **offline mode** still retrieves real
+Open <http://127.0.0.1:8785/> on the same machine. The reviewer entry is **Start
+here**. Choose **Walk through an investigation** for deterministic B01/A
+observations 1–3, or **Explore measurements** to choose another revealed period.
+The assistant sits beside the matching selected-channel plots (directly after
+them on mobile), with visible experiment/channel/range/replay boundary. Suggested
+questions populate the input without submitting. Only **Ask about this period**
+submits. Default **offline mode** still retrieves real
 saved measurements through actual MCP, but generation uses a visibly labelled
 deterministic fixture. It demonstrates plumbing, not language-model capability.
 No Python server, SDK or key is required by visitors to the existing public site.
 
-For opt-in live generation, supply `OPENAI_API_KEY` privately in the server
-environment and run `python scripts/start_assistant.py --live`. Model defaults to
-`gpt-5.4-mini`; override `FACTORYGUARD_LLM_MODEL` explicitly. The launcher does not
-load arbitrary dotenv files. No key reaches JavaScript in the browser, MCP
-subprocesses or traces. `assistant/.env.example` lists configuration names only.
+The walkthrough uses local deterministic guidance, not a saved AI answer. New
+responses are labelled **Offline fixture response** or **Newly generated answer**
+and show their captured question and scope. Observations, possible explanations
+and uncertainty/limitations remain separate. Citation buttons open matching
+values, units, source text and provenance in a keyboard-focusable panel; Escape
+closes it and restores focus. Detailed JSON and staged activity stay expandable.
+The static export retains the walkthrough, suggestions and exploration with an
+honest unavailable state for new generation. This presentation changes no backend
+scope or validation rules. Browser tests target only a health-confirmed offline
+service, and generated/error/cancel states can be mocked without a provider call.
+Layout 3 keeps measurements beside the assistant on desktop and uses concise
+labels/disclosures. Its interactive Engineering diagram explains the actual
+retrieval-before-generation path and distinguishes future/unevaluated components;
+diagram interactions make no API or model request.
 
-A separate bounded live check is `FACTORYGUARD_ALLOW_LIVE=1 npm run live-smoke
---prefix assistant` with the key already set (PowerShell: set environment variables
-using `$env:NAME=...`). No live model check is claimed without executing it. This
-task leaves merging, external deployment and public assistant exposure out of scope.
+### Optional XGBoost test setup on macOS
+
+The complete Python regression suite exercises XGBoost on small synthetic fixtures.
+With the locked assistant environment already installed, add the campaign extra:
+
+```bash
+env -u OPENAI_API_KEY .tools/bootstrap/bin/uv pip install --python .venv/bin/python --no-deps -r requirements-campaign.txt
+```
+
+The requirements file and `.[campaign]` now select `xgboost==3.0.5` on macOS and
+retain `xgboost-cpu==3.0.5` elsewhere. The latter has Linux/Windows amd64 wheels,
+not macOS wheels; see the [official 3.0.5 installation guide](https://xgboost.readthedocs.io/en/release_3.0.0/install.html).
+Core/assistant pins are unchanged. If pip is present, the equivalent command is
+`.venv/bin/python -m pip install --no-deps -r requirements-campaign.txt`.
+On a fresh environment install the existing core/assistant lock first; `--no-deps`
+here deliberately preserves its already-installed package versions.
+
+Only diagnose OpenMP if import actually reports missing `libomp.dylib`. Standard
+Homebrew users can install it with `brew install libomp`. In this checkout, no
+Homebrew is installed: the observed macOS 27.2/arm64 setup uses an official public
+Homebrew libomp 23.1.5 bottle in ignored `.tools/`, checksum-verified before reading
+a single known archive member. No system package or global loader setting changes:
+
+```bash
+env -u OPENAI_API_KEY curl --fail --location --silent --show-error -H 'Authorization: Bearer QQ==' \
+  https://ghcr.io/v2/homebrew/core/libomp/blobs/sha256:64eacbcd08fbec3ebb7076be89466a53d5548a7dbee3542d756b788047277589 \
+  -o .tools/libomp-23.1.5-arm64.tar.gz
+env -u OPENAI_API_KEY .venv/bin/python scripts/setup_macos_openmp.py .tools/libomp-23.1.5-arm64.tar.gz
+env -u OPENAI_API_KEY .venv/bin/python -c 'import xgboost; print(xgboost.__version__)'
+env -u OPENAI_API_KEY .venv/bin/python -m unittest discover -s tests -p test_release_modeling.py -k future_independence -v
+```
+
+`QQ==` is the public registry's anonymous download value, not a private API key.
+The helper is for macOS arm64 with the repository-local `.tools` Python used by
+`.venv`; it refuses another interpreter location, wrong checksum or replacement
+of an unrelated library. It links the local runtime into that interpreter's lib
+directory, where the observed loader searches. Other macOS versions/architectures
+should use their supported runtime rather than assume this bottle is compatible.
+The installed package imports as `xgboost` on both distribution paths. This setup
+does not run a project campaign or modify saved forecasting results.
+
+Local startup and live smoke use Node's standard `util.parseEnv` parser with only
+the repository-root `.env.local`, independent of the working directory. They never
+search parent directories or load `.env` or `assistant/.env.local`. Existing process
+values take precedence, including empty values. Keep `.env.local` ignored,
+untracked and owner-only (`chmod 600 .env.local` on POSIX); do not commit or print it.
+No file is created or overwritten by startup. `assistant/.env.example` lists names.
+
+For opt-in live generation, provide `OPENAI_API_KEY` privately in that file or the
+server environment and run `.venv/bin/python scripts/start_assistant.py --live`.
+Model defaults to `gpt-5.4-mini`; `FACTORYGUARD_LLM_MODEL` is preserved. Live startup
+rejects missing/blank credentials before generation. Offline startup removes the
+process credential and never loads the file credential. Only the Node generation
+server/live smoke receives it; Python site builds, MCP and Git subprocesses do not.
+The launcher does not parse credentials in Python. Browser assets and traces do
+not contain keys. Configuration files cannot enable live mode or the smoke gate.
+
+After explicit approval, run this from the repository root (POSIX):
+
+```bash
+FACTORYGUARD_ALLOW_LIVE=1 npm run live-smoke --prefix assistant
+```
+
+PowerShell: set `$env:FACTORYGUARD_ALLOW_LIVE='1'`, then run the npm command.
+This performs one fixed B01/A replay investigation at observations 1–3, with a
+60-second overall timeout, at most three model turns, 2,200 output tokens per turn,
+nine evidence calls and at most one SDK retry per turn. It preserves the configured
+model and prints only status/model/usage/latency metadata. No live model check is
+claimed without executing it. Preparation and offline checks make no paid requests.
 
 ## Retrieve → assemble → generate
 
@@ -176,6 +255,31 @@ and at most one SDK retry for transient provider failures. Whole-request timeout
 is 60s, three concurrent jobs, 50 retained job slots. The API is loopback-only with
 same-origin checks; it is not authenticated multiuser/enterprise infrastructure.
 
+Offline review follow-up: identical in-flight validated requests from the same
+session coalesce to one job; all question/selection/retrieval fields participate.
+Completed responses are not an evidence cache: a deliberate later request rechecks
+the current cursor. Frontend SSE loss or unknown POST acknowledgement keeps the
+submission locked, without automatic resubmission. An identified job can be
+cancelled; acknowledgement releases the UI while cleanup may still be finishing.
+This is not durable idempotency across completion/restarts or hosted access control.
+
+Prompt v2 clarifies descriptive current-minus-previous changes, signed versus
+absolute errors and non-causal interpretation. Provider input uses a lossless
+shared-source table; full canonical provenance remains in the trace/browser
+context. Model tool schemas omit application-owned selection and unreachable
+definitions; the MCP client always inserts validated selection independently.
+Refusal/incomplete responses fail explicitly. Response activity metadata no longer
+duplicates full tool/context/answer payloads; those remain in the local trace.
+Numerical evidence is scoped to the selected channel, including change/reference
+maps and forecast notices. Lexical retrieval v2 normalizes a small explicit word
+list without changing chunk IDs or document visibility. Context assembly validates
+once, rejects conflicting citation IDs and explicitly reports missing-list truncation.
+No cross-request evidence cache or shared MCP process was added.
+
+The [dashboard offline audit](results/assistant-v1/dashboard-offline-review.md)
+reviews saved request `2d7ed00c-f795-4afe-a177-83fbfb7d5284` claim by claim and
+distinguishes its original live result from these later offline-only changes.
+
 POST `/api/investigations` returns 202/request_id; GET that URL returns state/result,
 GET `/events` streams staged progress over SSE, POST `/cancel` aborts. The browser
 shows no partial free-form model claims while a structured answer is incomplete.
@@ -192,6 +296,44 @@ token usage is null when unavailable, never estimated from fixture text. No mone
 cost is recorded because no documented pricing configuration is supplied. User
 questions/traces can be sensitive: retain locally, never add them to Git. Credential
 patterns and the configured key are redacted; no environment dump is stored.
+
+Provider failures now carry `provider_error` in the failure trace/event, local API
+failure and smoke stderr: category (API/connection/local), HTTP status, API code,
+type, parameter, request ID, and a message capped at 500 characters. Missing fields
+remain null. Only selected scalar fields are retained; API messages come from the
+message field rather than the SDK's potentially serialized error body. Credentials
+are redacted before bounding; structured dumps and unsafe messages are omitted.
+No raw exception/cause, headers, request bodies or environment is emitted. SDK
+logging is explicitly `off`, even if `OPENAI_LOG=debug` is inherited. See the
+[official SDK error documentation](https://developers.openai.com/api/reference/typescript).
+
+The single authorized live smoke on 2026-11-09 retrieved all five initial evidence
+results for B01/A observations 1–3, assembled context at 420 ms and failed during
+generation at 3,637 ms. The old handler retained only `error.name` (`Error`), so no
+HTTP status, API code, request ID, original message, returned model or usage can
+be recovered. This does not identify an authentication, quota, invalid-request or
+connection cause, or prove the API received the request. Schema construction
+succeeds offline. The diagnostic fix passed the build and 30 offline TypeScript
+tests, including mocked SDK failures, credential redaction, logging suppression,
+trace and local API propagation. It made no further live requests. A new bounded
+smoke requires fresh explicit authorization; pipeline success, answer quality and
+browser verification remain separate claims.
+
+Later on 2026-11-09, one separately authorized smoke returned HTTP 429,
+`credit_balance_exhausted` / `insufficient_quota`. After the user reported adding
+credits and authorized one further execution, the unchanged bounded smoke passed:
+`gpt-5.4-mini-2026-03-17`, 7,109 input tokens, 2,174 output tokens, one model turn,
+13,685 ms. Replay state → investigation summary → quality report → measurements →
+documentation retrieval all preceded context assembly and generation. All 29
+citation references resolve to eight retrieved IDs; schema/citation validation
+passed. The selected scope is B01/A observations 1–3, as_of=3. The answer notes
+warm-up/reference limitations, provisional timing and missing sustained-change
+evidence; it does not establish fault/health/RUL. This is one successful live
+pipeline check, not broad answer-quality or new dashboard/browser verification.
+The ignored local trace is
+`reports/local/assistant/traces/c3e49924-14c9-46ed-8704-c58e8cef5e86.json`.
+No command was rerun automatically and no configuration/model/billing change was
+made by the assistant. Any further live execution needs fresh authorization.
 
 ## Verification, interpretation and troubleshooting
 

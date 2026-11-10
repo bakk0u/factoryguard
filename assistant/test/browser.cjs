@@ -1,9 +1,15 @@
 const { chromium } = require("playwright");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const capture=process.env.FACTORYGUARD_SCREENSHOT_DIR||"docs/images";
+fs.mkdirSync(capture,{recursive:true});
 (async () => {
   const base =
     process.env.FACTORYGUARD_BROWSER_BASE || "http://127.0.0.1:8785/";
+  assert.equal((await (await fetch(base+'health')).json()).mode,'offline',
+    'Browser regression requires the offline fixture service; never run it against live generation.');
   const browser = await chromium.launch({
+    env:Object.fromEntries(Object.entries(process.env).filter(([key])=>key!=='OPENAI_API_KEY')),
     executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
     args: ["--no-sandbox"],
   });
@@ -48,8 +54,8 @@ const assert = require("node:assert/strict");
   await page
     .locator("#assistant")
     .evaluate((el) => el.scrollIntoView({ block: "start" }));
-  await page.screenshot({ path: "docs/images/assistant-desktop.png" });
-  await page.locator("#assistant details summary").click();
+  await page.screenshot({ path: capture+"/assistant-desktop.png" });
+  await page.locator("#assistant .technical > summary").click();
   const evidence = JSON.parse(
     await page.locator("#assistantEvidence").innerText(),
   );
@@ -69,11 +75,11 @@ const assert = require("node:assert/strict");
   await page.locator("#report").click();
   await report;
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator("#assistant details summary").click();
+  await page.locator("#assistant .technical > summary").click();
   await page
     .locator("#assistant")
     .evaluate((el) => el.scrollIntoView({ block: "start" }));
-  await page.screenshot({ path: "docs/images/assistant-mobile.png" });
+  await page.screenshot({ path: capture+"/assistant-mobile.png" });
   assert.equal(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,

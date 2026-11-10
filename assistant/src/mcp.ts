@@ -14,6 +14,17 @@ function root() {
   throw Error("FactoryGuard root unavailable");
 }
 export const ROOT = root();
+export function evidenceEnvironment(): Record<string, string> {
+  return {
+    PYTHONPATH: path.join(ROOT, "src"),
+    PYTHONUNBUFFERED: "1",
+    FACTORYGUARD_DOC_INDEX: process.env.FACTORYGUARD_DOC_INDEX ||
+      path.join(ROOT, "reports/local/assistant/docs.sqlite"),
+    ...(process.env.FACTORYGUARD_EVIDENCE_WORKSPACE
+      ? { FACTORYGUARD_EVIDENCE_WORKSPACE: process.env.FACTORYGUARD_EVIDENCE_WORKSPACE }
+      : {}),
+  };
+}
 export interface EvidenceClient {
   tools: Tool[];
   call(
@@ -45,27 +56,18 @@ export async function connectEvidence(
     args: ["-m", "factoryguard.assistant.mcp_server"],
     cwd: ROOT,
     stderr: "pipe",
-    env: {
-      PYTHONPATH: path.join(ROOT, "src"),
-      PYTHONUNBUFFERED: "1",
-      FACTORYGUARD_DOC_INDEX:
-        process.env.FACTORYGUARD_DOC_INDEX ||
-        path.join(ROOT, "reports/local/assistant/docs.sqlite"),
-      ...(process.env.FACTORYGUARD_EVIDENCE_WORKSPACE
-        ? {
-            FACTORYGUARD_EVIDENCE_WORKSPACE:
-              process.env.FACTORYGUARD_EVIDENCE_WORKSPACE,
-          }
-        : {}),
-    },
+    env: evidenceEnvironment(),
   });
   const client = new Client({
     name: "factoryguard-investigation",
     version: "0.1.0",
   });
-  const cancel = () => {
-    void client.close();
+  let closing: Promise<void> | undefined;
+  const close = () => {
+    signal.removeEventListener("abort", cancel);
+    return closing ??= client.close();
   };
+  const cancel = () => { void close().catch(() => {}); };
   signal.addEventListener("abort", cancel, { once: true });
   try {
     signal.throwIfAborted();
@@ -115,13 +117,11 @@ export async function connectEvidence(
         return parsed;
       },
       async close() {
-        signal.removeEventListener("abort", cancel);
-        await client.close();
+        await close();
       },
     };
   } catch (e) {
-    signal.removeEventListener("abort", cancel);
-    await client.close().catch(() => {});
+    await close().catch(() => {});
     throw e;
   }
 }

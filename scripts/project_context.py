@@ -16,7 +16,8 @@ EXCLUDED = ('site/source/', 'assistant/node_modules/', 'assistant/dist/', 'assis
 SUFFIXES = {'.py', '.ts', '.tsx', '.js', '.cjs', '.json', '.yaml', '.yml', '.sh', '.toml'}
 CONTEXT_FILES = ('AGENTS.md', 'PROJECT_MEMORY.md', '.graphifyignore', '.graphifyrc',
                  '.gitignore', 'pyproject.toml', 'docs/architecture.md', 'docs/project_context.md',
-                 'assistant/package-lock.json', 'assistant/evaluation/cases.json', 'requirements-assistant-lock.txt')
+                 'assistant/package-lock.json', 'assistant/evaluation/cases.json', 'requirements-assistant-lock.txt',
+                 'site/reviewer.css', 'site/layout3.css')  # Visual sources are hashed even though CSS has no AST symbols.
 
 
 def digest(path):

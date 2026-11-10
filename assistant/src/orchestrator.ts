@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { withoutCredentials } from "./config.js";
 import {
   requestSchema,
   answerSchema,
@@ -19,6 +20,7 @@ import {
   type EvidenceClient,
 } from "./mcp.js";
 import { PROMPT_VERSION, type Provider } from "./provider.js";
+import { ProviderFailure, type ProviderDiagnostic } from "./provider-error.js";
 
 export type Activity = {
   stage: string;
@@ -26,10 +28,15 @@ export type Activity = {
   at_ms: number;
   [key: string]: unknown;
 };
+export function publicActivity(item: Activity): Activity {
+  const { evidence: _evidence, context: _context, answer: _answer, ...metadata } = item;
+  return metadata;
+}
 export class InvestigationFailure extends Error {
   constructor(
     public stage: string,
     public code: string,
+    public provider_error?: ProviderDiagnostic,
   ) {
     super(`${stage}: ${code}`);
   }
@@ -111,12 +118,14 @@ export async function investigate(
       checkoutDirty: boolean | null = null;
     try {
       codeCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+        env: withoutCredentials(),
         cwd: ROOT,
         encoding: "utf8",
         stdio: ["ignore", "pipe", "ignore"],
       }).trim();
       checkoutDirty = Boolean(
         execFileSync("git", ["status", "--porcelain"], {
+          env: withoutCredentials(),
           cwd: ROOT,
           encoding: "utf8",
           stdio: ["ignore", "pipe", "ignore"],
@@ -208,7 +217,7 @@ export async function investigate(
         request_id: id,
         answer,
         context,
-        events,
+        events: events.map(publicActivity),
         model: generated.model,
         usage: events
           .filter((e) => e.event === "model_result")
@@ -224,6 +233,8 @@ export async function investigate(
         : "cancelled"
       : error instanceof EvidenceToolError
         ? error.code
+        : error instanceof ProviderFailure
+          ? "provider_failure"
         : error instanceof Error &&
             error.message === "Unknown evidence citation"
           ? "unsupported_citation"
@@ -233,8 +244,10 @@ export async function investigate(
     const failure =
       error instanceof InvestigationFailure
         ? error
-        : new InvestigationFailure(stage, code);
-    activity("failed", { failure_stage: failure.stage, code: failure.code });
+        : new InvestigationFailure(stage, code,
+            error instanceof ProviderFailure ? error.diagnostic : undefined);
+    activity("failed", { failure_stage: failure.stage, code: failure.code,
+      ...(failure.provider_error ? { provider_error: failure.provider_error } : {}) });
     throw failure;
   } finally {
     if (client) await client.close().catch(() => {});

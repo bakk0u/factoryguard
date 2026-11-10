@@ -1,6 +1,6 @@
 # FactoryGuard project memory
 
-Verified 2026-11-07 (Europe/Berlin). This is orientation, not a source of new
+Verified 2026-11-10 (Europe/Berlin). This is orientation, not a source of new
 authorization. Read AGENTS.md first. Recheck Git state and graph freshness; facts
 below describe the reviewed checkout and can age. Do not paste the whole history.
 
@@ -23,14 +23,13 @@ Runs are separate bearings; A/C are vibration channels. Preserve synthetic demo.
 
 ## Verified state and evidence
 
-- Integration base: master `589f50297b32af9b3e4b7baee66462b5c67227f0`, fetched
-  2026-11-07; includes visual README (`8723456`) and merged documentation PRs #2/#3.
-  Memory integration branch: `graphify-project-memory`. Check `git status -sb`
-  and `git log -5 --oneline`; do not assume branch names imply current remote state.
-- Integration commits: `387afe7` added real Graphify and the memory wrapper;
-  `2dee5c5` saved the mandatory status/baseline-query/update preference. Remote
-  master still points to `589f502` at this verification: **context integration is
-  not merged**. Fresh sessions must select this branch (or a reviewed descendant).
+- Publication preparation 2026-11-10: `feature/assistant-setup-layout3` is based on
+  master `c23c79d` (PR #6), following assistant PR #5. Current owner authorization
+  permits the scoped assistant/setup/dashboard commit, feature push, draft PR to
+  master and sanitized artifacts on `review-handoff`; no merge or deployment.
+  Check live Git/PR state. Handoff policy is `docs/coordination/STATUS.md` on
+  `review-handoff`; preserve its reviewer-owned `REVIEW.md`. Pages requires an
+  explicit manual `PUBLISH` dispatch; feature/PR pushes only run offline CI checks.
 - PR #1 merged in `fc772e5`. Reviewer/report work: `bb718c4`; source-review fixes:
   `f10b225`, `bb718c4`; site artifact upload: `d6a69a9`. Release docs: `5491b34`,
   `c2c791e`; public verification record: `77445c8`, live link: `2b9108f`.
@@ -129,29 +128,76 @@ fallback); SQLite persistence applies to the optional local-server app, not Page
 
 ## Next work and maintenance
 
-The new optional assistant is on `evidence-assistant`, starting from `85b99af`;
-the starting 122-test baseline passed. It performs mandatory MCP numerical/doc
-retrieval, bounded context assembly, then Responses generation (or an explicitly
-labelled offline fixture), with fixed replay scope and verifiable citation IDs.
-Graphify's developer graph is separate from this application MCP service.
-Original forecasting results and static public site are unchanged. Local startup:
-`python scripts/start_assistant.py` after optional Python/npm dependencies are
-installed; see `docs/assistant.md`. Live mode is opt-in, server-key-only, and not
-verified. Optional BGE/ONNX model download was blocked by `huggingface.co` proxy
-403, so hybrid quality remains unmeasured. The lexical 40-case author-reviewed
-evaluation passed; independent human review and live answer quality remain pending.
-Latest checks: 135 Python tests, 17 TypeScript tests, real MCP integration and
-desktop/mobile offline browser passed. Counts describe this milestone, not future
-CI. See `docs/results/assistant-v1/report.md`; do not call fixture output LLM accuracy.
-Follow-up on 2026-11-07 inspected remote `d7c2806`: Ubuntu assistant and both legacy
-jobs passed; Windows assistant failed due to unclosed test fixture SQLite handles.
-Fixtures fixed; cleanup checks and evaluation CLI failure exit added. Follow-up
-local 138 Python tests (no skips/failures), 17 TypeScript tests/build and all 40
-unchanged lexical cases passed; follow-up remote CI needs checking after push.
-Weights downloaded here but automatic review blocked hybrid continuation on a
-runtime Microsoft telemetry connection. No hybrid scores or live-key/human review.
-The developer graph is refreshed for the assistant; use provenance/status for
-current counts and freshness rather than treating historical counts as permanent.
+Reviewer redesign / Layout 3 (2026-11-10): canonical replay engine stays in
+`release/dashboard.html` + `site/reviewer.js`; `site/reviewer_experience.js` and
+`site/reviewer.css` add Start here, deterministic five-step B01/A 1–3 guidance,
+verified artifact-derived facts, scoped assistant next to selected-channel plots,
+readable answer sections/citations, queue filters and methods/engineering views.
+`site/layout3.css` adds the approved narrow rail/Attention/workspace layout;
+`site/architecture.js` provides 14 interactive system components with examples,
+source contracts, focus return and distinct future/unevaluated labels. No diagram
+action submits a request. Start has 119 visible words; charts/labels/disclosures
+keep scientific limits accessible. Revealed-only rail filters share queue evidence.
+Build script inlines sources; CSS is freshness-hashed. Static guidance requires no
+key and explicitly marks new generation unavailable. Local assistant defaults to
+fixture mode, suggestions do not submit, and traces stay expandable. No saved AI
+answer or paid generation was used. Existing backend/model/config bounds remain.
+Real Chrome via isolated `.tools/browser` Playwright 1.58.2 passed desktop/mobile,
+keyboard/focus, citation and mocked states; legacy reviewer/notes/report/direct-file
+and MCP-backed fixture browser checks passed. Build, **41 TS / 144 Python / 40 frozen
+cases** passed without skips. Offline local service on `http://127.0.0.1:8786/`;
+no claim of a new live-model check, remote CI or production readiness. Captures:
+`reports/local/layout3/`; details: `docs/results/assistant-v1/layout3.md` (previous
+redesign report/captures preserved). Current checks include all architecture
+components, desktop parallel columns, tablet/mobile/no overflow and static map.
+
+XGBoost setup is resolved: Python 3.12.16/macOS 27.2 arm64 uses pinned XGBoost
+3.0.5 and checksum-verified local libomp in `.tools` via
+`scripts/setup_macos_openmp.py`. Campaign markers use `xgboost` on Darwin and
+`xgboost-cpu` elsewhere; unrelated packages unchanged. Reproducible setup/history:
+`docs/results/assistant-v1/final-local-integration.md`. No saved-model retraining.
+
+Local runtime uses `.venv` Python 3.12.16 and Node 24.22.1; prior environment
+is preserved in ignored `.tools/venv-before-python312`. Core/assistant locks stay
+pinned. Root-only dotenv parsing in `assistant/src/config.ts` preserves process
+precedence, model choice and offline default; `.env.local` remains ignored,
+untracked and owner-only. Python/MCP/site-build/Git children exclude credentials.
+Safe provider diagnostics retain selected bounded/redacted status/code/type/
+parameter/request ID/message without raw errors/headers/bodies/causes; SDK logging
+is off. Earlier authorized smoke/credit-balance failures and one successful
+`gpt-5.4-mini-2026-03-17` pipeline check are recorded in `docs/assistant.md`.
+Those historical results do not verify the latest changed dashboard version or
+imply permission for another paid request.
+
+Dashboard offline audit (2026-11-09): preserved actual API response and trace for
+`2d7ed00c-f795-4afe-a177-83fbfb7d5284`. B01/A 1–3/as_of=3, default dashboard
+question, returned `gpt-5.4-mini-2026-03-17`, 12,155 ms, one turn, 7,116 input /
+1,801 output tokens. All 25 citation references resolve to five records; quoted
+numbers are correct. Qualify descriptive “sudden,” two-point absolute error change
+and endpoint-only speed/load differences. Causal attribution remains unverified;
+original nested off-channel numbers were a scope defect, now projected out.
+Original artifacts remain unchanged; no original citation interaction was observed.
+Screenshot rendering/control evidence is user-supplied, not a new browser check.
+
+Offline changes: in-flight scope-aware coalescing and lost-connection guards,
+compact response activities, one-pass/bounded context with explicit missing
+truncation/conflict detection, lossless provider provenance/tool-schema compaction,
+refusal/incomplete handling, lexical normalization and idempotent MCP close.
+No evidence cache, pooled MCP or parallel retrieval. Build, 37 TS tests, 18 assistant
+Python tests and 40 frozen cases passed. Full Python suite: 140 run, 139 passed,
+one absent optional-XGBoost error. Result bytes 75,430→27,283; schemas 6,247→1,875;
+assembly median 0.1621→0.0641 ms. Selected values/units/citations preserved;
+canonical context slightly grew. No token/billing savings inferred. No new live
+calls; prior local live server stopped after preserving the response. Changed
+version needs new authorization for live verification. Details/corrections and
+remaining hosted-demo/human/prompt-injection work:
+`docs/results/assistant-v1/dashboard-offline-review.md`; local preserved artifacts
+and measurements: `reports/local/assistant/review-2d7ed00c/`.
+
+Assistant workflow contracts/lifecycle: `docs/assistant.md`. Historical assistant
+verification/CI and hybrid/telemetry limitations are in
+`docs/results/assistant-v1/report.md`. Hybrid quality and independent human review
+remain unverified; no model download or paid evaluation is implied by these notes.
 
 Scientific next step remains readiness review, not B03 evaluation:
 freeze method/preprocessing/eligibility/metrics, compare reviewed implementation

@@ -4,6 +4,7 @@ import csv
 import hashlib
 import html
 import json
+import os
 from pathlib import Path
 import subprocess
 from factoryguard.release.application import html as dashboard
@@ -17,7 +18,8 @@ def build(output):
         if hashlib.sha256((source / name).read_bytes()).hexdigest() != expected:
             raise ValueError(f'Source integrity failed: {name}')
     payload = json.loads((source / 'replay.json').read_text())
-    manifest['website_build_commit'] = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    manifest['website_build_commit'] = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,
+        env={k:v for k,v in os.environ.items() if k!='OPENAI_API_KEY'}).strip()
     manifest['snapshot_id'] = manifest['files']['replay.json']
     payload['metadata']['reviewer_source_manifest'] = manifest
     with (source / 'development_metrics.csv').open(newline='', encoding='utf-8') as stream:
@@ -34,7 +36,8 @@ def build(output):
     page = page.replace('<h1>FactoryGuard</h1>','<h1>FactoryGuard · Recorded experiment results</h1>')
     page = page.replace('<main>','<main><section class="card"><h2>Explore recorded bearing experiments</h2><p>A variable-speed, variable-load bearing test rig records vibration channels A/C and temperatures. Each experiment is a separate bearing run. Opening this page does not retrain models or connect to live equipment. Reset to replay sequentially; notes stay in this browser.</p><p>B01/B02 are development runs. B04 is an uncorrected diagnostic stress case. Measurement timestamps are provisional. Result generation time and producing code commit were not recorded and remain unknown. Software CI was independently reported for d5be7be; see provenance for evidence.</p></section>'+evidence,1)
     selection=json.loads((source/'selection.json').read_text())
-    page=page.replace('</body>', '<script>const reviewerMetrics='+json.dumps(rows)+';const savedSelection='+json.dumps(selection)+';</script><script>'+ (ROOT/'site/reviewer.js').read_text(encoding='utf-8')+'</script></body>')
+    page=page.replace('</head>', '<style>'+''.join((ROOT/'site'/name).read_text(encoding='utf-8') for name in ('reviewer.css','layout3.css'))+'</style></head>')
+    page=page.replace('</body>', '<script>const reviewerMetrics='+json.dumps(rows)+';const savedSelection='+json.dumps(selection)+';</script><script>'+ (ROOT/'site/reviewer.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/architecture.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/reviewer_experience.js').read_text(encoding='utf-8')+'</script></body>')
     output=Path(output)
     output.mkdir(parents=True,exist_ok=True)
     (output/'index.html').write_text(page,encoding='utf-8')

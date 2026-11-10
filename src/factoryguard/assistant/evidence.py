@@ -98,6 +98,22 @@ class EvidenceService:
         return {'id': f'{kind}:{self.snapshot}:{s.experiment}:{s.channel}:{key}', 'kind': kind,
                 'source': {'path': 'site/source/replay.json', 'sha256': self.snapshot}, 'data': data}
 
+    @staticmethod
+    def channel_changes(changes, channel):
+        """Derived evidence must not disclose the other vibration channel."""
+        if changes is None:
+            return None
+        other = 'C' if channel == 'A' else 'A'
+        return {k: {name: value for name, value in v.items()
+                    if name != f'feature__{other}_ac_rms_v'} if k in ('sudden', 'sustained') else v
+                for k, v in changes.items()}
+
+    @staticmethod
+    def channel_reference(reference, channel):
+        other = 'C' if channel == 'A' else 'A'
+        return {**reference, 'measures': {k: v for k, v in reference['measures'].items()
+                                        if k != f'feature__{other}_ac_rms_v'}}
+
     def envelope(self, s, records, missing=None, **extra):
         return {'schema_version': 1, 'snapshot': self.snapshot, 'selection': s.model_dump(),
                 'records': records, 'missing': missing or [], 'warnings': [ROLES[s.experiment]],
@@ -138,8 +154,11 @@ class EvidenceService:
                 'timestamp': e['source_time'], 'timezone': 'unspecified', 'timestamp_meaning': 'provisional CSV clock',
                 'values': {k: {'value': v, 'unit': unit} for k, (v, unit) in values.items()},
                 'interval_s': e['interval_s'], 'quality_flags': {k: v for k, v in o.items() if k.startswith('quality__') and v is True},
-                'warnings': e['notices'], 'reference_support': e['context_reference'],
-                'recorded_change_evidence': e.get('change_evidence'),
+                'warnings': [{**notice, 'evidence': [
+                    f"Observed minus forecast {s.channel}: {values['settled_error'][0]:.5f} V; continuous evidence, no alarm threshold."]}
+                    if notice.get('kind') == 'forecast' and scored else notice for notice in e['notices']],
+                'reference_support': self.channel_reference(e['context_reference'], s.channel),
+                'recorded_change_evidence': self.channel_changes(e.get('change_evidence'), s.channel),
                 'forecast_status': resolved['status'] if resolved else 'no_previous_forecast'})
             for field, (v, _) in values.items():
                 if v is None:
@@ -165,8 +184,8 @@ class EvidenceService:
                 'forecast': errors([e['resolved']['error_v'][j] for e in scored]),
                 'persistence': errors([e['rms_v'][j]-e['resolved']['persistence_v'][j] for e in scored]),
                 'scope': 'selected visible-period broad scored pairs, not common-pair campaign scores',
-                'last_recorded_changes': chosen[-1].get('change_evidence'),
-                'last_reference_support': chosen[-1]['context_reference']}
+                'last_recorded_changes': self.channel_changes(chosen[-1].get('change_evidence'), s.channel),
+                'last_reference_support': self.channel_reference(chosen[-1]['context_reference'], s.channel)}
         data['operating_context_endpoints'] = {
             key: {'first': chosen[0]['observation'].get(key), 'last': chosen[-1]['observation'].get(key), 'unit': unit}
             for key, unit in (('context__measured_speed_rpm', 'rpm'),
