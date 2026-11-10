@@ -1,0 +1,26 @@
+Python
+Ran 144 tests in 9.310s
+OK
+
+TypeScript
+✔ orchestrator retains sanitized provider metadata in failure, activity and owner-only trace (37.455792ms)
+✔ local API failure response exposes only sanitized provider diagnostics (500.861792ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6670.733208
+
+Redesign browser
+Redesign browser checks passed: Start default, keyboard focus/activation, five deterministic steps, B01/A 1–3/as_of=3, zero automatic submissions; Suggestions populate without POST; explicit fixture POST matches shown question/scope; citations resolve and open exact source/provenance; Escape restores focus; Layout 3 revealed-only Attention rail/filter, concise Start, desktop parallel columns; all 14 architecture components open correct explanations/examples/sources by keyboard, future and unverified states distinct, no diagram POST; Queue filters, deeper methods/engineering, desktop/tablet/mobile no overflow, mobile measurement→assistant→notebook order, reduced motion; Direct-file static walkthrough/suggestions work; new generation visibly unavailable; Mock loading/cancel acknowledgement/error/generated-answer labels and unavailable backend; no real provider
+
+Reviewer browser
+Reviewer views, keyboard focus, period preservation/invalidation, downloaded report provenance, isolated/legacy notes/deletion, blocked storage, restart, replay, run switching, mobile and subpath passed. Direct file: passed
+
+Assistant browser
+Assistant browser: real MCP-backed offline answer, selected channel/period, evidence, legacy report, desktop/mobile, no console errors or external requests passed.
+
+Expected stale/fresh output in the full Python log comes from synthetic context tests, not the final project status.

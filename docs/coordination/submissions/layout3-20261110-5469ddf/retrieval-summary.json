@@ -1,0 +1,17 @@
+{
+  "metrics": {
+    "development": {
+      "cases": 20,
+      "passed": 20,
+      "documentation_recall_at_4": 1.0,
+      "documentation_mrr_at_4": 1.0
+    },
+    "held_out": {
+      "cases": 20,
+      "passed": 20,
+      "documentation_recall_at_4": 1.0,
+      "documentation_mrr_at_4": 1.0
+    }
+  },
+  "note": "All 40 frozen lexical evidence/documentation cases passed (20/20 in each case split); not held-out bearing evaluation or real hybrid validation."
+}

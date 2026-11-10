@@ -1,0 +1,78 @@
+{
+  "layout3-reference.png": {
+    "original_sha256": "1b151cfa6b107e8d1ba16e64d0d721f3fddc94eddbeb37095eab04b837c20666",
+    "sanitized_sha256": "ccc919bd95dc07f801cf74fa620817d2c42521f4eb2c2ac9786a8463d8ac16d8",
+    "encoded_image_data_sha256": "30adb6322987a2d539e8cab9fd8cbf939e883ff2e061707af06a1743f9cd0f29",
+    "removed_metadata_chunk_types": [
+      "cICP",
+      "eXIf",
+      "pHYs",
+      "iTXt",
+      "iDOT"
+    ],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "start-desktop.png": {
+    "original_sha256": "d18fda7fce2b8ae4cffab2274fad205a25157aa56939b79626f39c1a08e488ab",
+    "sanitized_sha256": "d18fda7fce2b8ae4cffab2274fad205a25157aa56939b79626f39c1a08e488ab",
+    "encoded_image_data_sha256": "030c76f1baf75eab7e0a603110ee2d13f8faee8b1bb4f0db51c9215a977aabcc",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "start-mobile.png": {
+    "original_sha256": "5e17c3812ccd29934336f3d83258ed26224b927983520c1a03e36d2e71cb46f9",
+    "sanitized_sha256": "5e17c3812ccd29934336f3d83258ed26224b927983520c1a03e36d2e71cb46f9",
+    "encoded_image_data_sha256": "a957e9b3493e6ac9dbfa07fbe976e561ae3c157aed2272358a34421b13d04473",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "guide-notice-desktop.png": {
+    "original_sha256": "dc42ace08ce9df4d423b503fdeff0325f0630989887538d5bc7ef25f7a61d574",
+    "sanitized_sha256": "dc42ace08ce9df4d423b503fdeff0325f0630989887538d5bc7ef25f7a61d574",
+    "encoded_image_data_sha256": "77501442fbe2b23fa80b59b6523907042ccc74f15f5f71a1b4f6c1642ee68834",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "guide-mobile.png": {
+    "original_sha256": "75786a4632df71555c082d7e17feb5521d1e6009df26f09a094ad302bcde5dd1",
+    "sanitized_sha256": "75786a4632df71555c082d7e17feb5521d1e6009df26f09a094ad302bcde5dd1",
+    "encoded_image_data_sha256": "64188eea6e0ac243e931ed077c89774fdb96b92133bcb9dc34381e59ae9fc553",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "assistant-desktop.png": {
+    "original_sha256": "f1ec10570ff16cebcc15e5ba03b78d2bd6295a0bcfe24889b58c1088a83594ee",
+    "sanitized_sha256": "f1ec10570ff16cebcc15e5ba03b78d2bd6295a0bcfe24889b58c1088a83594ee",
+    "encoded_image_data_sha256": "6b12f9fc8e8574be6ecab3c6dd72af18be0d9f1f9b7b14710fc251fdf6e51f95",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "assistant-mobile.png": {
+    "original_sha256": "c554607dfa50ed8425b7c25fa8ef8d5a081dcbdfbca0ecf8ab2c324626dadd84",
+    "sanitized_sha256": "c554607dfa50ed8425b7c25fa8ef8d5a081dcbdfbca0ecf8ab2c324626dadd84",
+    "encoded_image_data_sha256": "91a3260ce7e181d66f7f39c80175c2b62e18d9b22edd23b25334fd9d71c1d144",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "engineering-desktop.png": {
+    "original_sha256": "de21143129ff6686e649635069ca6b57f08daea454104d63e97cb600cdc0f89f",
+    "sanitized_sha256": "de21143129ff6686e649635069ca6b57f08daea454104d63e97cb600cdc0f89f",
+    "encoded_image_data_sha256": "e5f4556f225609efb64caaae33c767da031bd62313dcfabc3dfaaa0d6c7a5aec",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "engineering-mobile.png": {
+    "original_sha256": "ecc3cd4033896c66737c69ebfc0cd0f30b324130c6b527b993ab3f03e864af77",
+    "sanitized_sha256": "ecc3cd4033896c66737c69ebfc0cd0f30b324130c6b527b993ab3f03e864af77",
+    "encoded_image_data_sha256": "c43f502a3b7a65c322c1998691bbb183e36aa056027532907ddf502888100218",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  },
+  "citation-desktop.png": {
+    "original_sha256": "6ac2c25c58133f411f793094f977fe9ac24dbf979937b16e4ea6b2d55bb4ea53",
+    "sanitized_sha256": "6ac2c25c58133f411f793094f977fe9ac24dbf979937b16e4ea6b2d55bb4ea53",
+    "encoded_image_data_sha256": "8e80199696ccdf7d46b5470a75859c46e186ca0e90d57eb1a075bfec7c33f642",
+    "removed_metadata_chunk_types": [],
+    "pixels": "Encoded IDAT bytes retained unchanged; no image regeneration or pixel transformation."
+  }
+}

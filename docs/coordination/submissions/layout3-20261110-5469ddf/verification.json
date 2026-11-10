@@ -1,0 +1,98 @@
+{
+  "submission": "layout3-20261110-5469ddf",
+  "source_head": "5469ddf31d617cd40b37b44cfcfe8f72e16f4897",
+  "source_base": "c23c79d8f28559002aeba3579bee6cd9f9807ead",
+  "working_tree": "clean after commit; no private files staged",
+  "commands": [
+    {
+      "check": "TypeScript build",
+      "command": "env -u OPENAI_API_KEY npm run build --prefix assistant",
+      "exit_status": 0,
+      "result": "tsc passed"
+    },
+    {
+      "check": "TypeScript tests",
+      "command": "env -u OPENAI_API_KEY npm test --prefix assistant",
+      "exit_status": 0,
+      "result": "41 passed; 0 failed, 0 skipped"
+    },
+    {
+      "check": "Full Python tests",
+      "command": "env -u OPENAI_API_KEY TMPDIR=/private/tmp MPLBACKEND=Agg MPLCONFIGDIR=/tmp/factoryguard-matplotlib XDG_CACHE_HOME=/tmp/factoryguard-cache .venv/bin/python -m unittest discover -s tests -v",
+      "exit_status": 0,
+      "result": "144 passed; 0 failed/errors/skipped"
+    },
+    {
+      "check": "Frozen retrieval",
+      "command": "env -u OPENAI_API_KEY .venv/bin/python -m factoryguard.assistant.evaluate --output reports/local/layout3/retrieval-cases.json",
+      "exit_status": 0,
+      "result": "40/40 passed; both splits 20/20, recall@4=MRR@4=1.0"
+    },
+    {
+      "check": "Assistant site build",
+      "command": "env -u OPENAI_API_KEY .venv/bin/python scripts/build_reviewer_site.py --output reports/local/assistant-site",
+      "exit_status": 0,
+      "result": "passed"
+    },
+    {
+      "check": "Static site build",
+      "command": "env -u OPENAI_API_KEY .venv/bin/python scripts/build_reviewer_site.py --output reports/local/reviewer-site",
+      "exit_status": 0,
+      "result": "passed"
+    },
+    {
+      "check": "Redesign Chrome",
+      "command": "env -u OPENAI_API_KEY NODE_PATH=\"$PWD/.tools/browser/node_modules\" CHROMIUM_PATH=\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" FACTORYGUARD_SCREENSHOT_DIR=reports/local/layout3 node scripts/verify_reviewer_redesign.cjs",
+      "exit_status": 0,
+      "result": "passed; offline service mode asserted before fixture; mocked state paths; no live provider"
+    },
+    {
+      "check": "Existing assistant Chrome",
+      "command": "env -u OPENAI_API_KEY NODE_PATH=\"$PWD/.tools/browser/node_modules\" CHROMIUM_PATH=\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" FACTORYGUARD_BROWSER_BASE=http://127.0.0.1:8786/ FACTORYGUARD_SCREENSHOT_DIR=reports/local/layout3/assistant-regression node assistant/test/browser.cjs",
+      "exit_status": 0,
+      "result": "passed; actual MCP/Python retrieval and offline fixture"
+    },
+    {
+      "check": "Existing reviewer Chrome",
+      "command": "env -u OPENAI_API_KEY NODE_PATH=\"$PWD/.tools/browser/node_modules\" CHROMIUM_PATH=\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" PYTHON=\"$PWD/.venv/bin/python\" FACTORYGUARD_SCREENSHOT_DIR=reports/local/layout3/reviewer-regression node scripts/verify_reviewer_workflow.cjs",
+      "exit_status": 0,
+      "result": "passed including direct-file, storage, notes, report, replay"
+    },
+    {
+      "check": "Context freshness",
+      "command": "env -u OPENAI_API_KEY .venv/bin/python scripts/project_context.py status",
+      "exit_status": 0,
+      "result": "fresh: 1007 nodes / 2642 edges; code-only"
+    },
+    {
+      "check": "Whitespace",
+      "command": "git diff --cached --check",
+      "exit_status": 0,
+      "result": "passed before commit"
+    },
+    {
+      "check": "Pinned source/model/result integrity",
+      "command": "git diff --exit-code -- site/source site/source-manifest.json src/factoryguard/models src/factoryguard/release/modeling.py configs docs/results/release-v3",
+      "exit_status": 0,
+      "result": "unchanged"
+    }
+  ],
+  "publication_checks": {
+    "paths": 45,
+    "secret_scan": "Only one known synthetic test credential pattern; no actual credential/private-key material or personal filesystem paths found",
+    "dotenv": "ignored/untracked, mode 0600; contents not read for publication",
+    "deployment": "Workflows unchanged. Pages requires workflow_dispatch with PUBLISH. Feature/PR pushes run offline checks only. No Git hooks installed.",
+    "transport": "CLI push lacked authentication; connected GitHub Git-data API published an identical tree. Original local authored commit retained on a local backup branch; no reset/merge/force-push.",
+    "scoped_patch_apply": "git apply --cached --check against stated base with a temporary index: exit 0; no checkout mutation"
+  },
+  "verification_scope": "Author-observed local offline tests and real Chrome interactions. No independent reviewer execution claimed. No paid request, deployment, B03 access, forecasting-result alteration or real-data retraining.",
+  "unrun": [
+    "Safari/Firefox",
+    "Full assistive-technology/WCAG audit",
+    "Unfamiliar-visitor comprehension study",
+    "New live model dashboard validation",
+    "Broader claim entailment/prompt-injection and independent human/security review",
+    "Real hybrid retrieval quality",
+    "Restricted-hosting implementation"
+  ]
+}

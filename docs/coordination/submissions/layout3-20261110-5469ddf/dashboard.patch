@@ -1,0 +1,1262 @@
+diff --git a/README.md b/README.md
+index cc543ef..87ab8b2 100644
+--- a/README.md
++++ b/README.md
+@@ -37,7 +37,15 @@ are labelled separately. No new forecasting-model training is involved.
+   <img src="docs/images/readme/workflow.svg" width="100%" alt="Three investigation steps: locate the change, inspect its context, capture the evidence.">
+ </picture>
+ 
+-Start in **Overview → Explore measurements**, select an experiment and an observation or period, then inspect its operating context and reference support. Open **Methods and evidence** to examine every evaluated model and its provenance.
++The local reviewer redesign opens on **Start here → Walk through an investigation**:
++a deterministic B01/A example needs no API key. **Explore measurements** retains
++replay, notes and evidence exports; **AI assistant** sits beside the selected
++measurements. **Methods & results** and **Engineering** provide deeper evidence
++and reproducibility. See the [local reviewer guide](docs/reviewer_site.md).
++The local Layout 3 presentation adds a revealed-notice rail and a clickable
++Engineering system map, with short examples and expandable technical details.
++The public deployment and historical screenshots have not been updated by this
++local redesign.
+ 
+ | Investigate | What you can inspect |
+ | :--- | :--- |
+diff --git a/assistant/test/browser.cjs b/assistant/test/browser.cjs
+index 4790711..38dd586 100644
+--- a/assistant/test/browser.cjs
++++ b/assistant/test/browser.cjs
+@@ -1,9 +1,15 @@
+ const { chromium } = require("playwright");
+ const assert = require("node:assert/strict");
++const fs = require("node:fs");
++const capture=process.env.FACTORYGUARD_SCREENSHOT_DIR||"docs/images";
++fs.mkdirSync(capture,{recursive:true});
+ (async () => {
+   const base =
+     process.env.FACTORYGUARD_BROWSER_BASE || "http://127.0.0.1:8785/";
++  assert.equal((await (await fetch(base+'health')).json()).mode,'offline',
++    'Browser regression requires the offline fixture service; never run it against live generation.');
+   const browser = await chromium.launch({
++    env:Object.fromEntries(Object.entries(process.env).filter(([key])=>key!=='OPENAI_API_KEY')),
+     executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
+     args: ["--no-sandbox"],
+   });
+@@ -48,8 +54,8 @@ const assert = require("node:assert/strict");
+   await page
+     .locator("#assistant")
+     .evaluate((el) => el.scrollIntoView({ block: "start" }));
+-  await page.screenshot({ path: "docs/images/assistant-desktop.png" });
+-  await page.locator("#assistant details summary").click();
++  await page.screenshot({ path: capture+"/assistant-desktop.png" });
++  await page.locator("#assistant .technical > summary").click();
+   const evidence = JSON.parse(
+     await page.locator("#assistantEvidence").innerText(),
+   );
+@@ -69,11 +75,11 @@ const assert = require("node:assert/strict");
+   await page.locator("#report").click();
+   await report;
+   await page.setViewportSize({ width: 390, height: 844 });
+-  await page.locator("#assistant details summary").click();
++  await page.locator("#assistant .technical > summary").click();
+   await page
+     .locator("#assistant")
+     .evaluate((el) => el.scrollIntoView({ block: "start" }));
+-  await page.screenshot({ path: "docs/images/assistant-mobile.png" });
++  await page.screenshot({ path: capture+"/assistant-mobile.png" });
+   assert.equal(
+     await page.evaluate(
+       () => document.documentElement.scrollWidth > innerWidth,
+diff --git a/assistant/web/assistant.js b/assistant/web/assistant.js
+index 0471441..718a579 100644
+--- a/assistant/web/assistant.js
++++ b/assistant/web/assistant.js
+@@ -1,50 +1,60 @@
+ // This script is injected only by the optional local TypeScript server, not Pages.
+ (async () => {
+-  while (document.body.dataset.reviewerReady !== "true")
++  while (document.body.dataset.experienceReady !== "true")
+     await new Promise((r) => setTimeout(r, 50));
+-  const card = document.createElement("section");
+-  card.className = "card";
+-  card.id = "assistant";
+-  card.style.overflowWrap = "anywhere";
+-  card.innerHTML =
+-    '<h2>Ask about this period</h2><p class="muted">Recorded evidence only. Model-generated interpretation is separate from measurements. The local offline mode is a labelled fixture, not live model verification.</p><label>Vibration channel <select id="assistantChannel"><option>A</option><option>C</option></select></label><p><label for="assistantQuestion">Investigation question</label><br><textarea id="assistantQuestion" rows="2" maxlength="2000" style="width:100%">What changed during this period, and what remains uncertain?</textarea></p><button id="askAssistant">Ask about this period</button> <button id="cancelAssistant" disabled>Cancel</button><p id="assistantActivity" role="status"></p><div id="assistantAnswer"></div><details><summary>Evidence, citations and activity</summary><pre id="assistantEvidence"></pre></details>';
+-  $("note").closest("section").after(card);
++  // Shared markup belongs to the canonical reviewer source; this upgrades its static unavailable state.
+   let active = null,
+     stream = null;
++  let available = false;
+   const session = crypto.randomUUID();
++  const selectionNow = () => ({experiment:run,channel:$("assistantChannel").value,...period(),as_of:state.revealed,mode:"replay",snapshot:meta.reviewer_source_manifest.files["replay.json"]});
++  const scopeText = s => `${s.experiment} / ${s.channel} · observations ${s.start}–${s.stop} · replay boundary ${s.as_of}`;
++  const updateScope = () => {
++    try { const s=selectionNow();$("assistantScope").textContent=scopeText(s);$("askAssistant").disabled=!available||Boolean(active); }
++    catch { $("assistantScope").textContent="Select a valid period within the revealed observations.";$("askAssistant").disabled=true; }
++  };
++  document.addEventListener("factoryguard:scope",updateScope);
++  document.querySelectorAll('[data-assistant-suggestion]').forEach(b=>b.onclick=()=>{$("assistantQuestion").value=b.textContent;$("assistantQuestion").focus();});
++  try {
++    const health=await fetch('/health');if(!health.ok)throw Error();const status=await health.json();
++    available=true;
++    $("assistantMode").textContent=status.mode==='live'
++      ? 'Live generation enabled · calls the configured model only on submission.'
++      : 'Offline fixture mode · real evidence, deterministic text. No live AI verification.';
++  } catch { $("assistantMode").textContent='Assistant unavailable · walkthrough and measurements still work. No question submitted.'; }
++  updateScope();
+   $("askAssistant").onclick = async () => {
++    if (active || !available) return; // Losing SSE does not mean the paid request stopped.
+     try {
+-      const p = period(),
+-        selection = {
+-          experiment: run,
+-          channel: $("assistantChannel").value,
+-          start: p.start,
+-          stop: p.stop,
+-          as_of: state.revealed,
+-          mode: "replay",
+-          snapshot: meta.reviewer_source_manifest.files["replay.json"],
+-        };
++      const selection=selectionNow(),p={start:selection.start,stop:selection.stop};
++      const question=$("assistantQuestion").value.trim();$("assistantQuestion").value=question;
+       $("askAssistant").disabled = true;
+-      $("cancelAssistant").disabled = false;
++      $("cancelAssistant").disabled = true; // No request ID exists until POST acknowledgement.
+       $("assistantAnswer").textContent = "";
++      $("citationPanel").hidden=true;
+       $("assistantActivity").textContent = "Retrieving recorded evidence…";
++      active = "pending"; // A lost POST acknowledgement must not enable a second paid submission.
+       const response = await fetch("/api/investigations", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+           session_id: session,
+           selection,
+-          question: $("assistantQuestion").value,
++          question,
+         }),
+       });
+       const job = await response.json();
+-      if (!response.ok) throw Error(job.error || "Request failed");
++      if (!response.ok) {
++        active = null;
++        throw Error(job.error || "Request failed");
++      }
+       active = job.request_id;
++      $("cancelAssistant").disabled = false;
+       stream = new EventSource(job.events_url);
+       const finish = () => {
+         stream?.close();
+         active = null;
+-        $("askAssistant").disabled = false;
++        updateScope();
+         $("cancelAssistant").disabled = true;
+       };
+       stream.addEventListener("activity", (e) => {
+@@ -55,6 +65,7 @@
+         const error = JSON.parse(e.data);
+         $("assistantActivity").textContent =
+           `Unable to complete: ${error.stage} / ${error.code}`;
++        $("assistantEvidence").textContent=JSON.stringify(error,null,2);
+         finish();
+       });
+       stream.addEventListener("result", (e) => {
+@@ -62,31 +73,24 @@
+           a = result.answer,
+           records = [...result.context.facts, ...result.context.passages],
+           index = (id) => records.findIndex((r) => r.id === id);
++        $("assistantAnswer").dataset.answerKind=result.model === 'offline-deterministic-fixture'?'fixture':'generated';
+         $("assistantAnswer").innerHTML =
+           "<p><strong>" +
+           esc(
+             result.model === "offline-deterministic-fixture"
+-              ? "Offline fixture response"
+-              : "Model-generated interpretation",
++              ? "Offline fixture response · not a live AI answer"
++              : "Newly generated answer · " + result.model,
+           ) +
+           "</strong> · " +
+-          esc(selection.experiment) +
+-          " / " +
+-          esc(selection.channel) +
+-          " · observations " +
+-          p.start +
+-          "–" +
+-          p.stop +
+-          "</p><p>" +
++          esc(scopeText(selection)) +
++          "</p><p class=\"muted\"><strong>Submitted question:</strong> " + esc(question) + "</p><p>" +
+           esc(a.summary) +
+           "</p>" +
+           ["observations", "explanations", "interpretations"]
+             .filter((key) => a[key].length)
+             .map(
+               (key) =>
+-                "<h3>" +
+-                esc(key) +
+-                "</h3>" +
++                (key==='observations'?'<h3>Observations</h3>':key==='explanations'?'<h3>Possible explanations</h3><h4>Retrieved methodological context</h4>':(a.explanations.length?'':'<h3>Possible explanations</h3>')+'<h4>Tentative interpretation</h4>') +
+                 a[key]
+                   .map(
+                     (c) =>
+@@ -96,7 +100,7 @@
+                       c.evidence_ids
+                         .map(
+                           (id) =>
+-                            '<button data-assistant-citation="' +
++                            '<button aria-controls="citationPanel" aria-expanded="false" data-assistant-citation="' +
+                             esc(id) +
+                             '" aria-label="Inspect evidence ' +
+                             (index(id) + 1) +
+@@ -110,26 +114,42 @@
+                   .join(""),
+             )
+             .join("") +
+-          "<p>" +
+-          a.limitations.map(esc).join(" ") +
+-          "</p><p>Missing evidence: " +
++          (!a.interpretations.length&&!a.explanations.length?'<h3>Possible explanations</h3>':'') +
++          (a.interpretations.length?'<p class="muted">Possible explanations are hypotheses, not demonstrated causes. Inspect the cited evidence.</p>':'<p>No causal explanation is established by the available evidence.</p>') +
++          "<h3>Uncertainty and limitations</h3><ul><li>" +
++          a.limitations.map(esc).join("</li><li>") +
++          "</li></ul><p><strong>Missing evidence:</strong> " +
+           (a.missing_information.map(esc).join(" ") ||
+             "None reported by this answer") +
+           "</p>";
+         $("assistantEvidence").textContent = JSON.stringify(result, null, 2);
++        let lastCitation=null;
++        const closeCitation=()=>{$('citationPanel').hidden=true;if(lastCitation){lastCitation.setAttribute('aria-expanded','false');lastCitation.focus();}};
++        $('closeCitation').onclick=closeCitation;
++        $('citationPanel').onkeydown=e=>{if(e.key==='Escape')closeCitation();};
+         document.querySelectorAll("[data-assistant-citation]").forEach(
+           (b) =>
+             (b.onclick = () => {
+               const record = records.find(
+                 (r) => r.id === b.dataset.assistantCitation,
+               );
+-              $("assistantEvidence").parentNode.open = true;
++              if(!record)return;
++              if(lastCitation)lastCitation.setAttribute('aria-expanded','false');lastCitation=b;b.setAttribute('aria-expanded','true');
++              const quantityLabels={rms:'Vibration level (RMS)',next_observed_forecast:'Forecast issued for the next observation',settled_forecast:'Earlier forecast for this observation',settled_error:'Forecast error (measured − earlier forecast)',persistence:'Repeat-last baseline',temperature_T1_above_ambient:'T1 above ambient',temperature_T2_above_ambient:'T2 above ambient',measured_speed:'Measured speed',measured_static_load:'Measured static load',measured_dynamic_peak_load:'Measured dynamic peak load'};
++              const d=record.data||{};
++              let values=d.values?Object.entries(d.values).map(([k,v])=>`<dt>${esc(quantityLabels[k]||k)}</dt><dd>${esc(v.value===null?'Unavailable':v.value)} ${esc(v.unit==='degC'?'°C':v.unit)}</dd>`).join('')
++                : Object.entries(d).filter(([,v])=>v===null||typeof v!=='object').map(([k,v])=>`<dt>${esc(k.replaceAll('_',' '))}</dt><dd>${esc(v??'Unavailable')}${k.endsWith('_v')?' V':''}</dd>`).join('');
++              for(const key of ['forecast','persistence'])if(d[key])values+=`<dt>${esc(key)} · scored comparisons</dt><dd>n=${esc(d[key].n)} · MAE ${esc(d[key].mae_v??'Unavailable')} V · RMSE ${esc(d[key].rmse_v??'Unavailable')} V</dd>`;
++              if(d.operating_context_endpoints)values+=Object.entries(d.operating_context_endpoints).map(([key,v])=>`<dt>${esc(key.replaceAll('_',' '))}</dt><dd>${esc(v.first??'Unavailable')} → ${esc(v.last??'Unavailable')} ${esc(v.unit==='degC'?'°C':v.unit)}</dd>`).join('');
++              for(const key of ['warning_positions','gap_boundary_positions'])if(Array.isArray(d[key]))values+=`<dt>${esc(key.replaceAll('_',' '))}</dt><dd>${esc(d[key].join(', ')||'None reported')}</dd>`;
++              $('citationContent').innerHTML=`<p class="citation-source">${esc(record.source.path)}${record.source.section?' · '+esc(record.source.section):''}</p><p>${esc(d.timestamp||'')}${d.timestamp?' · provisional clock; timezone unspecified':''}</p>${record.text?'<blockquote>'+esc(record.text)+'</blockquote>':'<dl>'+values+'</dl>'}<p class="citation-source"><strong>Stable evidence ID</strong><br>${esc(record.id)}<br><strong>Source SHA256</strong><br>${esc(record.source.sha256)}</p><details><summary>Exact cited record · all fields and provenance</summary><pre>${esc(JSON.stringify(record,null,2))}</pre></details>`;
++              $('citationPanel').hidden=false;$('citationPanel').scrollTop=0;$('citationPanel').focus({preventScroll:true});
+               $("assistantEvidence").textContent = JSON.stringify(
+                 { selected_evidence: record, investigation: result },
+                 null,
+                 2,
+               );
+-              $("assistantEvidence").scrollIntoView({ block: "start" });
++              $("citationPanel").scrollIntoView({ block: "start" });
+             }),
+         );
+         $("assistantActivity").textContent =
+@@ -148,21 +168,32 @@
+       stream.onerror = () => {
+         if (active) {
+           $("assistantActivity").textContent =
+-            "Connection lost. Retry or cancel; the request trace remains local.";
++            "Connection lost. This request may still be running. Cancel before submitting again; its trace remains local.";
+           stream.close();
+-          $("askAssistant").disabled = false;
++          $("askAssistant").disabled = true;
+         }
+       };
+     } catch (e) {
+-      $("assistantActivity").textContent = e.message;
+-      $("askAssistant").disabled = false;
+-      $("cancelAssistant").disabled = true;
++      $("assistantActivity").textContent = active
++        ? "Request status is unknown. Do not resubmit; inspect the local trace or cancel the identified request."
++        : e.message;
++      $("askAssistant").disabled = Boolean(active);
++      $("cancelAssistant").disabled = !active || active === "pending";
+     }
+   };
+   $("cancelAssistant").onclick = async () => {
+-    if (active)
+-      await fetch("/api/investigations/" + active + "/cancel", {
++    if (active && active !== "pending") {
++      const response = await fetch("/api/investigations/" + active + "/cancel", {
+         method: "POST",
+       });
++      if (response.ok) {
++        stream?.close();
++        active = null;
++        $("askAssistant").disabled = false;
++        $("cancelAssistant").disabled = true;
++        updateScope();
++        $("assistantActivity").textContent = "Cancellation requested; existing work may still be finishing cleanup.";
++      }
++    }
+   };
+ })();
+diff --git a/docs/results/assistant-v1/layout3.md b/docs/results/assistant-v1/layout3.md
+new file mode 100644
+index 0000000..681b964
+--- /dev/null
++++ b/docs/results/assistant-v1/layout3.md
+@@ -0,0 +1,106 @@
++# Layout 3 and interactive Engineering — local verification
++
++Verified 2026-11-10. Existing checkout: master based at `c23c79d`; earlier dirty
++assistant/configuration/optimization work preserved. No branch switch or commit,
++push, merge or deployment. Historical verification records and screenshots remain.
++
++## Delivered
++
++- **Layout 3:** compact bearing-brand navigation, wide-screen Attention rail,
++  workspace header/queue action, Notice → Evidence → Findings stages, bearing
++  illustration and orange interpretation notice. Midnight `#02070A`, Electric
++  Blue `#0297DE`, Cantaloupe Orange `#FC734D` retain their roles. The mockup's
++  example date/count/status were not fabricated: rail notices come from actual
++  revealed observations, with shared search/type filters and evidence inspection.
++- **Measurements beside assistant:** parallel desktop columns; stacked at tablet/
++  mobile sizes, with measurements before assistant and deeper notebook/history.
++  Existing question/scope transmission, suggestions, cancellation, citation panel,
++  fixture/generated labels and expandable activity remain. No API contract changed.
++- **Less text:** the default Start view has **119 visible words** in the recorded
++  desktop browser measurement (panel `innerText`, excluding closed disclosures).
++  Measure → Compare → Explain labels, a bearing illustration, actual three-point
++  RMS chart, endpoint comparisons and compact limitations replace long paragraphs.
++  Full method tables, reference detail, change evidence, timing, model settings and
++  attribution remain expandable. No saved numerical evidence was removed.
++- **Interactive Engineering:** 14 keyboard/clickable components cover recorded
++  data, forecasting, pinned evidence, dashboard, TypeScript orchestration, MCP,
++  Python retrieval, RAG/context, optional OpenAI generation, citation validation,
++  answer/evidence display and local traces. Every component has a concise
++  explanation, concrete example and expandable source/contract. Hosting is marked
++  future/unimplemented; optional hybrid retrieval is implemented but unevaluated.
++  Selection focuses the explanation; Back to diagram restores component focus.
++  Diagram interactions never execute tools, submit questions or call a provider.
++
++Canonical source: existing `release/dashboard.html` and `site/reviewer.js`,
++`site/reviewer_experience.js`, `site/reviewer.css`, new `site/layout3.css` and
++`site/architecture.js`. `scripts/build_reviewer_site.py` inlines them into the
++portable site. Both CSS files participate in context freshness; CSS is not
++misrepresented as an AST graph. No frontend framework, remote asset or dependency
++was added. `assistant/web/assistant.js` only shortens its status wording here.
++
++## Observed verification
++
++- TypeScript build and **41/41 tests passed**, no failures/skips.
++- Full Python suite **144/144 passed**, no failures/skips. Existing small synthetic
++  test-fixture fits are not project forecasting-model retraining.
++- Frozen lexical retrieval cases **40/40 passed**; unchanged manifest. These are
++  documentation/evidence cases, not a new held-out-bearing evaluation.
++- Real Chrome, isolated Playwright 1.58.2: **1440 desktop / 1024 tablet / 390 mobile**;
++  no horizontal overflow across all views. Desktop parallel columns and mobile
++  measurement → assistant → notebook order are asserted geometrically.
++- Expanded redesign browser check: all 14 architecture components have matching
++  explanations/examples/existing source paths; keyboard focus/return; future and
++  unevaluated labels; no diagram submission; direct-file diagram interaction;
++  revealed-only rail filtering; stage navigation; exact displayed RMS values;
++  B01/A 1–3/as_of=3; suggestion no-submit; captured fixture request question/scope;
++  exact evidence/provenance citation panels; Escape/focus return; reduced motion;
++  offline/unavailable and mocked loading/cancellation/error/generated states.
++- Existing static reviewer browser regression passed: replay, period controls,
++  downloaded reports/provenance, notes/legacy/isolation/deletion, blocked storage,
++  persistent-profile restart, run switching, keyboard, mobile, subpath/direct-file.
++- Existing assistant browser regression passed: real local MCP/Python retrieval,
++  offline deterministic fixture, channel C/1–8, answer/citations/report and mobile.
++- No page errors or unexpected external requests in the recorded browser checks.
++  Syntax, whitespace, Graphify update/freshness and unchanged pinned-source/model/
++  result checks passed. A new assertion initially compared lowercase text with a
++  CSS-uppercase status; it was corrected to case-insensitive semantic matching.
++
++All generation checks use offline fixtures or intercepted browser mocks, not a
++paid model. Browser/test/build children exclude provider credentials. The private
++root configuration was not changed or displayed; it remains ignored/untracked
++and mode 0600. No B03/raw access, real-data fit, saved forecasting-result change,
++model/configuration change or paid request occurred. Original assistant bounds,
++server scope gates and credential separation remain in force.
++
++## Local review and artifacts
++
++The offline fixture service is available at **http://127.0.0.1:8786/**. Restart:
++
++```bash
++FACTORYGUARD_ASSISTANT_PORT=8786 .venv/bin/python scripts/start_assistant.py
++```
++
++Static/keyless build:
++
++```bash
++.venv/bin/python scripts/build_reviewer_site.py --output reports/local/reviewer-site
++```
++
++Open the generated `index.html`. New generation is visibly unavailable there.
++Browser verification script: `scripts/verify_reviewer_redesign.cjs`, configured
++with `FACTORYGUARD_SCREENSHOT_DIR=reports/local/layout3` and an offline service.
++Local screenshots, logs, retrieval results, source hashes and verification JSON:
++`reports/local/layout3/`. Representative screenshots: `start-desktop.png`,
++`start-mobile.png`, `guide-notice-desktop.png`, `guide-desktop.png`,
++`assistant-desktop.png`, `engineering-desktop.png`, `engineering-mobile.png`.
++
++## Limits
++
++The one-minute comprehension goal has not been measured with unfamiliar users.
++No Safari/Firefox or full screen-reader/WCAG audit was run. This verifies browser
++operation and deterministic/mocked boundaries, not new real-model answer quality,
++prompt-injection robustness or production security. Citation-ID membership does
++not prove claim support. Human review, broader answer evaluation, real hybrid
++validation and restricted hosting controls remain: authentication/TLS, trusted
++origins, spend/concurrency bounds, durable idempotency, secret/evidence isolation
++and trace retention. The public deployment has not been changed.
+diff --git a/docs/results/assistant-v1/reviewer-redesign.md b/docs/results/assistant-v1/reviewer-redesign.md
+new file mode 100644
+index 0000000..56b9549
+--- /dev/null
++++ b/docs/results/assistant-v1/reviewer-redesign.md
+@@ -0,0 +1,149 @@
++# Reviewer dashboard redesign — local verification
++
++Implemented 2026-11-09 on local master based at `c23c79d`, preserving the earlier
++uncommitted assistant/configuration/diagnostic/optimization changes. No branch
++switch, push, merge or deployment. The public website and historical documentation
++screenshots are not claimed to show this local version.
++
++## What changed
++
++- **Start here** is the default. A plain-language introduction explains bearings,
++  recorded laboratory data and operating/measurement context. One blue primary
++  action starts a walkthrough; exploration, methods and GitHub are secondary.
++  Three verified facts are computed from the pinned snapshot/selection artifacts:
++  2,607 observations, two development bearing runs (B04 diagnostic separate),
++  12.83% equal-run/channel development MAE improvement. Held-out/fault accuracy
++  and validated machine-health diagnosis are explicitly not claimed.
++- **Five-step deterministic guidance**, B01/A positions 1–3 with visibility 3:
++  measured RMS → dip/partial recovery → temperature/speed/load context → warm-up,
++  missing references/preceding gap/timing limits → bounded conclusions. Actual
++  pinned values are used; no anomaly, label or causal verdict is manufactured.
++  It resets and reveals existing replay data, not machinery or a forecasting fit.
++  Guidance is labelled deterministic, with no saved AI answer substituted.
++- **Measurements + assistant** share a desktop workspace. On small screens the
++  assistant follows the measurement plots before notebook/history/queue. Period
++  controls and experiment/channel/as_of are visible. Selected channel drives both
++  the primary RMS plot and error curve; other/context charts remain expandable.
++  Suggestions populate the question without submitting. A static export clearly
++  marks generation unavailable but keeps guidance, suggestions, replay and reports.
++- **Readable answers** separate observations, possible explanations and uncertainty/
++  limitations; captured question/scope and fixture versus newly generated labels
++  remain explicit. Citation buttons open exact matching evidence with relevant
++  values/units, source text/path/hash and full record detail. The focusable panel
++  opens at its heading, scrolls internally, closes with Escape and restores trigger
++  focus. Technical traces stay expandable.
++- **Deeper exploration** preserves notes, isolated/legacy storage, exports,
++  replay/history/hover, optional commanded values and all 432 comparison rows.
++  A source-backed notice queue adds search/type filters over revealed observations,
++  honestly caps displayed matches at 30 and never calls notices confirmed faults.
++  Methods explain repeat-last versus smoothing and development selection;
++  Engineering links existing documentation/evaluation evidence and lists unverified
++  safeguards without presenting the system as production-ready.
++- **Visual direction** follows the supplied reference hierarchy: midnight
++  `#02070A`, blue `#0297DE`, orange `#FC734D`, a restrained industrial rail/workspace,
++  readable spacing and an original inline bearing SVG. Orange denotes attention
++  to interpretation/quality, not confirmed danger. No external fonts/images/CDN.
++  Focus visibility, keyboard controls, reduced motion and responsive layout are
++  included. The supplied screenshot's browser chrome/private tabs were not copied.
++
++## Canonical source and boundaries
++
++The existing HTML replay/chart engine is
++`src/factoryguard/release/dashboard.html`. `site/reviewer.js` continues to own
++notebook/exploration enhancements. New `site/reviewer_experience.js` and
++`site/reviewer.css` implement the hierarchy/theme. `scripts/build_reviewer_site.py`
++inlines those sources into the portable export; no generated-only patch is used.
++CSS is freshness-hashed without pretending it has AST graph symbols.
++`assistant/web/assistant.js` upgrades the same markup through the existing API.
++No frontend framework/router, provider SDK or application dependency was added.
++
++Backend request validation, scope/cursor/channel gates, RAG/MCP, citations,
++configured model, dotenv precedence, offline default, explicit live opt-in and
++request/tool/turn/output/time/retry bounds remain. A small loading-state fix keeps
++Cancel disabled until a request ID exists; pending/lost-ack and duplicate guards
++remain. Citation formatting and shared markup do not change evidence. Direct
++site builds now also explicitly strip provider credentials from their Git child;
++browser test children and static-server children receive sanitized environments.
++Tests use fake keys, not private configuration. No key was displayed or copied
++into browser assets/screenshots. No live model investigation or paid smoke ran.
++
++No saved forecasting results, raw data, feature/model code, dataset roles, source
++manifest or pinned replay/comparison data changed. B03 was not accessed. The
++standard suite's small synthetic fixture fits are verification, not real-data
++retraining. A public static snapshot is still not an access-control boundary.
++
++## Verification
++
++Local runtime: Python 3.12.16, Node 24.22.1. Isolated browser tooling was installed
++under ignored `.tools/browser` (Playwright 1.58.2), using the existing installed
++headless Google Chrome; application npm locks were not changed. The verification
++service is explicitly offline at `http://127.0.0.1:8786/`, separate from any earlier
++live service. Browser scripts require offline health before submitting a fixture.
++
++- TypeScript build and **41 TypeScript tests passed**, no failures/skips.
++  Updated DOM regression covers suggestion no-submit, captured scope, distinct
++  generated label and correct citation-panel record. Existing configuration,
++  adversarial scope, fake-secret, cancellation, duplicate and MCP tests still pass.
++- **144 Python tests passed**, no errors/skips, including a new canonical-source/
++  static-generation/build-child-secret-boundary check. Pinned build checks preserve
++  all 2,607 events, model settings and all 432 saved comparison rows exactly.
++- All **40 frozen retrieval cases passed**, with unchanged case manifest and
++  existing lexical metrics. No hybrid retrieval/model quality evaluation is claimed.
++- Existing `verify_reviewer_workflow.cjs` passed in real Chrome: keyboard/history,
++  replay/period controls, run switching, downloaded report provenance, note
++  isolation/legacy export/deletion, blocked storage, persistent-profile restart,
++  mobile layout, subpath and **direct-file opening**. Selectors/expander setup, optional screenshot destinations and sanitized child
++  environments changed for the new layout; numerical and
++  persistence assertions were retained.
++- Existing `assistant/test/browser.cjs` passed with real MCP/Python retrieval and
++  the deterministic offline fixture: channel C/period 1–8, answer rendering,
++  citations, legacy report and desktop/mobile. It now refuses a live-mode service.
++- New `verify_reviewer_redesign.cjs` passed in real Chrome: default Start view;
++  keyboard focus/activation; all five guidance steps; exact B01/A 1–3/as_of=3;
++  no automatic POST; suggestion population; selected-channel chart switching;
++  explicit fixture question/scope transmission; exact citation record/source/hash;
++  Escape/focus return; queue filters; methods/engineering; no horizontal overflow
++  at 1440/1024/390 widths; mobile measurement→assistant→notebook order; reduced
++  motion; direct-file static walkthrough/unavailable state; and mocked loading,
++  cancellation, failure and newly-generated-answer paths. Primary button text
++  contrast was checked against the 4.5:1 threshold. No page errors or unexpected
++  external requests were observed in the recorded checks.
++- Syntax, whitespace and local code-only Graphify update/freshness checks passed.
++  The macOS temporary-directory symlink issue in a standalone context-test run was
++  resolved by the established `TMPDIR=/private/tmp` test environment; no assertion
++  was weakened.
++
++The screenshots demonstrate browser rendering and fixture/mock interactions,
++not real-model answer quality. Local logs and `browser-verification.json` are
++under ignored `reports/local/redesign/`; representative captures include
++`start-desktop.png`, `start-mobile.png`, `guide-desktop.png`, `guide-mobile.png`,
++`assistant-desktop.png`, `assistant-mobile.png`, `citation-desktop.png`.
++Historical `docs/images/` captures were preserved.
++
++## Startup and remaining limits
++
++From the repository root, after dependencies are installed:
++
++```bash
++FACTORYGUARD_ASSISTANT_PORT=8786 .venv/bin/python scripts/start_assistant.py
++```
++
++Open **http://127.0.0.1:8786/**. This is the offline fixture default. Click the
++walkthrough action without submitting any assistant question. A static alternative:
++
++```bash
++.venv/bin/python scripts/build_reviewer_site.py --output reports/local/reviewer-site
++```
++
++Open `reports/local/reviewer-site/index.html`; new generation is visibly unavailable.
++No API key is needed by either the walkthrough or the offline fixture.
++
++Remaining: no live-model/browser investigation was performed for this redesign;
++newly-generated/error/cancel UI checks use mocks. Broader answer entailment and
++prompt-injection evaluation, hybrid retrieval validation and independent human
++review remain. Chrome was tested locally, not Firefox/Safari or a new remote CI
++run; this is not a full WCAG/screen-reader/security certification. External
++documentation links target existing GitHub documents; offline exports cannot open
++them without connectivity. Deployment has not been updated. Restricted hosting
++still needs authentication/TLS, trusted origins/CSRF review, spending/concurrency
++controls, durable idempotency, secret/evidence/egress isolation and trace retention.
+diff --git a/docs/reviewer_site.md b/docs/reviewer_site.md
+index 8b9dd89..6fb05a6 100644
+--- a/docs/reviewer_site.md
++++ b/docs/reviewer_site.md
+@@ -8,14 +8,60 @@ unverified here. See [verification record](release_verification.md).
+ 
+ ## Review workflow
+ 
+-**Overview** explains the problem, experiment roles and saved model comparisons.
+-**Explore an experiment** opens populated charts; optional reset/play/step controls
+-reveal a precomputed replay. Inspect a chart, slider or keyboard-accessible history
+-row, select period boundaries and review evidence alongside operating conditions.
+-**Methods and evidence** contains filterable full results, coverage and provenance.
++The locally redesigned source opens on **Start here**, with a plain-language
++introduction, verified snapshot facts and a **Walk through an investigation** action.
++The deterministic five-step example resets B01 replay and reveals exactly
++observations 1–3 for channel A. It explains recorded RMS, forecasts, operating
++context and warm-up/reference/timing limitations. It is labelled walkthrough
++guidance; it is neither a saved AI answer nor a new model response. No API key,
++provider request, fabricated anomaly or diagnosis is needed.
++
++**Explore measurements** retains reset/play/step/full-history controls, charts,
++keyboard-accessible history, period selection, notes and reports. A deeper
++**Investigation queue** filters recorded notices from revealed observations; these
++are review prompts, not confirmed faults. **AI assistant** jumps to the question
++panel next to the selected-channel measurements (directly afterward on mobile).
++Scope is visible, suggested questions populate without submitting, and generation
++requires an explicit click. The static export clearly marks new answers unavailable;
++the optional local service upgrades it to fixture or explicitly live mode. Citation
++controls open values/units and stable source provenance in a focusable panel;
++Escape closes the panel and returns focus. Detailed traces remain expandable.
++
++**Methods & results** contains the baseline/selected method explanation, scoped
++development results, filterable full comparisons, coverage and provenance.
++**Engineering** explains the architecture, local setup and implemented versus
++unverified safeguards. These are sections, without a new routing framework.
++The Layout 3 view uses a narrow navigation rail, a revealed-notice Attention
++column on wide screens, and a working canvas. The Attention filter and deeper
++queue share the same revealed evidence. On smaller screens, the header's queue
++button provides access without squeezing the measurement/assistant workspace.
++Notice counts are actual records, not the mockup's example review count.
++
++Engineering now has an interactive 14-component system map: recorded data →
++forecasting → pinned results; dashboard → TypeScript → MCP → Python retrieval;
++RAG/context → optional OpenAI generation → citation validation → evidence display.
++Local traces are shown alongside request stages. Keyboard/click selection reveals
++one concise example and expandable contracts/source links. Future hosting is
++marked unimplemented; optional hybrid retrieval is marked unevaluated. Selecting
++a diagram component never submits a question or executes a tool.
++
++Charts, endpoint comparisons, short labels and disclosure sections replace the
++long introductory/method paragraphs. Essential non-diagnosis, development-only,
++replay and B04 qualifications remain visible; deeper timing, coverage, reference
++and provenance explanations remain available. The five guidance questions sit
++under Notice / Evidence / Findings stages and use the unchanged pinned B01 data.
+ Commanded values are optional. Matching coarse bins does not prove identical
+ conditions. References are development distributions, not healthy ranges.
+ 
++Canonical sources are `src/factoryguard/release/dashboard.html` (replay/chart
++engine), `site/reviewer.js` (existing notebook/exploration),
++`site/reviewer_experience.js` (reviewer hierarchy), `site/reviewer.css` and
++`site/layout3.css` (theme/layout), and `site/architecture.js` (interactive map).
++`scripts/build_reviewer_site.py` inlines them; `assistant/web/assistant.js` upgrades
++the shared assistant markup only on the optional local service. CSS is included in
++context freshness hashes even though it has no AST symbols. Generated HTML is not
++the editing source. The public deployment has not been updated by this local task.
++
+ The static site includes B01 (377 observations), B02 (1,116) and diagnostic B04
+ (1,114), all selected recorded forecasts/errors and 432 saved comparison rows.
+ B03, raw waveforms, model pickles, SQLite databases and private notes are excluded.
+@@ -59,7 +105,25 @@ directly. Direct-file storage support depends on browser policy. The
+ `node scripts/verify_reviewer_workflow.cjs` runs the actual browser workflow after
+ building (requires Playwright 1.62.1 and its Chromium). It starts a static server
+ automatically. CI runs Windows/Ubuntu tests, browser checks, demos and export.
+-Local managed Chromium blocks file URLs; CI requires the direct-file check.
++An isolated local check on 2026-11-09 used Playwright 1.58.2 with installed Chrome
++and passed direct-file opening; this does not generalize to every managed browser.
++For the optional assistant, use `.venv/bin/python scripts/start_assistant.py` (offline
++fixture default). To use an unoccupied separate port:
++`FACTORYGUARD_ASSISTANT_PORT=8786 .venv/bin/python scripts/start_assistant.py`, then
++open `http://127.0.0.1:8786/`. No question is automatically submitted.
++
++`scripts/verify_reviewer_redesign.cjs` requires a health-confirmed offline service
++and checks desktop/tablet/mobile, five-step guidance, suggestion no-submit behavior,
++captured question/scope, selected-channel charts, fixture and mocked-generated
++labels, citations/focus, queue filters, unavailable/loading/cancel/error states and
++static-file use. Browser processes receive no provider key. Use
++`FACTORYGUARD_SCREENSHOT_DIR` to keep screenshots under ignored `reports/local/`
++rather than overwrite historical documentation screenshots.
++The 2026-11-10 Layout 3 checks also cover parallel desktop columns, revealed-only
++rail/filter behavior, every architecture node's explanation/example/source link,
++keyboard focus return, future/unverified labels and zero diagram submissions.
++Captures and the credential-free record are under `reports/local/layout3/`;
++see [Layout 3 verification](results/assistant-v1/layout3.md).
+ 
+ Regeneration of the pinned snapshot requires the original release-v3 artifacts:
+ export the verified workspace, then run
+diff --git a/scripts/build_reviewer_site.py b/scripts/build_reviewer_site.py
+index 14ee35d..346f267 100644
+--- a/scripts/build_reviewer_site.py
++++ b/scripts/build_reviewer_site.py
+@@ -4,6 +4,7 @@ import csv
+ import hashlib
+ import html
+ import json
++import os
+ from pathlib import Path
+ import subprocess
+ from factoryguard.release.application import html as dashboard
+@@ -17,7 +18,8 @@ def build(output):
+         if hashlib.sha256((source / name).read_bytes()).hexdigest() != expected:
+             raise ValueError(f'Source integrity failed: {name}')
+     payload = json.loads((source / 'replay.json').read_text())
+-    manifest['website_build_commit'] = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
++    manifest['website_build_commit'] = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True,
++        env={k:v for k,v in os.environ.items() if k!='OPENAI_API_KEY'}).strip()
+     manifest['snapshot_id'] = manifest['files']['replay.json']
+     payload['metadata']['reviewer_source_manifest'] = manifest
+     with (source / 'development_metrics.csv').open(newline='', encoding='utf-8') as stream:
+@@ -34,7 +36,8 @@ def build(output):
+     page = page.replace('<h1>FactoryGuard</h1>','<h1>FactoryGuard · Recorded experiment results</h1>')
+     page = page.replace('<main>','<main><section class="card"><h2>Explore recorded bearing experiments</h2><p>A variable-speed, variable-load bearing test rig records vibration channels A/C and temperatures. Each experiment is a separate bearing run. Opening this page does not retrain models or connect to live equipment. Reset to replay sequentially; notes stay in this browser.</p><p>B01/B02 are development runs. B04 is an uncorrected diagnostic stress case. Measurement timestamps are provisional. Result generation time and producing code commit were not recorded and remain unknown. Software CI was independently reported for d5be7be; see provenance for evidence.</p></section>'+evidence,1)
+     selection=json.loads((source/'selection.json').read_text())
+-    page=page.replace('</body>', '<script>const reviewerMetrics='+json.dumps(rows)+';const savedSelection='+json.dumps(selection)+';</script><script>'+ (ROOT/'site/reviewer.js').read_text(encoding='utf-8')+'</script></body>')
++    page=page.replace('</head>', '<style>'+''.join((ROOT/'site'/name).read_text(encoding='utf-8') for name in ('reviewer.css','layout3.css'))+'</style></head>')
++    page=page.replace('</body>', '<script>const reviewerMetrics='+json.dumps(rows)+';const savedSelection='+json.dumps(selection)+';</script><script>'+ (ROOT/'site/reviewer.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/architecture.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/reviewer_experience.js').read_text(encoding='utf-8')+'</script></body>')
+     output=Path(output)
+     output.mkdir(parents=True,exist_ok=True)
+     (output/'index.html').write_text(page,encoding='utf-8')
+diff --git a/scripts/project_context.py b/scripts/project_context.py
+index 1d65915..d8b68fe 100644
+--- a/scripts/project_context.py
++++ b/scripts/project_context.py
+@@ -16,7 +16,8 @@ EXCLUDED = ('site/source/', 'assistant/node_modules/', 'assistant/dist/', 'assis
+ SUFFIXES = {'.py', '.ts', '.tsx', '.js', '.cjs', '.json', '.yaml', '.yml', '.sh', '.toml'}
+ CONTEXT_FILES = ('AGENTS.md', 'PROJECT_MEMORY.md', '.graphifyignore', '.graphifyrc',
+                  '.gitignore', 'pyproject.toml', 'docs/architecture.md', 'docs/project_context.md',
+-                 'assistant/package-lock.json', 'assistant/evaluation/cases.json', 'requirements-assistant-lock.txt')
++                 'assistant/package-lock.json', 'assistant/evaluation/cases.json', 'requirements-assistant-lock.txt',
++                 'site/reviewer.css', 'site/layout3.css')  # Visual sources are hashed even though CSS has no AST symbols.
+ 
+ 
+ def digest(path):
+diff --git a/scripts/verify_reviewer_redesign.cjs b/scripts/verify_reviewer_redesign.cjs
+new file mode 100644
+index 0000000..143b4c7
+--- /dev/null
++++ b/scripts/verify_reviewer_redesign.cjs
+@@ -0,0 +1,168 @@
++// Real-browser UI checks. Requires an explicitly OFFLINE local server; generation is fixture/mocked only.
++const {chromium}=require('playwright');
++const assert=require('node:assert/strict');
++const fs=require('node:fs');const path=require('node:path');const {pathToFileURL}=require('node:url');
++const base=process.env.FACTORYGUARD_BROWSER_BASE||'http://127.0.0.1:8786/';
++const output=process.env.FACTORYGUARD_SCREENSHOT_DIR||'reports/local/redesign';
++let browser;
++(async()=>{
++ assert.ok(!process.env.OPENAI_API_KEY,'Remove provider credentials from browser test tooling.');
++ assert.equal((await (await fetch(new URL('health',base))).json()).mode,'offline','Only an offline fixture service is allowed.');
++ fs.mkdirSync(output,{recursive:true});
++ const browserEnv=Object.fromEntries(Object.entries(process.env).filter(([key])=>key!=='OPENAI_API_KEY'));
++ browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||chromium.executablePath(),headless:true,env:browserEnv});
++ const errors=[],external=[],checks=[];
++ const contrast=(a,b)=>{
++   const light=c=>{const x=c.match(/[\d.]+/g).slice(0,3).map(n=>{const v=Number(n)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*x[0]+.7152*x[1]+.0722*x[2];};
++   const x=light(a),y=light(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
++ };
++ const page=await browser.newPage({viewport:{width:1440,height:1000}});
++ page.on('pageerror',e=>errors.push(e.message));
++ page.on('request',r=>{if(!r.url().startsWith(base))external.push(r.url());});
++ let posts=[];
++ page.on('request',r=>{if(r.method()==='POST'&&new URL(r.url()).pathname==='/api/investigations')posts.push(r.postDataJSON());});
++ await page.goto(base);await page.waitForSelector('body[data-experience-ready="true"]');
++ assert.equal(await page.locator('[data-view="0"]').isVisible(),true);
++ assert.match(await page.locator('[data-view="0"]').innerText(),/12.83%/);
++ const startWords=(await page.locator('[data-view="0"]').innerText()).trim().split(/\s+/).length;
++ assert.ok(startWords<=190,`Start view should be a short introduction: ${startWords} words`);
++ assert.equal(await page.locator('#attentionRail').isVisible(),true);
++ await page.screenshot({path:path.join(output,'start-desktop.png'),fullPage:true});
++ const colors=await page.locator('#walkthroughAction').evaluate(el=>({text:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor}));
++ assert.ok(contrast(colors.text,colors.background)>=4.5,'primary action text contrast');
++ await page.locator('#walkthroughAction').focus();assert.equal(await page.locator('#walkthroughAction').evaluate(el=>getComputedStyle(el).outlineStyle),'solid');
++ await page.keyboard.press('Enter');await page.waitForFunction(()=>!busy&&state.revealed===3);
++ assert.equal(await page.evaluate(()=>run),'B01');assert.equal(await page.locator('#assistantChannel').inputValue(),'A');
++ assert.match(await page.locator('#assistantScope').innerText(),/observations 1–3.*boundary 3/);
++ assert.equal(posts.length,0);
++ assert.equal(await page.evaluate(()=>[...document.querySelectorAll('[data-rail-index]')].every(b=>Number(b.dataset.railIndex)<state.revealed)),true);
++ await page.locator('#railSearch').fill('nothing-matches-this');assert.match(await page.locator('#railNotices').innerText(),/No matching/);
++ await page.locator('#railSearch').fill('');
++ const rms=await page.evaluate(()=>state.events.map(e=>e.rms_v[0].toFixed(7)));
++ for(const value of rms)assert.ok((await page.locator('#guideCopy').innerText()).includes(value+' V'));
++ for(const stage of ['2','4','0']){await page.locator(`[data-guide-stage="${stage}"]`).click();assert.equal(await page.locator('[data-guide-step][aria-current="step"]').getAttribute('data-guide-step'),stage);}
++ await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'guide-notice-desktop.png')});
++ for(let i=0;i<5;i++){
++   assert.equal(await page.locator('[data-guide-step][aria-current="step"]').getAttribute('data-guide-step'),String(i));
++   if(i<4){await page.locator('#guideNext').focus();await page.keyboard.press('Enter');}
++ }
++ assert.match(await page.locator('#guideCopy').innerText(),/do not establish why/);
++ await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'guide-desktop.png')});
++ checks.push('Start default, keyboard focus/activation, five deterministic steps, B01/A 1–3/as_of=3, zero automatic submissions');
++ const suggestions=page.locator('[data-assistant-suggestion]');
++ for(let i=0;i<await suggestions.count();i++){const text=await suggestions.nth(i).innerText();await suggestions.nth(i).click();assert.equal(await page.locator('#assistantQuestion').inputValue(),text);}
++ assert.equal(posts.length,0);
++ const desktopColumns=await page.evaluate(()=>{const m=document.getElementById('measurementColumn').getBoundingClientRect(),a=document.getElementById('assistantColumn').getBoundingClientRect();return a.left>=m.right&&Math.abs(a.top-m.top)<2;});assert.ok(desktopColumns,'desktop measurements stay beside assistant');
++ await page.locator('#assistantChannel').selectOption('C');
++ assert.equal(await page.locator('#measurementColumn #chartC').isVisible(),true);
++ assert.equal(await page.locator('#chartError .legend').innerText(),'C');
++ await page.locator('#assistantChannel').selectOption('A');
++ assert.equal(await page.locator('#measurementColumn #chartA').isVisible(),true);
++ assert.equal(posts.length,0);
++ await page.locator('#assistantQuestion').fill('Explain this period in plain English.');
++ if(await page.locator('#guideExit').isVisible())await page.locator('#guideExit').click();
++ await page.locator('#askAssistant').click();
++ await page.waitForFunction(()=>document.getElementById('assistantActivity').textContent.startsWith('Complete'));
++ assert.equal(posts.length,1);
++ assert.deepEqual({...posts[0].selection,snapshot:undefined},{experiment:'B01',channel:'A',start:1,stop:3,as_of:3,mode:'replay',snapshot:undefined});
++ assert.equal(posts[0].question,'Explain this period in plain English.');
++ assert.equal(await page.locator('#assistantAnswer').getAttribute('data-answer-kind'),'fixture');
++ assert.match(await page.locator('#assistantAnswer').innerText(),/Offline fixture response/);
++ assert.match(await page.locator('#assistantAnswer').innerText(),/Uncertainty and limitations/);
++ const result=JSON.parse(await page.locator('#assistantEvidence').textContent());
++ assert.equal(result.model,'offline-deterministic-fixture');
++ const records=[...result.context.facts,...result.context.passages];
++ const citations=page.locator('[data-assistant-citation]');
++ for(let i=0;i<await citations.count();i++){
++   const id=await citations.nth(i).getAttribute('data-assistant-citation'),record=records.find(r=>r.id===id);assert.ok(record);
++   await citations.nth(i).focus();await page.keyboard.press('Enter');
++   assert.equal(await page.locator('#citationPanel').isVisible(),true);
++   assert.equal(await page.locator('#citationPanel').evaluate(el=>el.scrollTop),0);
++   const titleBox=await page.locator('#citationTitle').boundingBox();assert.ok(titleBox.y>=0&&titleBox.y+titleBox.height<=page.viewportSize().height);
++   const opened=JSON.parse(await page.locator('#assistantEvidence').textContent());assert.equal(opened.selected_evidence.id,id);
++   assert.ok((await page.locator('#citationContent').innerText()).includes(record.source.path));
++   assert.ok((await page.locator('#citationContent').innerText()).includes(record.source.sha256));
++   await page.keyboard.press('Escape');assert.equal(await page.locator('#citationPanel').isVisible(),false);
++   assert.equal(await citations.nth(i).evaluate(el=>el===document.activeElement),true);
++ }
++ await page.locator('[data-nav="3"]').click();
++ await page.screenshot({path:path.join(output,'assistant-desktop.png')});
++ await citations.first().click();await page.screenshot({path:path.join(output,'citation-desktop.png')});
++ checks.push('Suggestions populate without POST; explicit fixture POST matches shown question/scope; citations resolve and open exact source/provenance; Escape restores focus');
++ await page.locator('#closeCitation').click();
++ await page.locator('[data-nav="1"]').click();await page.locator('#investigationQueue>summary').click();
++ await page.locator('#queueFilter').selectOption('regime');assert.match(await page.locator('#queueItems').innerText(),/warm-up/i);
++ await page.locator('#queueSearch').fill('nothing-matches-this');assert.match(await page.locator('#queueItems').innerText(),/No matching/);
++ await page.locator('#queueSearch').fill('');await page.locator('#queueFilter').selectOption('all');
++ await page.locator('[data-nav="2"]').click();assert.match(await page.locator('[data-view="2"]').innerText(),/not held-out/);
++ await page.locator('[data-nav="4"]').click();assert.match(await page.locator('[data-view="4"]').innerText(),/remain incomplete/);
++ assert.equal(await page.locator('[data-component]').count(),14);
++ const expected={data:'Recorded experiments',forecasting:'Forecasting',snapshot:'Pinned evidence',dashboard:'Dashboard',orchestrator:'TypeScript orchestrator',mcp:'MCP connection',retrieval:'Python evidence retrieval',context:'RAG / context assembly',generation:'OpenAI generation',validation:'Citation validation',answer:'Answer + evidence',traces:'Local traces',hybrid:'Hybrid retrieval',hosting:'Restricted hosted demo'};
++ for(const [id,title] of Object.entries(expected)){
++   await page.locator(`[data-component="${id}"]`).focus();await page.keyboard.press('Enter');
++   assert.equal(await page.locator('#componentTitle').innerText(),title);
++   assert.equal(await page.locator('#componentTitle').evaluate(el=>el===document.activeElement),true);
++   assert.equal(await page.locator('.system-node[aria-pressed="true"]').count(),1);
++   assert.ok((await page.locator('.component-example p').innerText()).length>15);
++   if(id==='hosting')assert.match(await page.locator('.component-status').innerText(),/Future · not implemented/i);
++   if(id==='hybrid')assert.match(await page.locator('.component-status').innerText(),/unevaluated/i);
++   await page.locator('#architectureDetail summary').click();
++   const link=await page.locator('#architectureDetail a').getAttribute('href');assert.ok(fs.existsSync(path.resolve(link.split('/blob/master/')[1])),`source exists for ${id}`);
++   await page.locator('#backToDiagram').click();assert.equal(await page.locator(`[data-component="${id}"]`).evaluate(el=>el===document.activeElement),true);
++ }
++ assert.equal(posts.length,1,'diagram interactions never submit an investigation');
++ await page.locator('[data-component="dashboard"]').click();await page.evaluate(()=>scrollTo(0,0));
++ await page.screenshot({path:path.join(output,'engineering-desktop.png'),fullPage:true});
++ await page.locator('[data-nav="2"]').click();await page.screenshot({path:path.join(output,'methods-desktop.png'),fullPage:true});
++ checks.push('Layout 3 revealed-only Attention rail/filter, concise Start, desktop parallel columns; all 14 architecture components open correct explanations/examples/sources by keyboard, future and unverified states distinct, no diagram POST');
++ for(const width of [1024,390]){
++   await page.setViewportSize({width,height:844});
++   for(const view of ['0','1','3','2','4']){
++     await page.locator(`[data-nav="${view}"]`).click();
++     assert.equal(await page.locator('nav [aria-pressed="true"]').count(),1);
++     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`overflow at ${width}/${view}`);
++   }
++ }
++ await page.locator('[data-nav="0"]').click();await page.screenshot({path:path.join(output,'start-mobile.png'),fullPage:true});
++ await page.locator('#walkthroughAction').click();await page.waitForFunction(()=>!busy&&state.revealed===3);
++ await page.emulateMedia({reducedMotion:'reduce'});assert.equal(await page.locator('#guideCopy').evaluate(el=>getComputedStyle(el).animationName),'none');
++ await page.screenshot({path:path.join(output,'guide-mobile.png')});
++ const order=await page.evaluate(()=>{const m=document.getElementById('measurementColumn').getBoundingClientRect(),a=document.getElementById('assistantColumn').getBoundingClientRect(),n=document.getElementById('investigationNotebook').getBoundingClientRect();return a.top>=m.bottom&&n.top>=a.bottom;});assert.ok(order,'mobile assistant follows measurements before deeper notebook');
++ await page.locator('[data-nav="3"]').click();await page.screenshot({path:path.join(output,'assistant-mobile.png')});
++ await page.locator('[data-nav="4"]').click();await page.locator('[data-component="context"]').click();assert.match(await page.locator('#componentTitle').innerText(),/RAG/);await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(output,'engineering-mobile.png'),fullPage:true});
++ checks.push('Queue filters, deeper methods/engineering, desktop/tablet/mobile no overflow, mobile measurement→assistant→notebook order, reduced motion');
++ // Static export: usable guidance and suggestions; no backend or automatic submission.
++ const staticPage=await browser.newPage();await staticPage.goto(pathToFileURL(path.resolve('reports/local/reviewer-site/index.html')).href);
++ await staticPage.waitForSelector('body[data-experience-ready="true"]');await staticPage.locator('#walkthroughAction').click();
++ await staticPage.waitForFunction(()=>!busy&&state.revealed===3);
++ assert.equal(await staticPage.locator('#askAssistant').isDisabled(),true);
++ await staticPage.locator('[data-assistant-suggestion]').first().click();assert.match(await staticPage.locator('#assistantMode').innerText(),/unavailable/);
++ await staticPage.locator('[data-nav="4"]').click();await staticPage.locator('[data-component="generation"]').click();assert.equal(await staticPage.locator('#componentTitle').innerText(),'OpenAI generation');assert.match(await staticPage.locator('.component-status').innerText(),/opt-in/i);
++ checks.push('Direct-file static walkthrough/suggestions work; new generation visibly unavailable');
++ // Mock only the generation interface to test result/failure/cancellation states without providers.
++ const makeMock=async({unavailable=false}={})=>{
++   const p=await browser.newPage();p.on('pageerror',e=>errors.push(e.message));
++   if(unavailable)await p.route('**/health',r=>r.abort());
++   await p.addInitScript(()=>{window.EventSource=class{constructor(){window.__testStream=this;this.handlers={};}addEventListener(n,f){this.handlers[n]=f;}close(){this.closed=true;}};});
++   await p.route('**/api/investigations',r=>r.fulfill({status:202,contentType:'application/json',body:JSON.stringify({request_id:'mock',events_url:'/mock-events'})}));
++   await p.route('**/api/investigations/mock/cancel',r=>r.fulfill({status:200,contentType:'application/json',body:'{"status":"running"}'}));
++   await p.goto(base);await p.waitForSelector('body[data-experience-ready="true"]');await p.locator('#walkthroughAction').click();await p.waitForFunction(()=>!busy&&state.revealed===3);return p;
++ };
++ const mock=await makeMock();await mock.locator('#askAssistant').click();assert.equal(await mock.locator('#askAssistant').isDisabled(),true);
++ await mock.locator('#cancelAssistant').click();await mock.waitForFunction(()=>document.getElementById('assistantActivity').textContent.includes('Cancellation requested'));assert.match(await mock.locator('#assistantActivity').innerText(),/Cancellation requested/);
++ await mock.locator('#askAssistant').click();
++ await mock.waitForFunction(()=>window.__testStream&&!window.__testStream.closed&&window.__testStream.handlers.failure);
++ await mock.evaluate(()=>window.__testStream.handlers.failure({data:JSON.stringify({stage:'generation',code:'mock_provider_failure'})}));
++ assert.match(await mock.locator('#assistantActivity').innerText(),/Unable to complete/);assert.equal(await mock.locator('#askAssistant').isEnabled(),true);
++ await mock.locator('#askAssistant').click();
++ await mock.waitForFunction(()=>window.__testStream&&!window.__testStream.closed&&window.__testStream.handlers.result);
++ const mockResult={...result,model:'mock-generated-model',answer:{...result.answer,summary:'Mocked generated-answer rendering test; no live model was called.'}};
++ await mock.evaluate(r=>window.__testStream.handlers.result({data:JSON.stringify(r)}),mockResult);
++ assert.equal(await mock.locator('#assistantAnswer').getAttribute('data-answer-kind'),'generated');assert.match(await mock.locator('#assistantAnswer').innerText(),/Newly generated answer/);
++ const unavailable=await makeMock({unavailable:true});assert.equal(await unavailable.locator('#askAssistant').isDisabled(),true);assert.match(await unavailable.locator('#assistantMode').innerText(),/unavailable/);
++ assert.equal(await unavailable.locator('#guidedReview').isVisible(),true);
++ checks.push('Mock loading/cancel acknowledgement/error/generated-answer labels and unavailable backend; no real provider');
++ assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
++ fs.writeFileSync(path.join(output,'browser-verification.json'),JSON.stringify({checks,start_visible_words:startWords,errors,external_requests:external,real_model_requests:0,fixture_investigations:1,screenshots:fs.readdirSync(output).filter(n=>n.endsWith('.png'))},null,2));
++ await browser.close();console.log('Redesign browser checks passed: '+checks.join('; '));
++})().catch(async e=>{await browser?.close();console.error(e);process.exitCode=1;});
+diff --git a/scripts/verify_reviewer_workflow.cjs b/scripts/verify_reviewer_workflow.cjs
+index c1fae3d..864a1a9 100644
+--- a/scripts/verify_reviewer_workflow.cjs
++++ b/scripts/verify_reviewer_workflow.cjs
+@@ -3,16 +3,18 @@ const assert=require('node:assert/strict');
+ const {spawn}=require('node:child_process');
+ const fs=require('node:fs');const path=require('node:path');const os=require('node:os');const {pathToFileURL}=require('node:url');
+ let server;
++const browserEnv=Object.fromEntries(Object.entries(process.env).filter(([key])=>key!=='OPENAI_API_KEY'));
++const capture=process.env.FACTORYGUARD_SCREENSHOT_DIR||'docs/images';fs.mkdirSync(capture,{recursive:true});
+ (async()=>{
+- if(!process.argv[2]){server=spawn(process.env.PYTHON||'python',['-m','http.server','8781','--directory','reports/local'],{stdio:'ignore'});}
+- const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||chromium.executablePath(),args:['--no-sandbox']});
++ if(!process.argv[2]){server=spawn(process.env.PYTHON||'python',['-m','http.server','8781','--directory','reports/local'],{stdio:'ignore',env:browserEnv});}
++ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||chromium.executablePath(),args:['--no-sandbox'],env:browserEnv});
+  const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[],external=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  page.on('request',r=>{if(!r.url().startsWith('http://127.0.0.1:'))external.push(r.url());});
+  const url=process.argv[2]||'http://127.0.0.1:8781/reviewer-site/';
+  for(let i=0;i<50;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+  await page.goto(url);await page.waitForSelector('body[data-reviewer-ready="true"]');
+- await page.screenshot({path:'docs/images/reviewer-desktop.png',fullPage:true});
++ await page.screenshot({path:capture+'/reviewer-desktop.png',fullPage:true});
+  assert.ok((await page.locator('[data-view="0"]').innerText()).includes('12.83%'));
+  assert.equal(await page.locator('#comparisonScope').innerText(),'Best-performing evaluated variant within each model family; development selection results, not independent final-test performance.');
+  await page.locator('#exploreAction').click();assert.equal(await page.evaluate(()=>state.events.length),377);
+@@ -24,7 +26,7 @@ let server;
+  await page.locator('#periodStop').fill('8');await page.locator('#note').fill('Snapshot-specific reviewer note');
+  await page.locator('#reviewPeriod').click();await page.waitForFunction(()=>!busy);assert.ok((await page.locator('#periodSummary').innerText()).includes('8 bursts'));
+  const periodText=await page.locator('#periodSummary').innerText();
+- await page.locator('#commands').check();assert.equal(await page.locator('#periodSummary').innerText(),periodText);
++ await page.locator('#contextCharts').evaluate(el=>el.open=true);await page.locator('#commands').check();assert.equal(await page.locator('#periodSummary').innerText(),periodText);
+  await page.locator('#periodStop').fill('7');assert.ok(!(await page.locator('#periodSummary').innerText()).includes('8 bursts'));
+  await page.locator('#periodStop').fill('8');await page.locator('#reviewPeriod').click();await page.waitForFunction(()=>!busy);
+  await page.locator('#saveNote').click();await page.waitForFunction(()=>!busy);
+@@ -69,7 +71,7 @@ let server;
+  assert.equal(await page.evaluate(()=>notebook.length),0);
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+- await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:'docs/images/reviewer-mobile.png'});
++ await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:capture+'/reviewer-mobile.png'});
+  await page.evaluate(()=>{meta.reviewer_source_manifest=undefined;meta.models.B01=undefined;});
+  const missing=await page.evaluate(()=>investigationReport());assert.equal(missing.source_manifest,null);assert.equal(missing.model_settings,null);
+  // Storage failures must leave exploration and in-tab report notes usable.
+@@ -85,11 +87,11 @@ let server;
+  if(!fileBlocked){await filePage.waitForSelector('body[data-reviewer-ready="true"]');
+  await filePage.locator('#exploreAction').click();assert.equal(await filePage.evaluate(()=>state.revealed),377);
+  await filePage.locator('#periodStop').fill('3');await filePage.locator('#reviewPeriod').click();await filePage.waitForFunction(()=>!busy);
+- const fileSummary=await filePage.locator('#periodSummary').innerText();await filePage.locator('#commands').check();assert.equal(await filePage.locator('#periodSummary').innerText(),fileSummary);
++ const fileSummary=await filePage.locator('#periodSummary').innerText();await filePage.locator('#contextCharts').evaluate(el=>el.open=true);await filePage.locator('#commands').check();assert.equal(await filePage.locator('#periodSummary').innerText(),fileSummary);
+  }
+  // Close and reopen a persistent browser profile to exercise actual restart recovery.
+  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'factoryguard-reviewer-profile-'));
+- const launch={executablePath:process.env.CHROMIUM_PATH||chromium.executablePath(),args:['--no-sandbox']};
++ const launch={executablePath:process.env.CHROMIUM_PATH||chromium.executablePath(),args:['--no-sandbox'],env:browserEnv};
+  let persistent=await chromium.launchPersistentContext(profile,launch),restarted=persistent.pages()[0];
+  await restarted.goto(url);await restarted.waitForSelector('body[data-reviewer-ready="true"]');await restarted.locator('#exploreAction').click();
+  await restarted.locator('#note').fill('Restart-persisted note');await restarted.locator('#saveNote').click();await restarted.waitForFunction(()=>!busy);
+diff --git a/site/architecture.js b/site/architecture.js
+new file mode 100644
+index 0000000..6c57796
+--- /dev/null
++++ b/site/architecture.js
+@@ -0,0 +1,80 @@
++// Interactive explanation of implemented source paths. Presentation only: no requests or tools.
++function mountFactoryGuardArchitecture(container, repo) {
++  const components = {
++    data: ['Recorded experiments', 'Laboratory measurements', 'Implemented',
++      'Separate bearing runs record vibration, temperature, speed and load.',
++      'B01/B02: development. B04: diagnostic. B03 stays sealed.',
++      'Derived features retain units, quality flags and gaps. Raw recordings are not sent to the assistant.', 'docs/dataset_assessment.md'],
++    forecasting: ['Forecasting', 'Past-only prediction', 'Implemented',
++      'Python compares repeat-last with selected exponential smoothing. Results are already computed.',
++      'Forecast error = measured vibration − earlier prediction, in volts (V).',
++      'Chronological, purged development evaluations; learned preprocessing uses training data only. Forecasts are not health or failure predictions.', 'src/factoryguard/release/modeling.py'],
++    snapshot: ['Pinned evidence', 'Measurements + saved results', 'Implemented',
++      'A hash-pinned snapshot packages recorded observations, forecasts, notices and comparison results.',
++      '2,607 observations; 432 saved comparison rows. Opening the dashboard does not retrain anything.',
++      'The portable export contains the development/diagnostic snapshot. Replay hides records in the interface; a static export is not an access-control boundary.', 'scripts/build_reviewer_site.py'],
++    dashboard: ['Dashboard', 'You select the scope', 'Implemented',
++      'Replay, charts and notes work offline. Only an explicit question submission starts an investigation.',
++      'Example: B01 · channel A · observations 1–3 · visible through 3.',
++      'The displayed question and validated snapshot, experiment, channel, period and replay cursor travel together. Suggested questions never submit automatically.', 'assistant/web/assistant.js'],
++    orchestrator: ['TypeScript orchestrator', 'Validate → retrieve → generate', 'Implemented',
++      'The API validates scope. The orchestrator retrieves evidence before generation and owns cancellation and budgets.',
++      '60 seconds overall · ≤9 evidence calls · ≤3 model turns.',
++      'Mandatory replay, summary, quality, measurement and document retrieval precede context assembly. In-flight identical requests coalesce; cleanup closes the MCP client.', 'assistant/src/orchestrator.ts'],
++    mcp: ['MCP connection', 'Local read-only tools', 'Implemented',
++      'Model Context Protocol (MCP) connects TypeScript to a request-owned Python subprocess over local standard input/output.',
++      'get_measurements receives the validated selection, not a model-supplied replacement.',
++      'Tool discovery and response schemas are checked. The client inserts scope on every call. Python receives an explicit environment without provider credentials.', 'assistant/src/mcp.ts'],
++    retrieval: ['Python evidence retrieval', 'Numbers + approved documents', 'Implemented',
++      'Python computes summaries from saved values and retrieves allowlisted documentation. Lexical ranking is the verified retrieval baseline.',
++      'Replay at 3 rejects observation 4. Numerical evidence is projected to the selected vibration channel.',
++      'No B03, raw waveforms, private notes or arbitrary filesystem tools. Missing references/documents stay explicit. Document visibility also depends on replay versus retrospective mode.', 'src/factoryguard/assistant/evidence.py'],
++    context: ['RAG / context assembly', 'Evidence before prose', 'Implemented',
++      'Retrieval-augmented generation (RAG) supplies evidence to the answer. TypeScript deduplicates and bounds the context.',
++      'Stable IDs + values + units + source hashes + warnings; at most 28,000 serialized characters.',
++      'Summaries and quality evidence take priority. Conflicting IDs fail; omissions and missing evidence are reported. There is no shared evidence cache.', 'assistant/src/context.ts'],
++    generation: ['OpenAI generation', 'Optional server-side call', 'Implemented · opt-in',
++      'An explicitly enabled server uses the configured model to produce a structured, cited answer. Default generation is an offline fixture.',
++      'Observations / possible explanations / uncertainty. No provider request is made by this diagram.',
++      'Only the generation server receives the key. Each turn has a 2,200-output-token bound and at most one SDK retry. The browser and Python evidence process never receive it.', 'assistant/src/provider.ts'],
++    validation: ['Citation validation', 'Check IDs, then render', 'Implemented',
++      'The answer must match its schema. Every cited ID must exist in the assembled evidence package.',
++      'A made-up citation ID is rejected. A valid ID still does not prove that a claim is supported.',
++      'Citation membership is deterministic. Semantic entailment, numerical claim support and uncertainty still require answer-quality evaluation and human review.', 'assistant/src/contracts.ts'],
++    answer: ['Answer + evidence', 'Inspect every citation', 'Implemented',
++      'The dashboard separates observations, explanations and limitations. Citation buttons open the exact retrieved record.',
++      'Open a source to inspect values, units, scope, stable ID and provenance.',
++      'Saved guidance, offline fixtures and newly generated answers are labelled separately. Escape closes evidence and restores focus. Activity and JSON are expandable.', 'assistant/web/assistant.js'],
++    traces: ['Local traces', 'Audit every stage', 'Implemented',
++      'Alongside the request, local traces record stages, selection, retrieved evidence, model metadata and failures.',
++      'retrieval → context_assembled → model_start → answer_validated.',
++      'Provider diagnostics are bounded/redacted; no raw errors, headers or environment dumps. Traces can still contain sensitive questions and evidence: keep them local with a retention policy.', 'assistant/src/orchestrator.ts'],
++    hybrid: ['Hybrid retrieval', 'Optional · not verified', 'Implemented · unevaluated',
++      'Optional lexical + local embedding ranking exists. Its real model download and quality comparison remain unverified here.',
++      'The dashboard does not claim hybrid quality or silently substitute synthetic embeddings.',
++      'Requires the approved cached model, hash validation and a real frozen-case comparison before making a quality claim.', 'src/factoryguard/assistant/retrieval.py'],
++    hosting: ['Restricted hosted demo', 'Future work', 'Future · not implemented',
++      'This is a local reviewer app. Hosted access control and operations are separate work.',
++      'Authentication / TLS / trusted origins / spend and concurrency controls / trace retention.',
++      'Also needs durable idempotency, secret/evidence isolation, security review and independent human answer-quality evaluation. No deployment occurs here.', 'docs/assistant.md']
++  };
++  const node = (id, n) => `<button class="system-node ${id==='hosting'?'planned':''}" data-component="${id}" aria-pressed="false" aria-controls="architectureDetail"><span class="node-step">${n}</span><strong>${components[id][0]}</strong><span>${components[id][1]}</span></button>`;
++  const lane = (label, ids) => `<section class="system-lane"><h3>${label}</h3><div class="system-flow">${ids.map((id,i)=>node(id,i+1)+(i<ids.length-1?'<span class="system-arrow" aria-hidden="true">→</span>':'')).join('')}</div></section>`;
++  container.innerHTML = `<div class="system-map" aria-label="Interactive FactoryGuard architecture">
++    ${lane('01 / Recorded foundation', ['data','forecasting','snapshot'])}
++    <p class="system-link">↓ Pinned evidence feeds the charts and read-only retrieval</p>
++    ${lane('02 / On explicit investigation submission', ['dashboard','orchestrator','mcp','retrieval'])}
++    <p class="system-link">↓ Retrieved records return through MCP to the orchestrator</p>
++    ${lane('03 / Evidence becomes a cited answer', ['context','generation','validation','answer'])}
++    <div class="system-sidecars"><div><h3>Alongside every request stage</h3>${node('traces','↳')}</div><div><h3>Separate from the verified default</h3>${node('hybrid','◇')}${node('hosting','◇')}</div></div>
++    </div><section class="component-detail" id="architectureDetail" aria-labelledby="componentTitle" aria-live="polite"></section>`;
++  const select = (id, interactive=false) => {
++    const [title, , status, description, example, detail, source] = components[id];
++    container.querySelectorAll('[data-component]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.component===id)));
++    container.querySelector('#architectureDetail').innerHTML = `<span class="component-status ${id==='hosting'?'future':''}">${status}</span><h3 id="componentTitle" tabindex="-1">${title}</h3><p>${description}</p><div class="component-example"><span class="eyebrow">Concrete example</span><p>${example}</p></div><details><summary>Contract, limits & source</summary><p>${detail}</p><a href="${repo}/blob/master/${source}" target="_blank" rel="noopener">Read the implementation / documentation ↗</a></details><button class="text-action" id="backToDiagram">↑ Back to diagram</button>`;
++    container.querySelector('#backToDiagram').onclick=()=>container.querySelector(`[data-component="${id}"]`).focus();
++    if(interactive){container.querySelector('#componentTitle').focus({preventScroll:true});container.querySelector('#architectureDetail').scrollIntoView({block:'nearest'});}
++  };
++  container.querySelectorAll('[data-component]').forEach(b=>b.onclick=()=>select(b.dataset.component,true));
++  select('dashboard');
++}
+diff --git a/site/layout3.css b/site/layout3.css
+new file mode 100644
+index 0000000..7bea4b9
+--- /dev/null
++++ b/site/layout3.css
+@@ -0,0 +1,42 @@
++/* Approved Layout 3: navigation / revealed-notice rail / working canvas. */
++:root{--rail:104px;--attention:220px;line-height:1.55}
++body{background:radial-gradient(ellipse at 75% 20%,#09202d 0,transparent 55%),var(--midnight)}
++header{margin-left:calc(var(--rail) + var(--attention));padding:28px 30px 24px;gap:8px 20px;min-height:132px;background:#030c12}
++header h1{font-size:32px;flex:1 1 55%}header p{margin:0;order:3;flex:1 1 50%;font-size:15px}header .badge{display:none}
++header .queue-badge{order:4;font-size:12px;min-height:36px;border-color:var(--orange);color:#ffad94;background:#231a17;padding:8px 12px}
++main{max-width:none;margin:0 0 0 calc(var(--rail) + var(--attention));display:block;padding:24px 30px 40px}
++main>nav{position:fixed;inset:0 auto 0 0;width:var(--rail);z-index:5;margin:0;padding:22px 0;background:#06121a;border-right:1px solid #1b303d;gap:4px;flex-wrap:nowrap;overflow-y:auto}
++.rail-brand{padding:0 6px 30px;text-align:center;display:block;text-decoration:none;color:#e5f2fa}.rail-brand svg{width:46px;margin:0 auto 7px;fill:none;stroke:#c5d7e1;stroke-width:2}.rail-brand strong{font-size:12px;letter-spacing:-.04em}
++main>nav button{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;padding:15px 5px;border-radius:0;min-height:80px;font-size:12px;border:0;border-left:4px solid transparent;box-shadow:none}
++main>nav button[aria-pressed=true]{border-color:var(--blue);background:#07334b;color:#e6f7ff;box-shadow:none}.nav-icon{font-size:25px;line-height:1;color:#8db5ce}main>nav button[aria-pressed=true] .nav-icon{color:#09b5ff}
++.rail-github{display:block;text-align:center;font-size:12px;margin-top:auto;padding:24px 8px}
++#attentionRail{position:fixed;top:0;bottom:0;left:var(--rail);width:var(--attention);padding:42px 16px 24px;background:linear-gradient(150deg,#06151f,#040d13);border-right:1px solid #1b303d;overflow-y:auto}
++#attentionRail h2{font-size:22px;margin:0 0 22px}#attentionRail input,#attentionRail select{width:100%;font-size:12px;padding:9px;margin-bottom:8px}
++.rail-context{font-size:11px;color:var(--muted);margin:12px 0}.rail-notice{display:flex;flex-direction:column;gap:7px;width:100%;text-align:left;padding:14px 10px;background:transparent;border:0;border-top:1px solid #18303d;border-radius:0}
++.rail-notice:first-child{border:1px solid #174e6a;border-left:4px solid var(--blue);background:#092536;border-radius:5px}.rail-notice strong{font-size:13px}.rail-notice span{font-size:11px;color:#a8c5d6}.rail-notice small{font-size:10px;color:#ffae92}.rail-notice .review-tag{border:1px solid #b25d41;border-radius:16px;color:#ffae92;padding:2px 8px;align-self:flex-start;font-size:10px}
++.text-action{border-color:transparent;background:transparent;color:#8dd5fc;font-size:13px;padding-left:0;padding-right:0}.rail-footnote{font-size:11px;color:#8eacbf;margin-top:16px}
++.visually-hidden{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden;white-space:nowrap}
++.card{border-radius:7px;box-shadow:none;background:linear-gradient(125deg,#0a1b26,#06131c)}
++.hero{padding:30px;grid-template-columns:1.6fr 1fr;gap:20px}.hero h2{font-size:clamp(32px,3.3vw,46px);margin:14px 0 18px}.hero .lead{font-size:16px;max-width:540px}.hero-art{max-width:250px}.hero-art p{font-size:10px;max-width:220px}
++.intro-labels{display:flex;gap:8px;flex-wrap:wrap}.intro-labels span,.recorded-pill{font-size:11px;color:#b7ccda;border:1px solid #304d5d;border-radius:20px;padding:4px 10px;white-space:nowrap}.hero-actions{margin:22px 0 16px}.hero-actions button{font-size:14px}.secondary-links{font-size:12px;gap:14px;align-items:center}.secondary-links button{font-size:12px}
++.compact-journey{display:flex;align-items:center;gap:14px;padding:16px 4px 24px}.compact-journey section{display:flex;gap:12px;align-items:center;flex:1}.compact-journey strong{display:block;font-size:15px}.compact-journey section span:not(.journey-symbol){font-size:12px;color:var(--muted);display:block}.journey-symbol{color:#04aff8;font-size:30px}.journey-arrow{color:#315971}
++.concise-limit{font-size:13px;padding:12px 16px;margin-bottom:20px}.concise-limit summary{font-size:12px;font-weight:450}.concise-limit details p{margin-bottom:0}
++.facts-strip{gap:12px;margin:18px 0}.fact{padding:16px;background:#06151e}.fact strong{font-size:27px}.fact span{font-size:13px;line-height:1.45;margin-top:3px}.fact small{font-size:10px;color:#9db6c7;display:block;margin-top:6px}.fact details{font-size:11px;margin-top:8px}
++.section-heading{margin-bottom:16px}.section-heading h2{font-size:25px}.section-heading .eyebrow,.section-heading .recorded-pill{font-size:10px}
++.guide{padding:20px!important;background:transparent;border:0}.guide .type-label{font-size:9px;margin-bottom:10px;padding:3px 7px}.review-stages{display:flex;align-items:center;gap:10px;margin:5px 0 20px}.review-stages>span{flex:1;color:#25475d}.review-stages button{display:flex;gap:10px;align-items:center;text-align:left;border:0;background:transparent;padding:0;font-size:14px}.review-stages b{border:1px solid #45697e;border-radius:50%;width:38px;height:38px;display:grid;place-items:center;font-size:16px;font-weight:500;color:#a4bfce}.review-stages small{font-size:10px;font-weight:400;display:block;color:#9ab7ca;margin-top:3px}.review-stages [aria-current=step] b{border-color:var(--blue);background:var(--blue);color:#02070a}
++.guide-overview{display:grid;grid-template-columns:1fr 1.7fr;gap:24px;align-items:center;margin:8px 0 18px}.guide-bearing svg{max-width:200px;max-height:170px;margin:auto}.guide-bearing p{display:none}.measurement-callout{display:flex;gap:16px;padding:22px;border:1px solid var(--orange);border-radius:7px;background:linear-gradient(135deg,#2c1e19,#191716)}.attention-icon{background:var(--orange);color:#29150e;border-radius:6px;font-size:25px;font-weight:800;min-width:32px;height:34px;text-align:center}.measurement-callout .eyebrow{color:#ff9c7f;font-size:10px}.measurement-callout h3{margin:7px 0 10px;font-size:23px}.measurement-callout p{font-size:13px;margin-bottom:10px;color:#e2d8d4}.measurement-callout small{font-size:11px;color:#b2c4ce}
++.guide-progress{gap:5px;margin:14px 0}.guide-progress button{font-size:10px;min-height:30px;padding:4px}.guide-copy{border:1px solid #243e4d;background:#0a1b25;border-radius:6px;padding:18px;margin-bottom:18px;font-size:13px}.guide-copy h3{font-size:20px;margin:0 0 14px}.guide-copy p{margin-bottom:10px}.guide-copy details{font-size:12px;color:#afc5d4}.guide-evidence{display:grid;grid-template-columns:1fr 1.3fr;gap:20px;align-items:center;margin-bottom:12px}.guide-spark{max-height:125px}.guide-spark text{font-size:11px}.guide-metrics{margin:8px 0;gap:10px}.guide-evidence .guide-metrics{grid-template-columns:1fr;gap:4px}.guide-metrics div{padding:7px 0}.guide-metrics strong{font-size:17px}.guide-metrics span{font-size:10px}.guide-evidence .guide-metrics div{border-top:0}.guide-actions{align-items:center}.guide-actions button{font-size:12px}.guide-source{font-size:10px;margin:12px 0 0}
++.context-comparison,.limit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}.context-comparison div,.limit-grid div{border-left:2px solid #246080;padding-left:12px}.context-comparison span,.limit-grid span{display:block;font-size:11px;color:var(--muted)}.context-comparison strong,.limit-grid strong{display:block;font-size:15px;margin:5px 0}.conclusion-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px}.conclusion-pair h4{margin:10px 0}.conclusion-pair div+div{border-left:1px solid #39525f;padding-left:22px}
++.investigation-layout{grid-template-columns:minmax(0,1.35fr) minmax(320px,1fr);gap:20px}.assistant-column{position:static}.measurement-column .card,#assistant{padding:18px}.measurement-column .card h2{font-size:15px}.card#assistant h2{font-size:19px;margin-top:9px}.suggestions{gap:5px}.suggestions button{font-size:11px;padding:6px 8px;min-height:32px}#assistantMode{font-size:12px;line-height:1.5}#assistant label{font-size:12px}.scope-line{font-size:11px;padding:8px}.technical{margin-top:16px;font-size:11px}.chart-key{font-size:11px;color:var(--muted);display:flex;gap:6px 18px;flex-wrap:wrap;margin-bottom:18px}.chart-key details{width:100%}.chart-key p{font-size:12px}.toolbar{gap:10px}.toolbar button,.toolbar label{font-size:12px}.toolbar input[type=number]{width:74px}.toolbar select{padding:7px}.toolbar #progress{font-size:11px}
++.method-duo{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:24px 0}.method-duo>div{padding:18px;border:1px solid #2a4656;border-radius:6px}.method-duo h3{margin:12px 0;font-size:20px}.method-duo p{font-size:13px;margin-bottom:0}.method-glyph{font-size:30px;color:#36b5ed;letter-spacing:8px}.result-visual{display:flex;gap:24px;align-items:center;padding:20px;background:#07334a;border-radius:6px}.result-visual>strong{font-size:44px;color:#68cbfb}.result-visual span{font-size:12px;display:block;color:#bdd8e6}.evaluation-flow{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.evaluation-flow span,.safeguard-tags span{border:1px solid #2d5269;border-radius:5px;padding:6px 9px;font-size:12px}.methods-visual>.attention{margin-top:16px}.methods-visual details{font-size:13px}
++.architecture-card{padding:24px!important}.architecture-card .section-heading h2{font-size:24px;margin:8px 0}.system-lane{margin:16px 0 0}.system-lane h3,.system-sidecars h3{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#9bb7ca;font-weight:500;margin:0 0 10px}.system-flow{display:flex;align-items:stretch;gap:7px}.system-node{position:relative;text-align:left;flex:1;min-width:0;background:#0c2330;border:1px solid #315368;border-radius:6px;padding:12px 9px;display:flex;flex-direction:column;gap:7px;line-height:1.4;min-height:112px}.system-node strong{font-size:12px;line-height:1.35}.system-node>span:not(.node-step){font-size:10px;color:#acc7d8}.node-step{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:#6bc9fa}.system-node[aria-pressed=true]{border-color:var(--blue);background:#073650;box-shadow:inset 0 3px var(--blue)}.system-arrow{display:flex;align-items:center;color:#41687f;font-size:17px}.system-link{font-size:10px;color:#7ba7c0;margin:12px 0 0 16px}.system-sidecars{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin:18px 0}.system-sidecars>div{display:flex;flex-wrap:wrap;gap:8px}.system-sidecars h3{width:100%;margin-bottom:0}.system-sidecars .system-node{min-height:92px}.system-node.planned{border-style:dashed;background:#191a1d}.system-node.planned .node-step{color:#ffad94}
++.component-detail{background:#0d2a3a;border:1px solid #3f7593;border-radius:7px;padding:20px;margin-top:20px;min-height:220px}.component-detail h3{margin:10px 0;font-size:22px}.component-detail p{font-size:13px;max-width:760px;margin-bottom:10px}.component-status{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#9bdbfb;border:1px solid #37728e;border-radius:20px;padding:3px 8px}.component-status.future{color:#ffc0aa;border-color:#9e5c43}.component-example{border-left:2px solid var(--blue);padding:8px 12px;margin:12px 0;background:#0b202d}.component-example .eyebrow{font-size:9px}.component-example p{margin:4px 0 0}.component-detail details{font-size:12px;color:#b7cede}.engineering-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px}.engineering-bottom .card{font-size:13px}.engineering-bottom pre{font-size:11px}.engineering-links{gap:12px;font-size:12px}.safeguard-tags{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
++footer{margin-left:calc(var(--rail) + var(--attention));padding:20px 30px;font-size:11px}footer>span{display:block;color:#bad1df;margin-bottom:8px}footer details{font-size:11px;max-width:900px}
++@media(min-width:1800px){main,header,footer{padding-left:48px;padding-right:48px}.system-node strong{font-size:14px}.system-node>span:not(.node-step){font-size:12px}}
++@media(max-width:1319px){:root{--attention:0px}#attentionRail{display:none}header{padding:24px}main{padding:24px}.investigation-layout{grid-template-columns:minmax(0,1.2fr) minmax(320px,1fr)}.hero-art{max-width:210px}}
++@media(max-width:1050px){.investigation-layout{grid-template-columns:1fr}.hero{grid-template-columns:1fr 180px}.hero h2{font-size:32px}.facts-strip{grid-template-columns:repeat(3,1fr)}.fact{display:block}.fact strong{font-size:24px}.compact-journey{gap:10px}.compact-journey section{gap:7px}.compact-journey section span:not(.journey-symbol){font-size:10px}.system-node{padding:10px 7px}.system-node strong{font-size:11px}}
++@media(max-width:760px){:root{--rail:0px}header{margin:0;padding:20px 18px;min-height:auto}header h1{font-size:26px}header p{font-size:12px;order:2;flex-basis:100%}header .queue-badge{font-size:10px;padding:5px 8px;min-height:32px;margin-top:8px}main{margin:0;padding:16px 14px}main>nav{position:static;width:auto;display:flex;flex-direction:row;overflow:visible;flex-wrap:wrap;margin:0 0 20px;padding:0;border:0;background:transparent;gap:4px}.rail-brand{display:none}main>nav button{flex:1;flex-basis:16%;min-height:62px;font-size:9px;padding:8px 3px;border-radius:4px;border:0;border-bottom:3px solid transparent}.nav-icon{font-size:20px}.rail-github{padding:10px;font-size:10px;margin:0}.hero{display:block;padding:22px!important}.hero h2{font-size:32px}.hero .lead{font-size:14px}.hero-art{display:none}.intro-labels span{font-size:10px}.hero-actions button{font-size:12px;padding:11px 12px}.secondary-links{font-size:11px}.compact-journey{align-items:flex-start;gap:10px;padding:4px 0 20px}.compact-journey section{display:block}.journey-symbol{font-size:23px}.compact-journey strong{font-size:13px}.journey-arrow{margin-top:12px}.concise-limit{font-size:12px}.facts-strip{grid-template-columns:1fr}.fact{display:grid;grid-template-columns:95px 1fr;padding:12px 14px}.fact small{font-size:10px}.fact details{grid-column:2}.section-heading{align-items:flex-start;flex-direction:column;gap:6px}.section-heading h2{font-size:22px}.guide{padding:0!important}.guide-overview{grid-template-columns:1fr;gap:0}.guide-bearing{display:none}.measurement-callout{padding:16px;gap:12px}.measurement-callout h3{font-size:20px}.measurement-callout p{font-size:12px}.review-stages{gap:5px;margin:12px 0}.review-stages button{font-size:11px;gap:6px}.review-stages b{width:28px;height:28px;font-size:13px}.review-stages small{font-size:8px}.review-stages>span{font-size:10px}.guide-progress{flex-wrap:nowrap;gap:3px}.guide-progress li{flex:1 1 20%}.guide-progress button{font-size:8px;padding:4px 0}.guide-copy{padding:16px}.guide-copy h3{font-size:20px}.guide-evidence{grid-template-columns:1fr}.guide-evidence .guide-metrics{grid-template-columns:repeat(3,1fr);gap:6px}.guide-metrics strong{font-size:13px}.guide-metrics span{font-size:9px}.context-comparison,.limit-grid{grid-template-columns:1fr}.context-comparison div{display:flex;justify-content:space-between;gap:12px;align-items:center}.context-comparison strong{font-size:12px;text-align:right}.conclusion-pair{grid-template-columns:1fr;gap:10px}.conclusion-pair div+div{padding:10px 0 0;border-left:0;border-top:1px solid #39525f}.guide-actions{gap:7px}.guide-actions button{font-size:11px;min-height:36px;padding:7px 9px}.guide-actions .text-action{padding-left:0}.investigation-layout{grid-template-columns:1fr}.measurement-column .card,#assistant{padding:16px}.method-duo{gap:10px}.method-duo>div{padding:12px}.method-duo h3{font-size:17px}.method-duo p{font-size:11px}.method-glyph{font-size:22px;letter-spacing:2px}.result-visual{gap:14px;padding:14px}.result-visual>strong{font-size:32px}.result-visual b{font-size:13px}.result-visual span{font-size:10px}.architecture-card{padding:16px!important}.architecture-card .section-heading h2{font-size:22px}.system-flow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.system-arrow{display:none}.system-node{min-height:105px;padding:12px}.system-node strong{font-size:12px}.system-node>span:not(.node-step){font-size:10px}.system-sidecars{grid-template-columns:1fr}.system-sidecars .system-node{min-height:96px}.system-sidecars>div{display:grid;grid-template-columns:1fr 1fr}.system-sidecars h3{grid-column:1/-1}.component-detail{padding:16px}.component-detail h3{font-size:20px}.engineering-bottom{grid-template-columns:1fr;gap:0}footer{margin:0;padding:20px 14px}}
++
++.replay-details{font-size:11px;color:var(--muted);margin-bottom:12px}.replay-details p{font-size:12px}.run-limitation{font-size:11px;margin:0 0 15px}.inspection-detail{font-size:13px;margin-bottom:12px}.component-detail{scroll-margin-top:20px}
++
++.review-stages>span{height:1px;background:#25475d;color:transparent}
+diff --git a/site/reviewer.css b/site/reviewer.css
+new file mode 100644
+index 0000000..24057d4
+--- /dev/null
++++ b/site/reviewer.css
+@@ -0,0 +1,12 @@
++/* Canonical reviewer presentation. Inlined by build_reviewer_site.py; no remote assets. */
++:root{color-scheme:dark;--midnight:#02070A;--blue:#0297DE;--orange:#FC734D;--surface:#091720;--panel:#0b1d28;--line:#233e4e;--ink:#edf5fa;--muted:#acc0ce;font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;background:var(--midnight);color:var(--ink);line-height:1.65}
++body{background:radial-gradient(ellipse at 80% 0,#0b2636 0,transparent 45%),var(--midnight)}
++header{padding:18px 32px;background:#06121a;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:22px;flex-wrap:wrap}header h1{font-size:20px;letter-spacing:-.5px}header p{font-size:13px;color:var(--muted)}header .badge{order:3;margin-left:auto;border-color:var(--line);color:#c7e5f4}
++main{max-width:1600px;display:grid;grid-template-columns:190px minmax(0,1fr);gap:32px;padding:30px 32px;align-items:start}main>nav{position:sticky;top:24px;display:flex;flex-direction:column;gap:8px;padding:12px 0}nav .rail-caption{font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;padding:0 12px;margin-bottom:12px}nav button{text-align:left;background:transparent;border-color:transparent;padding:12px 14px;color:var(--muted)}nav button[aria-pressed=true]{color:#eaf7ff;background:#092c40;border-color:#174b66;box-shadow:inset 3px 0 var(--blue)}.nav-index{font-size:11px;color:#7da7bc;margin-right:10px}
++main>[data-view]{min-width:0}h1,h2,h3,h4{line-height:1.25;letter-spacing:-.025em}h2{font-size:27px}h3{font-size:20px}h4{font-size:16px}p{margin:0 0 16px}.card{background:linear-gradient(135deg,#0b1c27,#07141c);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 8px 30px #0002}.card h2{font-size:20px;margin:0 0 14px}.muted{color:var(--muted);font-size:14px}.eyebrow,.type-label{color:#8dd5fc;font-size:11px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}.type-label{display:inline-block;border:1px solid #25516b;padding:5px 9px;border-radius:5px;margin-bottom:12px}.section-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}.section-heading h2{margin:5px 0;font-size:30px}.section-heading p{margin:0}.badge{color:var(--muted)}
++button,select,input,textarea{font:inherit;border:1px solid #385466;background:#0b1e29;color:var(--ink);border-radius:6px}button{padding:9px 14px;min-height:42px}button:hover:not(:disabled){border-color:#8dd5fc;background:#123147}button.primary{background:var(--blue);color:#02070A;border-color:var(--blue);font-weight:750;padding:12px 20px}button.primary:hover:not(:disabled){background:#56c4fa;color:#02070A}button:disabled{opacity:.55;cursor:not-allowed}input,select,textarea{padding:8px 10px;max-width:100%}input[type=checkbox]{accent-color:var(--blue)}textarea{resize:vertical;line-height:1.6;width:100%}label{color:#d8e8f2;font-size:14px}a{color:#8dd5fc;text-underline-offset:4px}a:hover{color:#c8efff}:focus-visible{outline:3px solid #8dd5fc!important;outline-offset:4px}summary{cursor:pointer;font-weight:650;padding:5px 0}summary:hover{color:#8dd5fc}details>summary+*{margin-top:16px}[hidden]{display:none!important}.skip-link{position:absolute;left:12px;top:-100px;background:var(--blue);color:#02070A;padding:12px;z-index:20}.skip-link:focus{top:10px}
++.hero{display:grid;grid-template-columns:1.5fr 1fr;gap:32px;align-items:center;padding:44px 36px}.hero h2{font-size:clamp(32px,3.2vw,48px);max-width:650px;margin:18px 0;line-height:1.1;letter-spacing:-.045em}.hero .lead{font-size:19px;line-height:1.6;max-width:650px;color:#d8e8f2}.hero-art{color:#8bb5c9;max-width:310px;justify-self:center}.hero-art svg{filter:drop-shadow(0 12px 20px #0297de18)}.hero-art p{font-size:12px;text-align:center;margin-top:12px;color:var(--muted)}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:25px 0 16px}.secondary-links{display:flex;gap:20px;flex-wrap:wrap;font-size:14px}.facts-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0}.fact{padding:20px;border:1px solid var(--line);border-radius:10px;background:#081720}.fact strong{display:block;color:#edf7fd;font-size:30px;line-height:1.3}.fact span{display:block;font-size:13px;color:var(--muted);margin-top:8px}.intro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.intro-grid .number{font-size:12px;color:#8dd5fc}.intro-grid h3{font-size:19px}.attention{border-left:3px solid var(--orange);background:#241a17;padding:16px 20px;border-radius:7px;color:#f6d9cd}.attention strong{color:#ffac91}.attention p{margin:5px 0 0}.toolbar{background:transparent;position:static;padding:0 0 16px}.toolbar label{display:flex;align-items:center;gap:8px}.toolbar #progress{color:#8dd5fc;font-size:13px}.investigation-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(340px,1fr);gap:24px;align-items:start}.measurement-column,.assistant-column{min-width:0}.assistant-column{position:sticky;top:20px}.measurement-column>.grid{display:flex;flex-direction:column}.measurement-column .card{padding:20px}.measurement-column .card h2{font-size:17px}.secondary-charts .grid{display:grid;grid-template-columns:1fr}.summary{display:block}.summary .metric{font-size:17px}.measurement-column #hoverValues{font-size:13px}.grid{gap:16px}.notice{background:#0a202d;border-color:#547082;color:#dce9f0}.notice.measurement,.notice.gap,.notice.temperature,.notice.context{border-color:var(--orange);background:#231b18}.notice.forecast{border-color:var(--blue)}.warn{color:#ffac91}.error{color:#ffac91}#failure{background:#301b16;color:#ffccb9}#periodSummary{background:#102836!important;color:#dceaf2;font-size:14px}.scroll{max-width:100%;overscroll-behavior-x:contain}table{font-size:13px}td,th{border-color:var(--line);padding:9px}th{color:#a9c1d0}tr[data-index]:hover{background:#143045}svg text{fill:#b1c9d7}svg line[stroke="#e0e7e9"]{stroke:#27414e}svg rect[fill="#e7ecee"]{fill:#27404e}pre{background:#061019;border-radius:6px;padding:14px;color:#bdceda;font-size:12px;max-height:480px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}footer{max-width:1400px;margin:auto;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding:24px 32px}
++.guide{border-color:#22516c}.guide-progress{display:flex;gap:7px;margin:18px 0 22px;padding:0;list-style:none}.guide-progress li{flex:1}.guide-progress button{width:100%;padding:8px 4px;font-size:12px;color:var(--muted)}.guide-progress button[aria-current=step]{border-color:var(--blue);background:#0d3a51;color:#e9f8ff}.guide-copy h3{font-size:25px;margin:12px 0}.guide-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.guide-metrics div{border-top:1px solid #365367;padding:12px 0}.guide-metrics strong{font-size:19px;display:block}.guide-metrics span{font-size:12px;color:var(--muted)}.guide-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.guide-source{font-size:12px;color:var(--muted)}.scope-line{font-size:13px;color:#b9e4fa;border:1px solid #315062;border-radius:6px;padding:10px;margin:12px 0}.suggestions{display:flex;flex-direction:column;gap:7px;margin:12px 0}.suggestions button{font-size:13px;text-align:left;padding:8px 10px}.assistant-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.assistant-answer{font-size:14px}.assistant-answer h3{margin:24px 0 12px;border-top:1px solid var(--line);padding-top:18px}.assistant-answer h4{color:var(--muted);margin-bottom:10px}.assistant-answer li{margin-bottom:10px}.assistant-answer [data-assistant-citation]{font-size:11px;padding:2px 7px;min-height:28px;min-width:28px;color:#9ddfff;margin:3px 2px}.citation-panel{max-height:75vh;overflow:auto;scroll-margin-top:20px;background:#0d2736;border:1px solid #387190;border-radius:8px;padding:18px;margin:18px 0}.citation-panel h3{margin:0 0 12px}.citation-source{overflow-wrap:anywhere;font-size:12px;color:#b1d4e6}.citation-panel dt{font-weight:650;font-size:13px;color:#d1e6f3}.citation-panel dd{font-size:13px;margin:3px 0 12px;overflow-wrap:anywhere}.citation-panel .close-citation{float:right}.technical{font-size:12px;color:var(--muted);margin-top:24px}.queue-controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}.queue-item{display:flex;gap:12px;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:14px 0}.queue-item p{margin:3px 0;font-size:13px}.queue-item button{font-size:12px}.architecture{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0}.architecture span{border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-size:13px}.engineering-links{display:flex;gap:18px;flex-wrap:wrap}.reading-width{max-width:780px}
++@media(prefers-reduced-motion:no-preference){button,a{transition:background-color .14s,border-color .14s} .guide-copy{animation:appear .18s ease-out}@keyframes appear{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}}
++@media(max-width:1150px){main{grid-template-columns:165px minmax(0,1fr);gap:20px;padding:24px 20px}.investigation-layout{grid-template-columns:minmax(0,1fr)}.assistant-column{position:static}.hero{grid-template-columns:1fr 200px;padding:28px}.hero h2{font-size:36px}.intro-grid{grid-template-columns:1fr}.assistant-column{max-width:none}}
++@media(max-width:760px){header{padding:16px 18px;gap:5px 16px}header p{width:100%;order:3}header .badge{font-size:11px;margin-left:0}main{display:block;padding:16px 14px}main>nav{position:static;flex-direction:row;flex-wrap:wrap;padding:0;margin-bottom:20px;gap:5px}nav button{font-size:12px;padding:8px;min-height:38px}.rail-caption,.nav-index{display:none}.hero{display:block;padding:24px}.hero h2{font-size:34px}.hero .lead{font-size:16px}.hero-art{display:none}.card{padding:20px}.facts-strip{grid-template-columns:1fr;gap:8px}.fact{display:grid;grid-template-columns:110px 1fr;align-items:center;padding:14px}.fact strong{font-size:26px}.fact span{margin:0}.guide-progress{flex-wrap:wrap}.guide-progress li{flex:1 0 28%}.guide-metrics{grid-template-columns:1fr}.guide-copy h3{font-size:23px}.section-heading h2{font-size:26px}.toolbar{align-items:stretch}.toolbar button{font-size:13px}.queue-item{align-items:flex-start}.grid{grid-template-columns:1fr}footer{padding:20px}.assistant-column{position:static}.scope-line{overflow-wrap:anywhere}}
+diff --git a/site/reviewer_experience.js b/site/reviewer_experience.js
+new file mode 100644
+index 0000000..64844a2
+--- /dev/null
++++ b/site/reviewer_experience.js
+@@ -0,0 +1,137 @@
++// Reviewer information hierarchy over the existing replay, charts, notebook and frozen evidence.
++// No model generation, new data, routing library or external asset is used here.
++(async function reviewerExperience(){
++  while(document.body.dataset.reviewerReady!=='true')await new Promise(r=>setTimeout(r,20));
++  const main=document.querySelector('main'),nav=main.querySelector('nav');
++  const startPanel=main.querySelector('[data-view="0"]'),explore=main.querySelector('[data-view="1"]'),methods=main.querySelector('[data-view="2"]');
++  const repo='https://github.com/bakk0u/factoryguard';
++  const docs=name=>repo+'/blob/master/docs/'+name;
++  const skip=document.createElement('a');skip.className='skip-link';skip.href='#reviewContent';skip.textContent='Skip to content';document.body.prepend(skip);
++  main.id='reviewContent';main.tabIndex=-1;
++  document.querySelector('header h1').textContent='FactoryGuard';
++  document.querySelector('header p').textContent='Recorded experiments · offline replay';
++  document.querySelector('header .badge').textContent='No live equipment connection';
++  const logo=`<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27"/><circle cx="32" cy="32" r="13"/>${Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return `<circle cx="${32+Math.cos(a)*20}" cy="${32+Math.sin(a)*20}" r="5"/>`;}).join('')}</svg>`;
++  const icons=['⌂','⌕','✦','▥','⌘'];
++  nav.innerHTML=`<a class="rail-brand" href="#start" aria-label="FactoryGuard start here">${logo}<strong>FactoryGuard</strong></a>`+[['0','Start here'],['1','Measurements'],['3','AI assistant'],['2','Methods'],['4','Engineering']].map(([id,label],i)=>`<button data-nav="${id}"><span class="nav-icon" aria-hidden="true">${icons[i]}</span><span>${label}</span></button>`).join('')+`<a class="rail-github" href="${repo}" target="_blank" rel="noopener">GitHub ↗</a>`;
++  nav.querySelector('.rail-brand').onclick=e=>{e.preventDefault();view('0');};
++  const attention=document.createElement('aside');attention.id='attentionRail';attention.setAttribute('aria-label','Revealed measurement notices');attention.innerHTML='<h2>Attention</h2><label class="visually-hidden" for="railSearch">Find a recorded notice</label><input id="railSearch" type="search" placeholder="Find a recorded notice"><label class="visually-hidden" for="railFilter">Filter notice type</label><select id="railFilter"><option value="all">All notice types</option><option value="measurement">Measurement quality</option><option value="context">Reference support</option><option value="regime">Operating regime</option><option value="forecast">Forecast deviation</option><option value="temperature">Temperature reference</option><option value="gap">Acquisition gap</option></select><p class="rail-context" id="railScope"></p><div id="railNotices"></div><button id="railOpenQueue" class="text-action">Open full queue →</button><p class="rail-footnote">Recorded notices ≠ confirmed faults.<br>Only revealed observations appear.</p>';nav.after(attention);
++  const openQueue=()=>{view('1');$('investigationQueue').open=true;$('investigationQueue').scrollIntoView({block:'start'});$('queueSearch').focus({preventScroll:true});};
++  $('railOpenQueue').onclick=openQueue;
++  const queueButton=document.createElement('button');queueButton.id='headerQueue';queueButton.className='queue-badge';queueButton.onclick=openQueue;document.querySelector('header').append(queueButton);
++  const oldView=view;
++  view=function(name){oldView(name==='3'?'1':name);nav.querySelectorAll('[data-nav]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.nav===name)));if(name==='3'){$('assistant').scrollIntoView({block:'start'});$('assistantQuestion').focus({preventScroll:true});}else window.scrollTo({top:0,behavior:'instant'});document.querySelector('header h1').textContent=({'0':'FactoryGuard','1':guide.hidden?'Measurements':'Guided investigation','3':'Ask about the evidence','2':'Methods & results','4':'System architecture'})[name];};
++  nav.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>view(b.dataset.nav));
++  const selected=savedSelection.method_results.find(r=>r.group===savedSelection.selected_group);
++  const skill=selected?(100*selected.macro_mae_skill).toFixed(2):'unavailable';
++  const count=Object.values(embedded.states).reduce((n,s)=>n+s.events.length,0);
++  // Keep the complete existing comparison, including unfavorable candidates, in Methods.
++  const familyTable=startPanel.querySelectorAll('section')[1];if(familyTable)methods.append(familyTable);
++  const errors=[...startPanel.querySelectorAll('section')].find(s=>s.textContent.includes('Saved development errors'));if(errors)methods.append(errors);
++  startPanel.innerHTML=`<section class="card hero"><div><span class="eyebrow">Recorded evidence → clearer investigations</span><h2>Understand the change.<br>Inspect the evidence.</h2><p class="lead">FactoryGuard helps investigate changes in machine vibration using recorded measurements, forecasting and an AI assistant.</p><div class="intro-labels"><span>Laboratory bearing experiments</span><span>No live equipment</span></div><div class="hero-actions"><button class="primary" id="walkthroughAction">Walk through an investigation →</button></div><div class="secondary-links"><button id="exploreAction">Explore measurements</button><a href="#methods" id="startMethods">Methods & results ↗</a></div></div><div class="hero-art"><svg viewBox="0 0 300 280" role="img" aria-label="Illustration of a rolling bearing around a rotating shaft"><defs><linearGradient id="bearingMetal" x2="1" y2="1"><stop stop-color="#98b4c4"/><stop offset=".4" stop-color="#203f52"/><stop offset="1" stop-color="#5c8196"/></linearGradient></defs><path d="M20 240h260M150 15v245M10 140h280" stroke="#18394a" stroke-dasharray="4 6"/><ellipse cx="150" cy="242" rx="96" ry="12" fill="#0297de12"/><circle cx="150" cy="135" r="103" fill="#08151e" stroke="url(#bearingMetal)" stroke-width="20"/><circle cx="150" cy="135" r="75" fill="none" stroke="#3c6178" stroke-width="2"/>${Array.from({length:10},(_,i)=>{const a=i*Math.PI/5;return `<circle cx="${150+Math.cos(a)*73}" cy="${135+Math.sin(a)*73}" r="15" fill="url(#bearingMetal)" stroke="#9bb7c5"/>`;}).join('')}<circle cx="150" cy="135" r="47" fill="#0a1b26" stroke="url(#bearingMetal)" stroke-width="17"/><path d="M140 95h20v80h-20z" fill="#315c74"/><path d="M234 56l28-17M53 210l-22 20" stroke="#0297de"/><circle cx="262" cy="39" r="4" fill="#0297de"/></svg><p>A rolling bearing · illustration, not a monitored machine</p></div></section><div class="intro-grid compact-journey"><section><span class="journey-symbol" aria-hidden="true">∿</span><div><strong>Measure</strong><span>Vibration + operating context</span></div></section><span class="journey-arrow" aria-hidden="true">→</span><section><span class="journey-symbol" aria-hidden="true">▥</span><div><strong>Compare</strong><span>Recorded value vs earlier forecast</span></div></section><span class="journey-arrow" aria-hidden="true">→</span><section><span class="journey-symbol" aria-hidden="true">↗</span><div><strong>Explain</strong><span>Cited evidence + uncertainty</span></div></section></div><div class="attention concise-limit"><strong>Investigation support. Not a validated machine-health diagnosis.</strong><details><summary>What can change vibration?</summary><p>A bearing supports a rotating shaft. Vibration can change with speed, load, temperature and measurement quality. These laboratory data do not establish fault probabilities, safety, damage onset or remaining useful life.</p></details></div><div class="facts-strip"><div class="fact"><strong>${count.toLocaleString('en-US')}</strong><span>Recorded observations<small>Pinned B01 / B02 / B04 snapshot</small></span></div><div class="fact"><strong>2 runs</strong><span>Development selection<small>B01 / B02 · B04 diagnostic · B03 sealed</small></span></div><div class="fact"><strong>${skill}%</strong><span>Lower mean forecast error<small>B01/B02 development · not held-out</small></span><details><summary>Evaluation scope</summary><p>Equal-run/channel average absolute error versus repeat-last, from reciprocal development evaluations used for model selection. Not fault-detection accuracy.</p></details></div></div>`;
++  $('exploreAction').onclick=()=>view('1');$('startMethods').onclick=e=>{e.preventDefault();view('2');};
++  const heading=document.createElement('div');heading.className='section-heading';heading.innerHTML='<div><span class="eyebrow" id="selectionBreadcrumb">Experiments / recorded evidence</span><h2>Guided bearing review</h2></div><span class="recorded-pill">Recorded data · replay</span>';
++  explore.prepend(heading);
++  const guide=document.createElement('section');guide.id='guidedReview';guide.className='card guide';guide.hidden=true;guide.innerHTML='<span class="type-label">Guided walkthrough · deterministic guidance</span><div class="review-stages" aria-label="Investigation stages"><button data-guide-stage="0"><b>1</b><span>Notice<small>What happened?</small></span></button><span aria-hidden="true">—</span><button data-guide-stage="2"><b>2</b><span>Evidence<small>Context & limits</small></span></button><span aria-hidden="true">—</span><button data-guide-stage="4"><b>3</b><span>Findings<small>What can we say?</small></span></button></div><div class="guide-overview"><div class="guide-bearing"></div><div class="measurement-callout"><span class="attention-icon" aria-hidden="true">!</span><div><span class="eyebrow">Interpretation notice</span><h3>B01 · warm-up measurements</h3><p>Three recorded observations.<br>Matching development reference unavailable.</p><small>Check measurement quality before interpreting amplitude.</small></div></div></div><ol class="guide-progress" aria-label="Walkthrough questions"></ol><div id="guideCopy" class="guide-copy" aria-live="polite"></div><div class="guide-actions"><button id="guideBack">← Previous</button><button id="guideNext" class="primary">Continue →</button><button id="guideExit" class="text-action">Explore freely</button></div><p class="guide-source">B01 / A / 1–3 / visible through 3 · local guidance, not a saved AI answer or new generation.</p>';
++  guide.querySelector('.guide-bearing').innerHTML=startPanel.querySelector('.hero-art').innerHTML.replaceAll('bearingMetal','guideBearingMetal');
++  heading.after(guide);
++  const layout=document.createElement('div');layout.className='investigation-layout';layout.innerHTML='<div class="measurement-column" id="measurementColumn"></div><div class="assistant-column" id="assistantColumn"></div>';
++  const charts=explore.querySelector('.grid');charts.before(layout);$('measurementColumn').append(charts);
++  const periodBar=document.createElement('div');periodBar.className='toolbar';periodBar.setAttribute('aria-label','Selected observation range');
++  periodBar.append($('periodStart').closest('label'),$('periodStop').closest('label'));layout.before(periodBar);
++  const replayDetails=document.createElement('details');replayDetails.className='replay-details';replayDetails.innerHTML='<summary>Replay mode & forecast configuration</summary>';periodBar.before(replayDetails);replayDetails.append($('mode'),$('model'));
++  const runLimitation=document.createElement('p');runLimitation.className='muted run-limitation';runLimitation.id='runLimitation';periodBar.after(runLimitation);
++  const extra=document.createElement('details');extra.className='card secondary-charts';extra.id='contextCharts';extra.innerHTML='<summary>More context charts · temperatures, speed, load & channel C</summary><p class="muted">A and C are separate vibration sensor channels on this bearing run.</p><div class="grid"></div>';
++  for(const id of ['chartC','chartThermal','chartSpeed','chartLoad'])extra.querySelector('.grid').append($(id).closest('section'));
++  charts.after(extra);
++  const chartCaption=[...explore.querySelectorAll('p')].find(p=>p.textContent.startsWith('Charts use provisional'));if(chartCaption)extra.append(chartCaption);
++  if($('hoverValues'))extra.append($('hoverValues'));
++  const chartHelp=document.createElement('p');chartHelp.className='chart-key';chartHelp.innerHTML='<span><b>RMS</b> · vibration amplitude summary (V)</span><span><b>Error</b> · measured − earlier prediction (V)</span><details><summary>Reading the charts</summary><p>Measurements are recorded values; forecasts are earlier predictions. Replay reveals recorded data, not a live connection. Time uses provisional recording clocks.</p></details>';charts.after(chartHelp);
++  const inspectCard=$('inspect').closest('section');layout.after(inspectCard);
++  const summaryCards=explore.querySelector('.summary');if(summaryCards){const folded=document.createElement('details');folded.className='card';folded.innerHTML='<summary>Replay forecasting metrics · all revealed pairs</summary>';folded.append(summaryCards);methods.append(folded);}
++  const notebook=$('note').closest('section');notebook.id='investigationNotebook';inspectCard.after(notebook);
++  notebook.querySelector('p').textContent='Your interpretation, stored locally. Each experiment is a separate bearing run.';
++  for(const id of ['reference','gradual','changes']){
++    const target=$(id),title=target.previousElementSibling;
++    const fold=document.createElement('details');fold.className='inspection-detail';fold.innerHTML=`<summary>${esc(title?.tagName==='H2'?title.textContent:'Detailed evidence')}</summary>`;target.before(fold);if(title?.tagName==='H2')title.remove();fold.append(target);
++  }
++  const history=$('historyPanel');if(history)notebook.after(history);
++  const queue=document.createElement('details');queue.className='card';queue.id='investigationQueue';queue.innerHTML='<summary>Investigation queue · recorded notices</summary><p class="muted">Notices from revealed observations, not confirmed faults. Filters do not remove source measurements.</p><div class="queue-controls"><label>Find a notice <input id="queueSearch" type="search" placeholder="Observation, time or notice"></label><label>Notice type <select id="queueFilter"><option value="all">All types</option><option value="measurement">Measurement quality</option><option value="context">Reference support</option><option value="regime">Operating regime</option><option value="forecast">Forecast deviation</option><option value="temperature">Temperature reference</option><option value="gap">Acquisition gap</option></select></label></div><p id="queueCount" class="muted"></p><div id="queueItems"></div>';
++  (history||notebook).after(queue);
++  const suggestions=['Explain this period in plain English.','What changed, and what evidence supports that?',"What can’t we conclude from these measurements?"];
++  $('assistantColumn').innerHTML=`<section class="card" id="assistant" aria-labelledby="assistantHeading"><span class="eyebrow">Evidence-grounded assistant</span><h2 id="assistantHeading">Ask about these measurements</h2><p id="assistantMode" class="muted">Static view · new generation unavailable. Walkthrough and evidence exploration work offline.</p><p id="assistantScope" class="scope-line" aria-live="polite"></p><label>Vibration channel <select id="assistantChannel"><option>A</option><option>C</option></select></label><div class="suggestions" aria-label="Suggested questions">${suggestions.map(q=>`<button data-assistant-suggestion type="button">${esc(q)}</button>`).join('')}</div><label for="assistantQuestion">Your question about the selected period</label><textarea id="assistantQuestion" rows="3" maxlength="2000">${esc(suggestions[0])}</textarea><div class="assistant-actions"><button id="askAssistant" class="primary" disabled>Ask about this period</button><button id="cancelAssistant" disabled>Cancel</button></div><p id="assistantActivity" class="muted" role="status">No question submitted.</p><div id="assistantAnswer" class="assistant-answer"></div><section id="citationPanel" class="citation-panel" hidden tabindex="-1" role="region" aria-labelledby="citationTitle"><button id="closeCitation" class="close-citation" aria-label="Close evidence panel">Close</button><h3 id="citationTitle">Cited evidence</h3><div id="citationContent"></div></section><details class="technical"><summary>Evidence, citations and activity · technical detail</summary><pre id="assistantEvidence"></pre></details><p class="muted technical">Citation membership is checked by the application; it does not prove that a claim is scientifically supported.</p></section>`;
++  document.querySelectorAll('[data-assistant-suggestion]').forEach(b=>b.onclick=()=>{$('assistantQuestion').value=b.textContent;$('assistantQuestion').focus();});
++  function scopeChanged(){
++    const first=$('periodStart').value,last=$('periodStop').value;
++    $('assistantScope').textContent=`${run} · channel ${$('assistantChannel').value} · observations ${first}–${last} · replay visible through ${state.revealed}`;
++    if(!guide.hidden&&(run!=='B01'||state.revealed!==3||Number(first)!==1||Number(last)!==3||$('assistantChannel').value!=='A'))guide.hidden=true;
++    $('selectionBreadcrumb').textContent=`Experiments / ${run} / channel ${$('assistantChannel').value} / ${first}–${last}`;
++    $('runLimitation').textContent=run==='B04'?'B04 diagnostic only · measured speed/load interpretation unresolved.':'Recorded measurements · forecasts and development references are not health diagnoses.';
++    if(nav.querySelector('[data-nav="1"][aria-pressed="true"]'))document.querySelector('header h1').textContent=guide.hidden?'Measurements':'Guided investigation';
++    document.dispatchEvent(new CustomEvent('factoryguard:scope'));
++  }
++  for(const id of ['periodStart','periodStop'])$(id).addEventListener('input',scopeChanged);
++  $('assistantChannel').onchange=scopeChanged;
++  function renderQueue(){
++    const search=$('queueSearch').value.toLowerCase(),kind=$('queueFilter').value;
++    const rows=state.events.flatMap((e,i)=>e.notices.map(n=>({e,i,n}))).filter(({e,n})=>(kind==='all'||n.kind===kind)&&(`${e.measurement_id} ${e.source_time} ${n.title}`).toLowerCase().includes(search));
++    $('queueCount').textContent=`${rows.length} matching notices in ${state.revealed} revealed observations${rows.length>30?' · first 30 shown; refine the filter':''}.`;
++    $('queueItems').innerHTML=rows.slice(0,30).map(({e,i,n})=>`<div class="queue-item"><div><strong>${esc(n.title)}</strong><p class="muted">Observation ${e.measurement_id} · ${esc(e.source_time)} · ${esc(n.kind)}</p></div><button data-queue-index="${i}">Inspect ${e.measurement_id}</button></div>`).join('')||'<p class="muted">No matching notices in the revealed period.</p>';
++    const allNotices=state.events.reduce((n,e)=>n+e.notices.length,0);
++    $('headerQueue').textContent=`${allNotices} recorded notices · Open queue →`;
++    $('railScope').textContent=`${run} · visible through ${state.revealed} · ${rows.length} matching notices`;
++    $('railSearch').value=$('queueSearch').value;$('railFilter').value=kind;
++    const priority={measurement:0,context:1,temperature:2,gap:3,regime:4,forecast:5};
++    const railRows=[...rows].sort((a,b)=>(priority[a.n.kind]??6)-(priority[b.n.kind]??6)||b.i-a.i).slice(0,3);
++    $('railNotices').innerHTML=railRows.map(({e,i,n})=>`<button class="rail-notice" data-rail-index="${i}"><strong>${esc(n.title)}</strong><span>${run} · observation ${e.measurement_id}</span><small>${esc(n.kind)} · recorded notice</small><span class="review-tag">Inspect evidence →</span></button>`).join('')||'<p class="muted">No matching notices in the revealed period.</p>';
++    document.querySelectorAll('[data-rail-index]').forEach(b=>b.onclick=()=>{view('1');focus=Number(b.dataset.railIndex);$('inspect').value=focus;inspect();inspectCard.scrollIntoView({block:'start'});$('inspect').focus({preventScroll:true});});
++    document.querySelectorAll('[data-queue-index]').forEach(b=>b.onclick=()=>{focus=Number(b.dataset.queueIndex);$('inspect').value=focus;inspect();inspectCard.scrollIntoView({block:'start'});$('inspect').focus({preventScroll:true});});
++  }
++  $('queueSearch').oninput=renderQueue;$('queueFilter').onchange=renderQueue;
++  $('railSearch').oninput=()=>{$('queueSearch').value=$('railSearch').value;renderQueue();};$('railFilter').onchange=()=>{$('queueFilter').value=$('railFilter').value;renderQueue();};
++  const oldPlot=plot;plot=function(id,series,channel){const colors=['#51baff','#76dcc7','#fcaa8f','#d4abed'];const shown=id==='chartError'?series.filter(s=>s.name===$('assistantChannel').value):series;return oldPlot(id,shown.map((s,i)=>({...s,color:colors[i%colors.length]})),channel);};
++  const syncChannelCharts=()=>{const ch=$('assistantChannel').value,other=ch==='A'?'C':'A';charts.prepend($('chart'+ch).closest('section'));extra.querySelector('.grid').prepend($('chart'+other).closest('section'));$('chartError').closest('section').querySelector('h2').textContent=`Forecast error · channel ${ch} (V)`;extra.querySelector('summary').textContent=`More context charts · temperatures, speed, load & channel ${other}`;};
++  const oldRender=render;render=function(){syncChannelCharts();oldRender();scopeChanged();renderQueue();if(!guide.hidden&&(run!=='B01'||state.revealed!==3))guide.hidden=true;};
++  $('assistantChannel').onchange=()=>render();
++  const oldPeriodIdentity=invalidateChangedPeriod;invalidateChangedPeriod=function(){oldPeriodIdentity();scopeChanged();};
++  let guideStep=0;
++  const titles=['Measured','Changed','Context','Limits','Conclusion'];
++  function drawGuide(){
++    const ev=state.events.slice(0,3),first=ev[0],last=ev[2];if(ev.length!==3||run!=='B01')return;
++    const rms=ev.map(e=>fmt(e.rms_v[0],7));
++    const rmsPoints=ev.map((e,i)=>`${40+i*140},${100-(e.rms_v[0]-Math.min(...ev.map(e=>e.rms_v[0])))/(Math.max(...ev.map(e=>e.rms_v[0]))-Math.min(...ev.map(e=>e.rms_v[0]))||1)*65}`).join(' ');
++    const spark=`<svg class="guide-spark" viewBox="0 0 360 125" role="img" aria-label="Measured RMS dips at observation 2 and partially recovers at 3; three recorded points, not a trend"><path d="M30 105H330" stroke="#345364"/><polyline points="${rmsPoints}" fill="none" stroke="#0297DE" stroke-width="3"/>${rmsPoints.split(' ').map((xy,i)=>{const [x,y]=xy.split(',');return `<circle cx="${x}" cy="${y}" r="5" fill="#0297DE"/><text x="${x}" y="122" text-anchor="middle">${i+1}</text>`;}).join('')}</svg>`;
++    const deeper=(title,body)=>`<details><summary>${title}</summary>${body}</details>`;
++    const contents=[
++      ['What was measured?',`<div class="guide-evidence">${spark}<div class="guide-metrics">${rms.map((n,i)=>`<div><strong>${n} V</strong><span>Observation ${i+1} · measured RMS</span></div>`).join('')}</div></div><p><strong>RMS:</strong> a summary of vibration amplitude. A is one vibration sensor channel.</p>${deeper('Recording context','<p>Temperature, speed and load were recorded alongside vibration. Replay reveals existing laboratory data. The displayed timestamps are provisional.</p>')}`],
++      ['What changed?',`<div class="guide-evidence">${spark}<div><strong>Dip → partial recovery</strong><p>Observation 3 − 2: <b>+${fmt(last.rms_v[0]-ev[1].rms_v[0],7)} V</b></p><small>Descriptive difference · not an anomaly or damage threshold</small></div></div><div class="guide-metrics"><div><strong>${fmt(ev[1].resolved.error_v[0],7)} V</strong><span>Error at 2</span></div><div><strong>${fmt(last.resolved.error_v[0],7)} V</strong><span>Error at 3</span></div><div><strong>Unavailable</strong><span>No settled error at 1</span></div></div>${deeper('What does forecast error mean?','<p>Measured value minus the earlier prediction. Two settled errors do not establish a trend.</p>')}`],
++      ['What else changed?',`<div class="context-comparison"><div><span>T1 above ambient</span><strong>${fmt(first.observation.feature__T1_above_room_c)} → ${fmt(last.observation.feature__T1_above_room_c)} °C</strong></div><div><span>Measured speed</span><strong>${fmt(first.observation.context__measured_speed_rpm,3)} → ${fmt(last.observation.context__measured_speed_rpm,3)} rpm</strong></div><div><span>Measured static load</span><strong>${fmt(first.observation.context__measured_static_load_n,2)} → ${fmt(last.observation.context__measured_static_load_n,2)} N</strong></div></div><p class="muted">First → last observation. Concurrent changes do not establish a cause.</p>${deeper('Units & interpretation','<p>T1 above ambient is a temperature difference, not an absolute temperature. Endpoint comparisons do not establish a monotonic trend or explain the vibration change.</p>')}`],
++      ['What limits the interpretation?',`<div class="limit-grid"><div><strong>Warm-up</strong><span>All 3 have warm-up setpoints</span></div><div><strong>${last.context_reference.n} reference observations</strong><span>Matching coarse-bin comparison unavailable</span></div><div><strong>3 observations</strong><span>Too short for sustained-change windows</span></div></div><p class="attention">Warm-up and development references are not healthy labels.</p>${deeper('Timing, gaps & comparison rules','<p>The gap before observation 1 is unknown. Clock meaning and CSV/MAT association remain provisional. Sustained-change comparison requires two consecutive three-observation windows; three observations cannot provide them.</p>')}`],
++      ['What can we conclude?',`<div class="conclusion-pair"><div><span class="eyebrow">Observed</span><h4>RMS dipped, then partly recovered</h4><p>Temperature and operating context also changed.</p></div><div><span class="eyebrow">Unverified</span><h4>Why the vibration changed</h4><p>The measurements do not establish why.</p></div></div><p class="attention"><strong>No diagnosis or causal verdict.</strong> No supported health, damage, significance or remaining-life conclusion.</p>${deeper('What next?','<p>Inspect individual measurements and notices below. Use the optional local assistant only through explicit submission. This deterministic guidance is not an AI answer.</p>')}`]
++    ];
++    guide.querySelectorAll('[data-guide-stage]').forEach(b=>{const stage=guideStep<2?0:guideStep<4?2:4;b.setAttribute('aria-current',Number(b.dataset.guideStage)===stage?'step':'false');b.onclick=()=>{guideStep=Number(b.dataset.guideStage);drawGuide();$('guideTitle').focus();};});
++    guide.querySelector('.guide-progress').innerHTML=titles.map((title,i)=>`<li><button data-guide-step="${i}" ${i===guideStep?'aria-current="step"':''}>${i+1}. ${title}</button></li>`).join('');
++    $('guideCopy').innerHTML=`<h3 tabindex="-1" id="guideTitle">${contents[guideStep][0]}</h3>${contents[guideStep][1]}`;
++    guide.querySelectorAll('[data-guide-step]').forEach(b=>b.onclick=()=>{guideStep=Number(b.dataset.guideStep);drawGuide();$('guideTitle').focus();});
++    $('guideBack').disabled=guideStep===0;$('guideNext').textContent=guideStep===4?'Inspect the measurements ↓':'Continue →';
++  }
++  $('walkthroughAction').onclick=()=>coordinated(async()=>{
++    stop();run='B01';$('run').value=run;await api('/api/reset',{run});
++    for(let i=0;i<3;i++)state=await api('/api/step',{run});
++    focus=2;$('assistantChannel').value='A';render();$('periodStart').value=1;$('periodStop').value=3;scopeChanged();
++    guideStep=0;guide.hidden=false;drawGuide();view('1');$('guideTitle').focus({preventScroll:true});
++  });
++  $('guideBack').onclick=()=>{if(guideStep>0){guideStep--;drawGuide();$('guideTitle').focus();}};
++  $('guideNext').onclick=()=>{if(guideStep<4){guideStep++;drawGuide();$('guideTitle').focus();}else{$('inspect').focus();inspectCard.scrollIntoView({block:'start'});}};
++  $('guideExit').onclick=()=>{guide.hidden=true;$('step').focus();};
++  const methodsIntro=document.createElement('section');methodsIntro.className='card methods-visual';methodsIntro.innerHTML=`<span class="eyebrow">Methods & results</span><h2>Predict the next reading. Compare fairly.</h2><div class="method-duo"><div><span class="node-step">Baseline</span><h3>Repeat last</h3><div class="method-glyph" aria-hidden="true">● ─── ●</div><p>Next prediction = latest RMS</p></div><div><span class="node-step">Selected method</span><h3>Exponential smoothing</h3><div class="method-glyph" aria-hidden="true">∿ → ●</div><p>Blend recent RMS with history</p></div></div><div class="result-visual"><strong>${skill}%</strong><div><b>Lower average absolute forecast error</b><span>vs repeat-last · equal-run/channel average</span><span>B01/B02 development selection · not held-out</span></div></div><div class="evaluation-flow"><span>B01 → B02</span><span>B02 → B01</span><span>B04: diagnostic</span><span>B03: sealed</span></div><p class="attention concise-limit">Forecast error is not fault probability. Two development bearings; no validated health labels.</p><details><summary>Evaluation design, coverage & limitations</summary><p>Expanding-window inner tuning and reciprocal outer development evaluations use chronological, purged partitions. Learned preprocessing is fitted only on training data. Common-pair scores use identical eligible prediction pairs; broad replay scores may have different coverage. Negative skills and unsuccessful variants remain in the saved table.</p><p>Next-observed-burst forecasts have a variable horizon, not a time-to-failure target. B04 measured speed/load interpretation remains unresolved. Development references are not healthy/safe ranges. No calibrated safety thresholds or remaining useful life.</p><a href="${docs('selection_protocol.md')}">Frozen selection protocol ↗</a></details>`;
++  // Preserve every existing table/control, while putting the glossary and prose behind disclosure.
++  for(const child of [...methods.children])if(child.tagName!=='DETAILS'){
++    const fold=document.createElement('details');fold.className='card';fold.innerHTML=`<summary>${esc(child.querySelector('h2')?.textContent||'Detailed methods')}</summary>`;child.before(fold);fold.append(child);child.classList.remove('card');
++  }
++  methods.prepend(methodsIntro);
++  const engineering=document.createElement('div');engineering.dataset.view='4';engineering.innerHTML=`<section class="card architecture-card"><div class="section-heading"><div><span class="eyebrow">Engineering / interactive system map</span><h2>From recorded signal to cited answer</h2><p class="muted">Click a component. See its job, an example and its limits.</p></div><span class="recorded-pill">Local-first · offline default</span></div><div id="systemArchitecture"></div></section><div class="engineering-bottom"><section class="card"><h2>Run locally</h2><p class="muted">No key needed · offline fixture default</p><pre>.venv/bin/python scripts/start_assistant.py</pre><p><code>http://127.0.0.1:8785/</code></p><details><summary>Setup, reproducibility & source</summary><div class="engineering-links"><a href="${docs('assistant.md')}">Assistant setup ↗</a><a href="${docs('architecture.md')}">Architecture ↗</a><a href="${docs('results/assistant-v1/report.md')}">Evaluation evidence ↗</a><a href="${docs('model_card.md')}">Model card ↗</a><a href="${repo}">GitHub ↗</a></div></details></section><section class="card"><h2>Checked ≠ certified</h2><div class="safeguard-tags"><span>Scope gates</span><span>Citation IDs</span><span>Cancellation & bounds</span><span>Credential separation</span></div><p class="attention concise-limit">Broader answer quality, prompt-injection robustness, hybrid quality and hosted security remain incomplete.</p><details><summary>What remains?</summary><p>Independent human claim-support review, real-model adversarial evaluation, authenticated hosting/TLS, trusted origins, spending controls, secret/evidence isolation and trace retention. Offline tests verify deterministic enforcement and mocks, not general model reliability.</p></details></section></div>`;main.append(engineering);
++  mountFactoryGuardArchitecture($('systemArchitecture'),repo);
++  const footer=document.querySelector('footer');if(footer){const attribution=footer.innerHTML;footer.innerHTML='<span>Recorded evidence · no live equipment connection</span><details><summary>Dataset attribution & provenance</summary>'+attribution+'</details>';}
++  render();view('0');document.body.dataset.experienceReady='true';
++})();
+diff --git a/tests/test_reviewer_site.py b/tests/test_reviewer_site.py
+index 9abc72b..1b6b91c 100644
+--- a/tests/test_reviewer_site.py
++++ b/tests/test_reviewer_site.py
+@@ -5,12 +5,24 @@ import io
+ from pathlib import Path
+ import tempfile
+ import unittest
++from unittest.mock import patch
+ 
+ ROOT=Path(__file__).resolve().parents[1]
+ spec=importlib.util.spec_from_file_location('reviewer',ROOT/'scripts/build_reviewer_site.py')
+ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ 
+ class ReviewerSiteTests(unittest.TestCase):
++    def test_reviewer_sources_include_guidance_without_generation_and_scrub_build_child(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            with patch.dict('os.environ',{'OPENAI_API_KEY':'synthetic-build-secret'}), patch.object(module.subprocess,'check_output',return_value='fixture-commit\n') as git:
++                module.build(tmp)
++                self.assertNotIn('OPENAI_API_KEY',git.call_args.kwargs['env'])
++            page=(Path(tmp)/'index.html').read_text()
++            for text in ('Start here','Walk through an investigation','Guided walkthrough · deterministic guidance','Ask about these measurements','--midnight:#02070A','--blue:#0297DE','--orange:#FC734D'):
++                self.assertIn(text,page)
++            self.assertNotIn('synthetic-build-secret',page)
++            self.assertNotIn('<script src="/assistant-ui.js">',page)
++
+     def test_pinned_build_and_safe_contents(self):
+         with tempfile.TemporaryDirectory() as tmp:
+             module.build(tmp)

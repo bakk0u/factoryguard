@@ -1,0 +1,28 @@
+{
+  "checks": [
+    "Start default, keyboard focus/activation, five deterministic steps, B01/A 1–3/as_of=3, zero automatic submissions",
+    "Suggestions populate without POST; explicit fixture POST matches shown question/scope; citations resolve and open exact source/provenance; Escape restores focus",
+    "Layout 3 revealed-only Attention rail/filter, concise Start, desktop parallel columns; all 14 architecture components open correct explanations/examples/sources by keyboard, future and unverified states distinct, no diagram POST",
+    "Queue filters, deeper methods/engineering, desktop/tablet/mobile no overflow, mobile measurement→assistant→notebook order, reduced motion",
+    "Direct-file static walkthrough/suggestions work; new generation visibly unavailable",
+    "Mock loading/cancel acknowledgement/error/generated-answer labels and unavailable backend; no real provider"
+  ],
+  "start_visible_words": 119,
+  "errors": [],
+  "external_requests": [],
+  "real_model_requests": 0,
+  "fixture_investigations": 1,
+  "screenshots": [
+    "assistant-desktop.png",
+    "assistant-mobile.png",
+    "citation-desktop.png",
+    "engineering-desktop.png",
+    "engineering-mobile.png",
+    "guide-desktop.png",
+    "guide-mobile.png",
+    "guide-notice-desktop.png",
+    "methods-desktop.png",
+    "start-desktop.png",
+    "start-mobile.png"
+  ]
+}
