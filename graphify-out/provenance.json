@@ -1,9 +1,9 @@
 {
   "graphify_version": "0.9.103",
   "mode": "local code-only AST; no semantic backend",
-  "source_commit": "754cf5d2f9e77479bd162ff9fd52d75e71853b88",
+  "source_commit": "98a678d2b39613cd96d71765f194340e971f475d",
   "freshness_rule": "Compare content hashes, not HEAD or file timestamps alone.",
-  "graph_sha256": "1e7157d72c643bfc883d08431ed053e39dc0e958f0cab73ed6caeca527e729c8",
+  "graph_sha256": "1215cce3cb4b798e72d1e344722267604d778db3e2f52797322802831cf264ac",
   "source_sha256": {
     ".gitattributes": "30cba7ffe2ef1650b5d60d5e9b7b0df5d66e3ce61840c7090995e74dc673ad9e",
     ".github/workflows/assistant.yml": "81601e43100fe9c5f298865a0587df2280ab9f4159f30fe05c88aabf7c91567d",
@@ -13,7 +13,7 @@
     ".graphifyignore": "a9653fbb0bfd8b2e38ec44a8e9b4388bd01d3b3f630b0606b4ff7bf571a99236",
     ".graphifyrc": "da2de3ecc9f73312318bc052c7b6bd9827d29e9b0c05eab0ba36dea27b3d107d",
     "AGENTS.md": "7e07c0966258e3a228cc4263f2e0739719d71a116c741dc9a111ccc58b575653",
-    "PROJECT_MEMORY.md": "f6a5385f1ae46a335f93d7feeb26b0c3f2734ad2eb512ff9f4f5f96aa9607419",
+    "PROJECT_MEMORY.md": "a91338989631fa8722d6a1b7ad46530d35f00a705b510498803d3a60ac7b73e6",
     "assistant/evaluation/cases.json": "f1f3e0cb9433dd30acd5944c4e1b2f3cdd86bb50287f8a4aa7081f9265ef8ded",
     "assistant/package-lock.json": "6401e1c3e415f2aa70327abe1c30e85b0a75b60f2676df4a6c7e1eea9512fda4",
     "assistant/package.json": "aab3fcd784161ae75b47fc42adc187e6fc1f68a11b0645db2fecaa11b38c315f",
@@ -21,7 +21,7 @@
     "assistant/src/context.ts": "d65e62b9aa0adfa97b96a21af4992879852dd8fe1955de7ef3c8d3541123a3ee",
     "assistant/src/contracts.ts": "2a5b82e33083aae2aabc2b69130a40285b38017a1da11aca466f96be23a02a3f",
     "assistant/src/live-smoke.ts": "ff7402b2a7bd5180792e0f0b823842b34d8c7074daa7127602f76dd0d303ee3a",
-    "assistant/src/mcp.ts": "8596abe40e2713356c5be6fb7d179abbe3fe9cd98bf24db99984c2416f39bf4f",
+    "assistant/src/mcp.ts": "6c1c6d1201e4f570702aafa25dda755737dd9d87da32e0c8a874a052988da5bc",
     "assistant/src/orchestrator.ts": "c39344235e9f3f44aa390b75ae911729e6fef18cfd48a3c78a74961242d27c5e",
     "assistant/src/provider-error.ts": "bc2e81471940376100effdbf1aa5fddc20eafcae37d1af2766468fa5f65a5262",
     "assistant/src/provider.ts": "1c2f803916578ddb6c1eb43a18eb6650c01f28d19923fa0c9e6788474dc3cb2e",
@@ -29,11 +29,12 @@
     "assistant/test/adversarial.test.ts": "d114268ab2a3da5d4059793f03eb81c06c8aa50b3bc12ca6ce4b458d946a5873",
     "assistant/test/alerts.test.ts": "c8fffdfc64604a0f33dd49ce349a3d1abcae0ea02575dfd2a86945dd2a925709",
     "assistant/test/browser.cjs": "3a39e4b8a7d81e250ead7696d208313136ebfb836e4d830067f899328b601388",
-    "assistant/test/config.test.ts": "0ed5f392437b3e0736e49d2b2baf2cd9793203b608090b2e61359e4abbdbf637",
+    "assistant/test/config.test.ts": "7f7bee3f6f8c75aeab99d4e14e4b9be35b970750f427d01597e14dd0b4ebfbce",
     "assistant/test/helpers.ts": "00eb835c6eb0d093bcd6661796c2a9ef12c9f35ca777d1e5dfe5a6fca468b8c9",
     "assistant/test/optimization.test.ts": "9011b3cab62857179c610182f9bbb55e9b8ed212930a050945dd36f3b77db36d",
     "assistant/test/pipeline.test.ts": "5565c658b57a9446c6a16bdd42b44b2a3e8cbb133bf8b1563c76c7cbc983e37c",
     "assistant/test/provider-error.test.ts": "2c8662c6ca4c1fc67b00cafe65097385477d917f0daff4f7ecd0a66ba94ff430",
+    "assistant/test/stdio.test.ts": "a922adb26483b50154d0bcafeb48086c923790dd16d758fe08f83ce10a77b0c2",
     "assistant/tsconfig.json": "8843b22f974ed121a0f5afbbb8f0801d824c896c14ccd6b030c255f2df55a2d6",
     "assistant/web/assistant.js": "21d87c4f360c536ac63d6eef70055184023e35c20bddd8a53cb538938a8c8b1b",
     "configs/dataset_roles.json": "2372a69f61b61940e501c1ec2ce9e94a3fbedc1f6643adf5ae87177a8be6607b",
@@ -166,6 +167,6 @@
     "tests/test_selection_dashboard.py": "9be5d902ca6f15b8b63eee5b90569b954f13f399564ff5213471cb39aa4510e6",
     "tests/test_validation.py": "85c07b317a1b86db4361fdb04cf7717b092bbcd587c742e793d1228ddcd1fc5e"
   },
-  "nodes": 1161,
-  "edges": 3110
+  "nodes": 1162,
+  "edges": 3118
 }

@@ -48,6 +48,9 @@ while retaining the SDK's safe system environment and excluding the generation
 key. Timeout diagnostics identify initialize, discovery or tool-call phases without
 dumping child stderr or environment. Production MCP/request budgets remain 15/60
 seconds. See the [cross-platform CI follow-up](results/investigation-alerts-v2/ci-followup.md).
+MCP stdout stays buffered beneath the SDK's UTF-8 wrapper, which explicitly flushes
+each message. Enabling Python unbuffered mode can truncate short Windows pipe
+writes; the client would receive an incomplete JSON frame and time out.
 
 ### Deterministic investigation alerts
 

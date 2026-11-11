@@ -30,6 +30,22 @@ key. Python-process tests assert the effective limits and absence of a fake key.
 Timeout diagnostics now distinguish initialize/discovery/tool-call phases using
 fixed codes, never raw exceptions, stderr, environment or request content.
 
+The first updated CI confirmed all development jobs passed, but Windows tool calls
+still timed out. The new timing diagnostic showed initialization/discovery completed
+in 1,085 ms: startup and missing dependencies were not the remaining cause.
+`PYTHONUNBUFFERED=1` left a raw `FileIO` under the SDK's UTF-8 `TextIOWrapper`.
+A short-pipe reproducer wrote only 4,096 of 220,001 bytes in that configuration;
+`BufferedWriter` preserved every byte. A truncated JSON frame lacks its terminator,
+so the client waits until its existing timeout. The child environment no longer
+enables unbuffered output; the SDK already flushes each message. A regression checks
+the actual child retains `BufferedWriter` even if its parent enables unbuffered
+mode. Another round-trips a large Unicode response through the real official MCP
+SDKs and asserts its complete text and final marker. Neither extends a timeout nor
+changes production output limits. This follows Python's documented
+[stream hierarchy and raw-write contract](https://docs.python.org/3.12/library/io.html#io.RawIOBase.write).
+Thread limits/polling fixes alone were not
+sufficient; the initial failed run remains part of the diagnosis.
+
 API regression tests await a terminal state within the existing 60-second request
 deadline instead of assuming completion after 2–5 seconds. Every completed/failed,
 scope, deduplication, cancellation, trace and redaction assertion remains. Real
@@ -39,7 +55,7 @@ discovery and summary timing, allowing actual Windows behavior to be assessed.
 
 ## Verification
 
-Local macOS: TypeScript build, **44/44 TS tests**, **180/180 Python tests**, the
+Local macOS: TypeScript build, **46/46 TS tests**, **180/180 Python tests**, the
 strengthened optional-import isolation test and **40/40 frozen lexical retrieval
 cases** passed with no skips. Local success does not establish Windows success.
 

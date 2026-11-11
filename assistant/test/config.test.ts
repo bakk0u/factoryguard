@@ -69,7 +69,7 @@ test("MCP SDK inherited defaults plus evidence allowlist exclude generation secr
     process.env.OPENAI_API_KEY = "synthetic-only";
     const actual = { ...getDefaultEnvironment(), ...evidenceEnvironment() };
     assert.equal(actual.OPENAI_API_KEY, undefined);
-    assert.equal(actual.PYTHONUNBUFFERED, "1");
+    assert.equal(actual.PYTHONUNBUFFERED, undefined);
     assert.equal(actual.PYTHONUTF8, "1");
     for(const key of ["OPENBLAS_NUM_THREADS","OMP_NUM_THREADS","MKL_NUM_THREADS"]) assert.equal(actual[key],"1");
     const python = process.env.FACTORYGUARD_PYTHON || path.join(REPOSITORY_ROOT, process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python");
@@ -77,5 +77,18 @@ test("MCP SDK inherited defaults plus evidence allowlist exclude generation secr
   } finally {
     if (previous === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = previous;
+  }
+});
+
+test("MCP child stdout retains the buffering required for complete SDK writes", () => {
+  const previous = process.env.PYTHONUNBUFFERED;
+  process.env.PYTHONUNBUFFERED = "1";
+  try {
+  const python = process.env.FACTORYGUARD_PYTHON || path.join(REPOSITORY_ROOT, process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python");
+  const env = { ...getDefaultEnvironment(), ...evidenceEnvironment() };
+  execFileSync(python, ["-c", 'import io,sys; assert isinstance(sys.stdout.buffer, io.BufferedWriter), "MCP UTF-8 wrapper requires buffered writes to handle short pipes"'], {env});
+  } finally {
+    if(previous===undefined)delete process.env.PYTHONUNBUFFERED;
+    else process.env.PYTHONUNBUFFERED=previous;
   }
 });

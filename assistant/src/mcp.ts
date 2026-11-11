@@ -17,7 +17,9 @@ export const ROOT = root();
 export function evidenceEnvironment(): Record<string, string> {
   return {
     PYTHONPATH: path.join(ROOT, "src"),
-    PYTHONUNBUFFERED: "1",
+    // The Python SDK wraps sys.stdout.buffer and flushes every protocol message.
+    // Keep BufferedWriter underneath: raw short pipe writes can truncate a JSON
+    // response on Windows and leave the client waiting forever for its newline.
     PYTHONUTF8: "1",
     // Each investigation starts an isolated read-only process. Do not let its
     // numerical libraries oversubscribe a Windows runner (or local host).
