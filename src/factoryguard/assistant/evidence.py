@@ -192,8 +192,32 @@ class EvidenceService:
                               ('context__measured_static_load_n', 'N'),
                               ('context__measured_dynamic_peak_n', 'N'),
                               ('feature__T1_above_room_c', 'degC'), ('feature__T2_above_room_c', 'degC'))}
-        return self.envelope(s, [self.record(s, 'period', f'{s.start}-{s.stop}-asof-{s.as_of}', data)],
+        return self.envelope(s, [self.record(s, 'period', f'{s.start}-{s.stop}-asof-{s.as_of}', data), self.alert_record(s, events)],
                              [] if scored else [{'code': 'no_settled_pairs', 'detail': 'No scored forecast comparisons in the selected period'}])
+
+    def alert_record(self, s, events):
+        """Derived alerts are causal, read-only and scoped; no journal writes or model calls."""
+        from factoryguard.alerts.engine_v2 import replay, load_policy, fingerprint
+        policy = load_policy(self.root)
+        result = replay(events[:s.stop], s.experiment, s.channel, policy)
+        frame = result['frames'][-1]
+        transitions = [t for t in result['transitions'] if s.start <= t['position'] <= s.stop]
+        body = {k: frame[k] for k in ('position','run','channel','state','availability','reasons','signals',
+                'assessment','assessment_reason','current_crossings','recovery_support','quiet_streak',
+                'episode_id','initiating_signals','policy_version','policy_sha256','engine_sha256','calibration_sha256')}
+        body.update({'start': s.start, 'stop': s.stop, 'as_of': s.as_of, 'snapshot': self.snapshot,
+            'calibration_prefix_stop': policy.config['splits'].get(s.experiment,{}).get('calibration_stop'),
+            'transitions': [{k:t[k] for k in ('position','from','to','reason','episode_id')} for t in transitions[-6:]],
+            'transition_count': len(transitions), 'transitions_truncated': len(transitions)>6,
+            'history_scope': 'State and aggregates use causal history through selected stop; initiating episode can predate selection. No later records processed.',
+            'meaning': 'Deterministic investigation alert, not a confirmed fault/healthy state. Availability is separate; acknowledgment cannot clear a condition.',
+            'signal_definitions': 'Residual is absolute measured minus saved earlier forecast (V). Level is trailing-three mean minus segment first-three mean (absolute V); successive counted confirmations use disjoint scoring observations, while fixed anchors and serial measurements are not independent statistical evidence. Context uses only the frozen own-run prefix, not the saved other-run descriptive reference.',
+            'rule': {'activation_persistence': policy.config['activation_persistence'], 'clearing_persistence': policy.config['clearing_persistence'],
+                     'clear_fraction': policy.config['clear_fraction'], 'independent_confirmation': False}})
+        return {'id':'alert:'+fingerprint([s.model_dump(),policy.sha256,frame['engine_sha256'],body]), 'kind':'alert',
+            'source': {'path':'configs/investigation_alerts_v2.json',
+                       'sha256':sha((self.root/'configs/investigation_alerts_v2.json').read_bytes()),
+                       'snapshot_sha256':self.snapshot, 'engine_sha256':frame['engine_sha256']}, 'data':body}
 
     def get_data_quality_report(self, selection):
         s, events = self.visible(selection); chosen = events[s.start-1:s.stop]

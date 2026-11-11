@@ -43,6 +43,28 @@ labels/disclosures. Its interactive Engineering diagram explains the actual
 retrieval-before-generation path and distinguishes future/unevaluated components;
 diagram interactions make no API or model request.
 
+### Deterministic investigation alerts
+
+The local dashboard also shows Python-produced investigation-alert state,
+monitoring availability, values/thresholds in V and a versioned transition ledger.
+Detection works without an LLM; **Investigate evidence** only selects a period and
+populates a question. A separate explicit submission can explain retrieved alert
+evidence afterward. The assistant cannot activate/clear an alert or set thresholds.
+Acknowledgment never clears a condition. Missing evidence never implies health.
+
+Portable-view acknowledgments are browser-local; the Python server's alert API
+persists its own acknowledgments in a separate private journal. No database is
+copied into browser assets. MCP evidence remains channel/period/cursor bounded;
+calibration thresholds are withheld before the prefix completes. All current
+evaluation rows have limited/unavailable monitoring. V2 counts disjoint level
+windows, retains an active episode's fixed level anchor across gaps, and requires
+fresh recovery evidence. Current support, unavailable assessment, hysteresis and
+recovery are shown separately from episode state. Shared baselines and serial
+readings remain correlated. These are investigation prompts, not validated faults.
+See the [frozen v2 protocol](investigation_alert_protocol_v2.md) and
+[final verification/results](results/investigation-alerts-v2/report.md).
+The original [v1 record](results/investigation-alerts-v1/report.md) is preserved.
+
 ### Optional XGBoost test setup on macOS
 
 The complete Python regression suite exercises XGBoost on small synthetic fixtures.

@@ -69,6 +69,26 @@ class Store:
     def state(self,run):
         with self.connect() as con:return self._state(con,run)
 
+    def alerts(self,run,channel='A',as_of=None,acknowledge=None):
+        """Separate append-only derived journal; original observations/forecasts unchanged."""
+        from factoryguard.alerts.engine_v2 import replay, fingerprint
+        from factoryguard.alerts.journal import AlertJournal
+        with self.connect() as con:
+            con.execute('BEGIN')  # One authoritative cursor snapshot; reset/step cannot race this read.
+            state=self._state(con,run)
+            as_of=state['revealed'] if as_of is None else as_of
+            if type(as_of) is not int or not 0<=as_of<=state['revealed']:
+                raise ValueError('Alert cursor must already be revealed')
+            result=replay(state['events'][:as_of],run,channel)
+            snapshot=fingerprint({k:json.loads(v) for k,v in con.execute('SELECT key,value FROM meta')})
+            journal=AlertJournal(self.path.with_name('alerts.sqlite'))
+            stream=journal.append(result,snapshot)
+            if acknowledge is not None:
+                if not isinstance(acknowledge,str) or len(acknowledge)>100:raise ValueError('Invalid episode identifier')
+                journal.acknowledge(stream,acknowledge,as_of)
+            return {**result,'snapshot':snapshot,'journal_stream':stream,
+                    'acknowledgments':journal.export(stream,as_of)['acknowledgments']}
+
     def _state(self,con,run):
         row=con.execute('SELECT position FROM cursors WHERE run=?',(run,)).fetchone()
         if row is None:raise ValueError('Run is unavailable; B03 stays sealed')

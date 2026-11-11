@@ -1,5 +1,49 @@
 # Current project status: development release v3
 
+## Final investigation-alert v2 checkpoint — 2026-11-10
+
+One frozen v2 candidate adds disjoint scoring support for level persistence and
+recovery, explicit per-signal eligibility/reasons, and current episode assessment
+(supported, unresolved/unavailable, hysteresis or recovery pending). Activation and
+clearing thresholds/calibration values are unchanged. A synthetic gap regression
+exposed reanchoring that could erase a sustained condition; the corrected engine
+retains the active level anchor across resets and recovery. First v2 results and
+failed-test logs remain beside the separate correctness recheck; no outcome tuning.
+
+Final Python **180/180**, TS **44/44**, build, frozen lexical **40/40** and four
+Chrome workflows pass without skips. The reviewer script's missing default Python
+launcher was resolved by its explicit URL argument. Detection is independent of
+the LLM. All evaluation monitoring remains limited/unavailable; long episodes,
+unsupported bins and missing fault ground truth remain explicit. These are
+development diagnostics, not independent validation or fault-performance scores.
+Original v1 policy, engine and evaluations remain intact. No paid calls, raw/saved-
+forecast changes, B03 access, push/merge or deployment. Local checkpoint details,
+limitations, exact checks and screenshots: [final report](results/investigation-alerts-v2/report.md).
+
+## Deterministic investigation alerts and recovery — 2026-11-10
+
+Local `feature/investigation-alerts-v1` adds a deterministic Python alert engine,
+separate monitoring availability and condition state, immutable episode/transition
+journal, local notification deduplication, dashboard status/investigate/export and
+bounded MCP alert citations. No LLM is needed for detection. Acknowledgment is
+separate from clearance. Forecasts, raw data and B03 remain untouched.
+
+One frozen policy and both its first evaluation and correctness recheck are
+preserved. No thresholds were tuned after results. All evaluation rows have limited
+or unavailable monitoring; unsupported bins, long active episodes and overlapping
+rolling-window effects remain explicit. No credible fault/normal event intervals
+exist, so fault sensitivity, false alarms and detection delay cannot be established.
+
+Recovery found no running check to duplicate. Final full Python **168/168** and
+alert Chrome desktop/mobile checks passed, without timeout. Earlier completed
+build/site builds, **43/43 TS**, **40/40 frozen lexical cases** and three other
+Chrome workflows were retained; no skips. Frozen artifact hashes: **25/25 unchanged**.
+No paid requests or deployment. Local prototype verification is complete; broader
+scientific/quality/security evaluation remains. See the
+[report](results/investigation-alerts-v1/report.md), with checks, limitations and
+screenshots under `reports/local/alerts-v1/recovery-01/`. Offline service:
+`http://127.0.0.1:8787/`. Changes remain local/uncommitted.
+
 ## Layout 3 and visual Engineering — 2026-11-10
 
 Local dashboard now follows Layout 3: narrow navigation, revealed-notice Attention

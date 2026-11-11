@@ -1,6 +1,10 @@
 // Interactive explanation of implemented source paths. Presentation only: no requests or tools.
 function mountFactoryGuardArchitecture(container, repo) {
   const components = {
+    alerts: ['Investigation alerts', 'Deterministic Python policy', 'Implemented · investigation only',
+      'Saved residuals, sustained RMS changes and supported context comparisons feed a versioned state machine. No LLM is needed.',
+      'No active alert → Watch → Active alert → Cleared. Missing evidence cannot clear an active condition; acknowledgment is separate.',
+      'Training-prefix calibration and chronological development blocks; thresholds are not fault probabilities. Append-only local episodes/transitions and in-app delivery; no external notification or machine control.', 'src/factoryguard/alerts/engine_v2.py'],
     data: ['Recorded experiments', 'Laboratory measurements', 'Implemented',
       'Separate bearing runs record vibration, temperature, speed and load.',
       'B01/B02: development. B04: diagnostic. B03 stays sealed.',
@@ -61,8 +65,8 @@ function mountFactoryGuardArchitecture(container, repo) {
   const node = (id, n) => `<button class="system-node ${id==='hosting'?'planned':''}" data-component="${id}" aria-pressed="false" aria-controls="architectureDetail"><span class="node-step">${n}</span><strong>${components[id][0]}</strong><span>${components[id][1]}</span></button>`;
   const lane = (label, ids) => `<section class="system-lane"><h3>${label}</h3><div class="system-flow">${ids.map((id,i)=>node(id,i+1)+(i<ids.length-1?'<span class="system-arrow" aria-hidden="true">→</span>':'')).join('')}</div></section>`;
   container.innerHTML = `<div class="system-map" aria-label="Interactive FactoryGuard architecture">
-    ${lane('01 / Recorded foundation', ['data','forecasting','snapshot'])}
-    <p class="system-link">↓ Pinned evidence feeds the charts and read-only retrieval</p>
+    ${lane('01 / Recorded foundation & deterministic monitoring', ['data','forecasting','snapshot','alerts'])}
+    <p class="system-link">↓ Pinned evidence + deterministic alerts feed the dashboard and read-only retrieval</p>
     ${lane('02 / On explicit investigation submission', ['dashboard','orchestrator','mcp','retrieval'])}
     <p class="system-link">↓ Retrieved records return through MCP to the orchestrator</p>
     ${lane('03 / Evidence becomes a cited answer', ['context','generation','validation','answer'])}
@@ -71,7 +75,8 @@ function mountFactoryGuardArchitecture(container, repo) {
   const select = (id, interactive=false) => {
     const [title, , status, description, example, detail, source] = components[id];
     container.querySelectorAll('[data-component]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.component===id)));
-    container.querySelector('#architectureDetail').innerHTML = `<span class="component-status ${id==='hosting'?'future':''}">${status}</span><h3 id="componentTitle" tabindex="-1">${title}</h3><p>${description}</p><div class="component-example"><span class="eyebrow">Concrete example</span><p>${example}</p></div><details><summary>Contract, limits & source</summary><p>${detail}</p><a href="${repo}/blob/master/${source}" target="_blank" rel="noopener">Read the implementation / documentation ↗</a></details><button class="text-action" id="backToDiagram">↑ Back to diagram</button>`;
+    container.querySelector('#architectureDetail').innerHTML = `<span class="component-status ${id==='hosting'?'future':''}">${status}</span><h3 id="componentTitle" tabindex="-1">${title}</h3><p>${description}</p><div class="component-example"><span class="eyebrow">Concrete example</span><p>${example}</p></div><details><summary>Contract, limits & source</summary><p>${detail}</p>${id==='alerts'?'<code>'+source+'</code><br><button id="openLocalAlertPolicy" class="text-action">Read the frozen local policy →</button>':`<a href="${repo}/blob/master/${source}" target="_blank" rel="noopener">Read the implementation / documentation ↗</a>`}</details><button class="text-action" id="backToDiagram">↑ Back to diagram</button>`;
+    if(id==='alerts')container.querySelector('#openLocalAlertPolicy').onclick=()=>window.openAlertPolicy();
     container.querySelector('#backToDiagram').onclick=()=>container.querySelector(`[data-component="${id}"]`).focus();
     if(interactive){container.querySelector('#componentTitle').focus({preventScroll:true});container.querySelector('#architectureDetail').scrollIntoView({block:'nearest'});}
   };

@@ -11,7 +11,9 @@ from factoryguard.release.application import html as dashboard
 
 ROOT = Path(__file__).resolve().parents[1]
 
-def build(output):
+def build(output, alert_journal=None):
+    if alert_journal and Path(alert_journal).resolve().is_relative_to(Path(output).resolve()):
+        raise ValueError('Keep private alert databases outside browser assets')
     source = ROOT / 'site/source'
     manifest = json.loads((ROOT / 'site/source-manifest.json').read_text())
     for name, expected in manifest['files'].items():
@@ -36,8 +38,11 @@ def build(output):
     page = page.replace('<h1>FactoryGuard</h1>','<h1>FactoryGuard · Recorded experiment results</h1>')
     page = page.replace('<main>','<main><section class="card"><h2>Explore recorded bearing experiments</h2><p>A variable-speed, variable-load bearing test rig records vibration channels A/C and temperatures. Each experiment is a separate bearing run. Opening this page does not retrain models or connect to live equipment. Reset to replay sequentially; notes stay in this browser.</p><p>B01/B02 are development runs. B04 is an uncorrected diagnostic stress case. Measurement timestamps are provisional. Result generation time and producing code commit were not recorded and remain unknown. Software CI was independently reported for d5be7be; see provenance for evidence.</p></section>'+evidence,1)
     selection=json.loads((source/'selection.json').read_text())
-    page=page.replace('</head>', '<style>'+''.join((ROOT/'site'/name).read_text(encoding='utf-8') for name in ('reviewer.css','layout3.css'))+'</style></head>')
-    page=page.replace('</body>', '<script>const reviewerMetrics='+json.dumps(rows)+';const savedSelection='+json.dumps(selection)+';</script><script>'+ (ROOT/'site/reviewer.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/architecture.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/reviewer_experience.js').read_text(encoding='utf-8')+'</script></body>')
+    from factoryguard.alerts.evaluate_v2 import dashboard_bundle
+    from factoryguard.alerts.journal import AlertJournal
+    alerts=dashboard_bundle(payload,journal=AlertJournal(alert_journal) if alert_journal else None,snapshot=manifest['snapshot_id'])
+    page=page.replace('</head>', '<style>'+''.join((ROOT/'site'/name).read_text(encoding='utf-8') for name in ('reviewer.css','layout3.css','alerts.css'))+'</style></head>')
+    page=page.replace('</body>', '<script>const alertReplay='+json.dumps(alerts,ensure_ascii=False,allow_nan=False).replace('<','\\u003c')+';const reviewerMetrics='+json.dumps(rows)+';const savedSelection='+json.dumps(selection)+';</script><script>'+ (ROOT/'site/reviewer.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/architecture.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/alerts.js').read_text(encoding='utf-8')+'</script><script>'+(ROOT/'site/reviewer_experience.js').read_text(encoding='utf-8')+'</script></body>')
     output=Path(output)
     output.mkdir(parents=True,exist_ok=True)
     (output/'index.html').write_text(page,encoding='utf-8')
@@ -47,4 +52,8 @@ def build(output):
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--output',default='reports/local/reviewer-site')
-    print(build(parser.parse_args().output))
+    parser.add_argument('--alert-journal',help='Optional private SQLite journal, outside the public export directory')
+    args=parser.parse_args()
+    if args.alert_journal and Path(args.alert_journal).resolve().is_relative_to(Path(args.output).resolve()):
+        parser.error('Keep the private alert database outside browser assets')
+    print(build(args.output,args.alert_journal))

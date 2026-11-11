@@ -84,6 +84,20 @@ const periodData = z
     persistence: errorSummary,
   })
   .passthrough();
+const alertSignal = z.object({
+  eligible:z.boolean(), value_v:z.number().finite().nonnegative().nullable(),
+  activation_v:z.number().finite().positive().nullable(), clearing_v:z.number().finite().nonnegative().nullable(),
+  ratio:z.number().finite().nonnegative().nullable(), unit:z.literal("V"),
+}).passthrough().refine(s=>!s.eligible||(s.value_v!==null&&s.activation_v!==null&&s.clearing_v!==null&&s.ratio!==null),"Eligible alert evidence requires finite values and thresholds");
+const alertData = z.object({
+  run:z.enum(["B01","B02","B04"]), channel:z.enum(["A","C"]),
+  position:z.number().int().positive(), start:z.number().int().positive(), stop:z.number().int().positive(),
+  as_of:z.number().int().positive(), snapshot:z.string().regex(/^[a-f0-9]{64}$/),
+  state:z.enum(["No active alert","Watch","Active alert","Cleared"]),
+  availability:z.enum(["available","limited","unavailable"]),policy_version:z.enum(["investigation-alerts-v1","investigation-alerts-v2"]),
+  signals:z.object({residual:alertSignal,level:alertSignal,context:alertSignal}).strict(),
+  transitions:z.array(z.object({position:z.number().int().positive()}).passthrough()).max(6),
+}).passthrough();
 export const envelopeSchema = z
   .object({
     schema_version: z.literal(1),
@@ -97,6 +111,29 @@ export const envelopeSchema = z
   .passthrough()
   .superRefine((envelope, ctx) => {
     for (const record of envelope.records) {
+      if (record.kind === "alert") {
+        const parsed = alertData.safeParse(record.data);
+        const s=envelope.selection;
+        if (!parsed.success || parsed.data.run!==s.experiment || parsed.data.channel!==s.channel ||
+          parsed.data.start!==s.start || parsed.data.stop!==s.stop || parsed.data.position!==s.stop ||
+          parsed.data.as_of!==s.as_of || parsed.data.snapshot!==s.snapshot ||
+          parsed.data.transitions.some(t=>t.position<s.start||t.position>s.stop))
+          ctx.addIssue({code:"custom",message:"Malformed or out-of-scope deterministic alert evidence"});
+        if(parsed.success && parsed.data.policy_version==="investigation-alerts-v2") {
+          const support=z.array(z.number().int().positive().max(s.stop)).max(3);
+          const v2Signal=z.object({
+            scoring_positions:support, confirmation_support:z.array(support.min(1)).max(3),
+            high_confirmation_count:z.number().int().min(0).max(3), fresh_high_confirmation:z.boolean(),
+            reasons:z.array(z.string()), qualifications:z.array(z.string()),
+            baseline_support:z.object({positions:support.optional(),prior_position:z.number().int().nonnegative().max(s.stop).optional()}).passthrough().nullable(),
+          }).passthrough().refine(v=>v.high_confirmation_count===v.confirmation_support.length &&
+            v.confirmation_support.every((group,i)=>group.every((p,j)=>j===0||p>group[j-1]!) &&
+              (i===0||Math.min(...group)>Math.max(...v.confirmation_support[i-1]!))),"Confirmations require disjoint causal support");
+          if(!z.enum(["supported","unresolved_unavailable","recovery_pending","unresolved_hysteresis","no_active_alert","watch","cleared"]).safeParse(parsed.data.assessment).success ||
+             !Object.values(parsed.data.signals).every(signal=>v2Signal.safeParse(signal).success))
+            ctx.addIssue({code:"custom",message:"Malformed or noncausal v2 fresh-evidence record"});
+        }
+      }
       if (
         record.kind === "period" &&
         !periodData.safeParse(record.data).success

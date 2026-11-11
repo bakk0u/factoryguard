@@ -21,6 +21,12 @@ retrieves recorded evidence through MCP before generating an answer. The public
 static dashboard remains independent; offline fixture mode and opt-in live mode
 are labelled separately. No new forecasting-model training is involved.
 
+Local prototype: [deterministic investigation alerts v2](docs/results/investigation-alerts-v2/report.md)
+combine saved forecast errors, RMS level changes and supported operating context.
+They work without an LLM and expose their evidence and monitoring limitations;
+fault sensitivity and false-alarm rates are not established. Counted level evidence
+uses disjoint windows; unresolved episodes remain visible when assessment is unavailable.
+
 <a href="https://bakk0u.github.io/factoryguard/">
   <picture>
     <source media="(max-width: 600px)" srcset="docs/images/reviewer-mobile.png">

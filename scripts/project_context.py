@@ -14,10 +14,11 @@ OUTPUT = ROOT / 'graphify-out'
 SCOPES = ('src', 'tests', 'scripts', 'dashboard', 'configs', '.github', 'site', 'assistant', 'run_step1.py')
 EXCLUDED = ('site/source/', 'assistant/node_modules/', 'assistant/dist/', 'assistant/evaluation/')
 SUFFIXES = {'.py', '.ts', '.tsx', '.js', '.cjs', '.json', '.yaml', '.yml', '.sh', '.toml'}
-CONTEXT_FILES = ('AGENTS.md', 'PROJECT_MEMORY.md', '.graphifyignore', '.graphifyrc',
+CONTEXT_FILES = ('AGENTS.md', 'PROJECT_MEMORY.md', '.graphifyignore', '.graphifyrc', '.gitattributes',
                  '.gitignore', 'pyproject.toml', 'docs/architecture.md', 'docs/project_context.md',
                  'assistant/package-lock.json', 'assistant/evaluation/cases.json', 'requirements-assistant-lock.txt',
-                 'site/reviewer.css', 'site/layout3.css')  # Visual sources are hashed even though CSS has no AST symbols.
+                 'site/reviewer.css', 'site/layout3.css', 'site/alerts.css',
+                 'docs/investigation_alert_protocol.md', 'docs/investigation_alert_protocol_v2.md')  # Hash these sources without semantic extraction.
 
 
 def digest(path):

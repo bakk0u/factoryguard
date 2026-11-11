@@ -120,6 +120,12 @@ def server(workspace,port=8765):
                 elif route.path=='/api/meta':self.reply(meta)
                 elif route.path=='/api/state':self.reply(store.state(parse_qs(route.query).get('run',['B01'])[0]))
                 elif route.path=='/api/notes':self.reply(store.notes(parse_qs(route.query).get('run',['B01'])[0]))
+                elif route.path=='/api/alerts':
+                    args=parse_qs(route.query)
+                    value=args.get('as_of',[None])[0]
+                    if value is not None and (len(value)>9 or not value.isascii() or not value.isdecimal()):raise ValueError('Invalid alert cursor')
+                    cursor=int(value) if value is not None else None
+                    self.reply(store.alerts(args.get('run',['B01'])[0],args.get('channel',['A'])[0],cursor))
                 else:self.reply({'error':'not found'},404)
             except (ValueError,KeyError) as exc:self.reply({'error':str(exc)},400)
         def do_POST(self):
@@ -139,6 +145,9 @@ def server(workspace,port=8765):
                 elif self.path=='/api/reset':self.reply(store.reset(run))
                 elif self.path=='/api/notes/save':self.reply(store.notes(run,'save',body))
                 elif self.path=='/api/notes/delete':self.reply(store.notes(run,'delete',body))
+                elif self.path=='/api/alerts/acknowledge':
+                    if not isinstance(body.get('episode_id'),str) or not body['episode_id']:raise ValueError('Episode identifier required')
+                    self.reply(store.alerts(run,body.get('channel','A'),body.get('as_of'),body.get('episode_id')))
                 else:self.reply({'error':'not found'},404)
             except (ValueError,KeyError,TypeError) as exc:self.reply({'error':str(exc)},400)
         def log_message(self,*args):pass

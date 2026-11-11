@@ -13,12 +13,14 @@ DOCUMENTS = {
     'docs/feature_definitions.md': 'pre_replay_method',
     'docs/release_protocol.md': 'pre_replay_method',
     'docs/investigation_workflow.md': 'pre_replay_method',
+    'docs/investigation_alert_protocol.md': 'pre_replay_method',
+    'docs/investigation_alert_protocol_v2.md': 'pre_replay_method',
     'docs/model_card.md': 'retrospective',
     'docs/development_assessment.md': 'retrospective',
 }
 MODEL = 'BAAI/bge-small-en-v1.5'
 MODEL_REPO = 'Qdrant/bge-small-en-v1.5-onnx-Q'
-RETRIEVAL_VERSION = 2
+RETRIEVAL_VERSION = 4
 STOPWORDS = set('a an the this that these those what which when where why how is are was were be been '
                 'and or but if for from to of in on at by with as it its during remains remain only show shows'.split())
 
@@ -59,10 +61,11 @@ def passages(root=ROOT):
                 content = block[i:i + 1200].strip()
                 if not content:
                     continue
+                visible = 'retrospective' if source=='docs/investigation_alert_protocol.md' and section=='What is and is not labelled' else availability
                 result.append({'id': 'doc:' + sha((source + section + version + str(i)).encode()),
                                'kind': 'documentation', 'text': content,
                                'source': {'path': source, 'section': section, 'sha256': version},
-                               'availability': availability, 'content_sha256': sha(content.encode())})
+                               'availability': visible, 'content_sha256': sha(content.encode())})
     return result
 
 
@@ -127,6 +130,9 @@ class DocumentationIndex:
         if {p['id'] for p, _ in rows} != actual:
             raise ValueError('Documentation index stale; run the index workflow')
         rows = [(p, v) for p, v in rows if not replay or p['availability'] == 'pre_replay_method']
+        # Keep the alert extension relevant without displacing existing measurement-method retrieval.
+        if not re.search(r'\b(alerts?|watch|clearance|acknowledg\w*)\b', question, re.I):
+            rows = [(p,v) for p,v in rows if p['source']['path'] not in ('docs/investigation_alert_protocol.md', 'docs/investigation_alert_protocol_v2.md')]
         query = Counter(search_tokens(question)); docs = [Counter(search_tokens(p['text'] + ' ' + p['source']['section'])) for p, _ in rows]
         frequencies = Counter(t for d in docs for t in d)
         scores = [sum(min(d[t], 3) * n * math.log(1 + len(docs) / (1 + frequencies[t])) for t, n in query.items()) for d in docs]
