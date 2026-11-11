@@ -1,3 +1,4 @@
+import { waitForInvestigation } from "./helpers.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, mkdtempSync, rmSync } from "node:fs";
@@ -93,12 +94,7 @@ test("in-flight request coalescing is scope-aware, bounded, and never caches com
     assert.equal((await post({...request,question:"x".repeat(13000)})).statusCode,413);
     assert.equal((await post({...request,selection:{...request.selection,experiment:"B03"}})).statusCode,400);
     release();
-    for(let n=0;n<200;n++){
-      const state=(await app.inject(`/api/investigations/${first.json().request_id}`)).json();
-      if(state.status!=="running")break;
-      await new Promise(r=>setTimeout(r,20));
-    }
-    const state=(await app.inject(`/api/investigations/${first.json().request_id}`)).json();
+    const state=await waitForInvestigation(app,first.json().request_id);
     assert.equal(state.status,"completed");
     assert.ok(state.result.events.every((e:any)=>!("context"in e)&&!("evidence"in e)&&!("answer"in e)));
     const fresh=await post(request);

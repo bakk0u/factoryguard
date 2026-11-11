@@ -43,6 +43,12 @@ labels/disclosures. Its interactive Engineering diagram explains the actual
 retrieval-before-generation path and distinguishes future/unevaluated components;
 diagram interactions make no API or model request.
 
+MCP numerical subprocesses use explicit UTF-8 and one BLAS/OpenMP/MKL thread,
+while retaining the SDK's safe system environment and excluding the generation
+key. Timeout diagnostics identify initialize, discovery or tool-call phases without
+dumping child stderr or environment. Production MCP/request budgets remain 15/60
+seconds. See the [cross-platform CI follow-up](results/investigation-alerts-v2/ci-followup.md).
+
 ### Deterministic investigation alerts
 
 The local dashboard also shows Python-produced investigation-alert state,

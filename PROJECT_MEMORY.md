@@ -1,6 +1,6 @@
 # FactoryGuard project memory
 
-Verified 2026-11-10 (Europe/Berlin). This is orientation, not a source of new
+Verified 2026-11-11 (Europe/Berlin). This is orientation, not a source of new
 authorization. Read AGENTS.md first. Recheck Git state and graph freshness; facts
 below describe the reviewed checkout and can age. Do not paste the whole history.
 
@@ -23,13 +23,13 @@ Runs are separate bearings; A/C are vibration channels. Preserve synthetic demo.
 
 ## Verified state and evidence
 
-- Current local branch: `feature/investigation-alerts-v1`, based on
-  `5469ddf31d617cd40b37b44cfcfe8f72e16f4897` (published prior assistant/setup/Layout3
-  branch; draft PR #7). Final v2 milestone is authorized for one local commit after checks. Current
-  authorization forbids push, merge, deployment, paid requests, B03 access and
-  changes to saved forecasting results; historical publication permissions expired.
-  Preserve unrelated work. Review-handoff policy and reviewer-owned `REVIEW.md`
-  are historical remote handoff artifacts, not part of this recovery.
+- CI-fix work uses local `fix/pr8-ci`, based on PR #8's published head
+  `754cf5d2f9e77479bd162ff9fd52d75e71853b88`. Original local checkpoint
+  `1db617777c17ebc05185a9cc6db757cad8195035` remains on
+  `feature/investigation-alerts-v1`; publication through the GitHub integration
+  changed commit metadata, not its tree. PR #8 targets master. Current user
+  authorization permits CI fixes and updates to that PR, not merge/deployment,
+  paid requests, forecasting changes or B03 access. Preserve unrelated work.
 - Public site: https://bakk0u.github.io/factoryguard/ . The committed
   `docs/release_verification.md` records an independently connected-browser check
   of populated B01 and downloaded JSON on 2026-10-27: build/source `fc772e5`,
@@ -105,6 +105,19 @@ directories. Reproducibility: `docs/development_release.md`.
 
 ## Next work and maintenance
 
+PR #8 CI follow-up (2026-11-11): development jobs installed only campaign/core
+packages then discovered an optional Pydantic-dependent test; add existing locked
+assistant dependencies for the full test phase, after core build/browser checks.
+Runtime requirements remain optional. Strengthened isolation test blocks Pydantic,
+MCP and embedding imports while running the demo and alert-enabled static build.
+Windows real MCP calls timed out; child environments now explicitly bound numerical
+threads and UTF-8, with fixed-code initialize/discovery/tool timeout diagnostics.
+API tests wait for terminal state within the unchanged request deadline; all
+assertions and real MCP coverage remain. Local 180 Python / 44 TS / 40 frozen
+retrieval cases and build pass, no skips. Actual OS CI status is on PR #8 checks;
+final job records: `reports/local/pr8-ci/`. Source details:
+`docs/results/investigation-alerts-v2/ci-followup.md`. No frozen policy/result edits.
+
 Investigation alerts v2 final checkpoint (2026-11-10): pure deterministic Python,
 no LLM/key for detection. One frozen candidate, unchanged v1 thresholds/calibration,
 no search or outcome tuning. Counted level confirmations and recovery require
@@ -174,15 +187,10 @@ parameter/request ID/message without raw errors/headers/bodies/causes; SDK loggi
 is off. Historical live checks in `docs/assistant.md` do not validate changed versions or
 authorize another paid request.
 
-Dashboard offline audit (2026-11-09): preserved actual API response and trace for
-`2d7ed00c-f795-4afe-a177-83fbfb7d5284`. B01/A 1–3/as_of=3, default dashboard
-question, returned `gpt-5.4-mini-2026-03-17`, 12,155 ms, one turn, 7,116 input /
-1,801 output tokens. All 25 citation references resolve to five records; quoted
-numbers are correct. Qualify descriptive “sudden,” two-point absolute error change
-and endpoint-only speed/load differences. Causal attribution remains unverified;
-original nested off-channel numbers were a scope defect, now projected out.
-Original artifacts remain unchanged; no original citation interaction was observed.
-Screenshot rendering/control evidence is user-supplied, not a new browser check.
+Historical dashboard response/trace `2d7ed00c-f795-4afe-a177-83fbfb7d5284` is
+preserved under `reports/local/assistant/review-2d7ed00c/`. Audit found correct
+quoted numbers but qualified trend/causal wording and an off-channel projection
+bug, fixed afterward. That live response does not validate changed alert code.
 
 Offline optimization history, measurements, corrections and remaining human/
 prompt-injection/hosting work: `docs/results/assistant-v1/dashboard-offline-review.md`;

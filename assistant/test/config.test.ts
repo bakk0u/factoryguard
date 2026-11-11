@@ -70,8 +70,10 @@ test("MCP SDK inherited defaults plus evidence allowlist exclude generation secr
     const actual = { ...getDefaultEnvironment(), ...evidenceEnvironment() };
     assert.equal(actual.OPENAI_API_KEY, undefined);
     assert.equal(actual.PYTHONUNBUFFERED, "1");
+    assert.equal(actual.PYTHONUTF8, "1");
+    for(const key of ["OPENBLAS_NUM_THREADS","OMP_NUM_THREADS","MKL_NUM_THREADS"]) assert.equal(actual[key],"1");
     const python = process.env.FACTORYGUARD_PYTHON || path.join(REPOSITORY_ROOT, process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python");
-    execFileSync(python, ["-c", 'import os; assert "OPENAI_API_KEY" not in os.environ'], { env: actual });
+    execFileSync(python, ["-c", 'import os; assert "OPENAI_API_KEY" not in os.environ; assert all(os.environ[n]=="1" for n in ("PYTHONUTF8","OPENBLAS_NUM_THREADS","OMP_NUM_THREADS","MKL_NUM_THREADS"))'], { env: actual });
   } finally {
     if (previous === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = previous;

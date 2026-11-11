@@ -18,6 +18,12 @@ export function evidenceEnvironment(): Record<string, string> {
   return {
     PYTHONPATH: path.join(ROOT, "src"),
     PYTHONUNBUFFERED: "1",
+    PYTHONUTF8: "1",
+    // Each investigation starts an isolated read-only process. Do not let its
+    // numerical libraries oversubscribe a Windows runner (or local host).
+    OPENBLAS_NUM_THREADS: "1",
+    OMP_NUM_THREADS: "1",
+    MKL_NUM_THREADS: "1",
     FACTORYGUARD_DOC_INDEX: process.env.FACTORYGUARD_DOC_INDEX ||
       path.join(ROOT, "reports/local/assistant/docs.sqlite"),
     ...(process.env.FACTORYGUARD_EVIDENCE_WORKSPACE
@@ -69,20 +75,28 @@ export async function connectEvidence(
   };
   const cancel = () => { void close().catch(() => {}); };
   signal.addEventListener("abort", cancel, { once: true });
+  const bounded = async <T>(phase: "initialize" | "discovery" | "tool_call", run: () => Promise<T>): Promise<T> => {
+    try { return await run(); }
+    catch (error) {
+      if (error instanceof Error && "code" in error && error.code === -32001)
+        throw new EvidenceToolError(`mcp_${phase}_timeout`);
+      throw error;
+    }
+  };
   try {
     signal.throwIfAborted();
-    await client.connect(transport, { signal, timeout: 15000 });
-    const discovery = await client.listTools({}, { signal, timeout: 15000 });
+    await bounded("initialize", () => client.connect(transport, { signal, timeout: 15000 }));
+    const discovery = await bounded("discovery", () => client.listTools({}, { signal, timeout: 15000 }));
     return {
       tools: discovery.tools,
       async call(name, args, callSignal) {
         callSignal.throwIfAborted();
         // Selection belongs to the user request, never to model-supplied tool arguments.
-        const result = await client.callTool(
+        const result = await bounded("tool_call", () => client.callTool(
           { name, arguments: { ...args, selection } },
           undefined,
           { signal: callSignal, timeout: 15000 },
-        );
+        ));
         if (result.isError) {
           const message = JSON.stringify(result.content).toLowerCase();
           throw new EvidenceToolError(
