@@ -105,3 +105,55 @@ is no test-name filtering/skip; full-suite execution is mandatory after an attem
 isolated test, even if it failed. The job still fails if either command fails.
 This is one diagnostic comparison; a correction requires captured evidence. No
 further speculative transport or unrelated performance change is authorized.
+
+### Actual-path result before the platform scope decision
+
+Published diagnostic `7ee0d12d7c93ec00287e649a86e66956e104f31d` (local
+`4d2f4616ca213fe3850b99834c434e7626416754`, identical tree) reproduced the actual
+failure alone and in-suite on Windows Server 2025, CPython 3.12.10, Node 22.23.4.
+The PR/push Windows jobs respectively measured alert import at 15,327.904 /
+15,333.146 ms and 15,251.709 / 15,242.701 ms (alone / suite). At five seconds the
+stack is loading NumPy's native extension, `multiarray.py:11` via importlib
+`create_module`. Replay completes in 1–4 ms. Serialization produces 10,072 bytes;
+write/flush and a parsed client frame complete, but after the unchanged 15-second
+tool deadline. No client result/validation event follows the expired request.
+
+This rules out suite interference as a necessary trigger and establishes that the
+observed response completes transport. It does not identify why native NumPy
+initialization takes about 15 seconds on this runner. Both full Windows suites
+still fail 15/47 tests, zero skips; passing preflights are not substitutes for N01.
+No correction, timeout increase, dependency change or further diagnostic rerun is
+made. Linux assistant CI passes 47 TS, 180 Python and all 40 retrieval cases. Local
+build/isolated/full TS/full Python/retrieval checks and 51 frozen hashes pass.
+
+Concrete next diagnostic (not executed): one bounded isolated NumPy/Pandas import
+profile under the same Windows image, locks and sanitized `evidenceEnvironment`,
+comparing the extension-import timing to the measured MCP path. A native-loader
+stack would be needed if the Python stack again stops at `create_module`; do not
+change transport, wheel versions or policy semantics without that evidence.
+At this diagnostic checkpoint PR #8 remained blocked and unmerged. Exact events/job links and final job states are
+in ignored `reports/local/pr8-ci-actual/windows-comparison.json` and `closeout.md`.
+That closeout was initially local; it is retained in the authorized platform closeout.
+All eight jobs completed: four passed/four failed. The two additional failures are
+Linux development browser-dependency installs: Ubuntu archive DNS resolution,
+apt exit 100; downstream browser/full-suite steps unrun. Both Windows development
+jobs passed. No infrastructure retries or unrelated workflow fixes were attempted.
+
+### Authorized release decision: defer Windows assistant support
+
+The owner explicitly deferred Windows assistant support for this prototype release.
+Only job-level `continue-on-error` for the Windows assistant matrix entry changes;
+the test commands, assertions, dependencies and timeouts are unchanged. Its failures
+remain visible. Linux assistant and Windows/Linux development jobs remain blocking
+workflow checks. This does not repair or establish Windows assistant support.
+
+Each DNS-affected Linux development job was retried once through the GitHub
+integration: run 43061396890/job 130716701748 and run 43061386018/job 130716735202
+both passed, including 180 Python tests and the reviewer browser workflow (direct
+file included). No Windows debug/fix work or further infrastructure retry is planned.
+
+A fresh local offline Chrome check passed alerts, acknowledgment, replay reset,
+actual downloaded JSON provenance/alert ledger and matching citation interaction,
+including desktop/mobile captures. One deterministic offline fixture, zero paid
+requests. See [platform closeout](platform-closeout.md) for support scope, commands,
+repository-enforcement limitations and final-head verification location.

@@ -1,19 +1,19 @@
 {
   "graphify_version": "0.9.103",
   "mode": "local code-only AST; no semantic backend",
-  "source_commit": "969f73d6357f07e69d06dd3b33feb2a55fee8dc4",
+  "source_commit": "4d2f4616ca213fe3850b99834c434e7626416754",
   "freshness_rule": "Compare content hashes, not HEAD or file timestamps alone.",
-  "graph_sha256": "0b7ec56bc70c97d5fb1d17afcb0dfb0bf25d51ec0422877a6cefdf70faa429a7",
+  "graph_sha256": "106d878603cba877ba87db395d2765b4833c57f67f902eba0853ddc4bcadcfdb",
   "source_sha256": {
     ".gitattributes": "30cba7ffe2ef1650b5d60d5e9b7b0df5d66e3ce61840c7090995e74dc673ad9e",
-    ".github/workflows/assistant.yml": "74ed3e3283041a0d78f65d03243502496a806a6682270bd6c358ea7a0dc33b02",
+    ".github/workflows/assistant.yml": "7b86584665921903d66358ccfeb7e69fa7ec94958d20ca149e2426e8deac0f00",
     ".github/workflows/ci.yml": "a13c0016bf1b55152e8b29c0defe5e0013d03c1a653b813a0791551261e69728",
     ".github/workflows/reviewer-pages.yml": "92103300437b9fb96ab5e25a742bf98f601e1d64f7ba50992410d7e1ad274184",
     ".gitignore": "0958b1a01569e9e2a080992dcad52929d674bbfaa0a4d358a3a3e2d4a6cfb22f",
     ".graphifyignore": "a9653fbb0bfd8b2e38ec44a8e9b4388bd01d3b3f630b0606b4ff7bf571a99236",
     ".graphifyrc": "da2de3ecc9f73312318bc052c7b6bd9827d29e9b0c05eab0ba36dea27b3d107d",
     "AGENTS.md": "7e07c0966258e3a228cc4263f2e0739719d71a116c741dc9a111ccc58b575653",
-    "PROJECT_MEMORY.md": "178e1ed92ec690d264bd815e2e6b7b1cd88fc04332021b4f6331a80985fe706b",
+    "PROJECT_MEMORY.md": "10d195cfb8a79ceaeb33f17537eaf1ee79b0a83563fb3ad6cbf7e78479090843",
     "assistant/evaluation/cases.json": "f1f3e0cb9433dd30acd5944c4e1b2f3cdd86bb50287f8a4aa7081f9265ef8ded",
     "assistant/package-lock.json": "6401e1c3e415f2aa70327abe1c30e85b0a75b60f2676df4a6c7e1eea9512fda4",
     "assistant/package.json": "aab3fcd784161ae75b47fc42adc187e6fc1f68a11b0645db2fecaa11b38c315f",
@@ -170,6 +170,6 @@
     "tests/test_selection_dashboard.py": "9be5d902ca6f15b8b63eee5b90569b954f13f399564ff5213471cb39aa4510e6",
     "tests/test_validation.py": "85c07b317a1b86db4361fdb04cf7717b092bbcd587c742e793d1228ddcd1fc5e"
   },
-  "nodes": 1182,
+  "nodes": 1183,
   "edges": 3172
 }

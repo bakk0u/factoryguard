@@ -21,6 +21,10 @@ retrieves recorded evidence through MCP before generating an answer. The public
 static dashboard remains independent; offline fixture mode and opt-in live mode
 are labelled separately. No new forecasting-model training is involved.
 
+Prototype assistant support: Linux CI and local macOS verified; Windows assistant
+integration is unsupported, with a visible non-blocking compatibility job.
+Windows core checks remain blocking. [Platform scope and checks](docs/results/investigation-alerts-v2/platform-closeout.md).
+
 Local prototype: [deterministic investigation alerts v2](docs/results/investigation-alerts-v2/report.md)
 combine saved forecast errors, RMS level changes and supported operating context.
 They work without an LLM and expose their evidence and monitoring limitations;

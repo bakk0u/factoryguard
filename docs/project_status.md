@@ -1,5 +1,19 @@
 # Current project status: development release v3
 
+## PR #8 prototype platform closeout — 2026-11-11
+
+Windows assistant support is explicitly deferred: its unchanged tests remain
+visible but non-blocking; the native NumPy import delay remains unresolved.
+Linux assistant and Windows/Linux development checks remain blocking workflows.
+Linux CI and local macOS verification are distinguished. Both DNS-affected Linux
+development jobs passed their one authorized retry (180 Python tests and reviewer
+browser workflow). A fresh offline Chrome check passed alerts, acknowledgment,
+replay, actual JSON export and matching citations on desktop/mobile, zero paid calls.
+Repository branch protection is currently absent, not silently claimed configured.
+This remains an investigation-alert prototype without validated fault detection or
+false-alarm rates. [Platform closeout](results/investigation-alerts-v2/platform-closeout.md);
+final-commit checks are recorded in PR #8. No merge or deployment performed.
+
 ## Final investigation-alert v2 checkpoint — 2026-11-10
 
 One frozen v2 candidate adds disjoint scoring support for level persistence and

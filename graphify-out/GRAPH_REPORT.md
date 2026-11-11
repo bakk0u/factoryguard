@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 1182 nodes · 3172 edges · 68 communities (35 shown, 33 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 168 edges (avg confidence: 0.86)
+- 1183 nodes · 3172 edges · 72 communities (37 shown, 35 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 167 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `969f73d6`
+- Built from commit: `4d2f4616`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,6 +18,7 @@
 - acquire_selected_paderborn.py
 - ForecastTests
 - test_selection.py
+- engine_v2.py
 - Store
 - b01_plots.py
 - DevelopmentAssessmentTests
@@ -34,8 +35,9 @@
 - event
 - FeaturePipelineTests
 - features_paderborn.py
-- scripts
-- prepare.py
+- AlertV2Tests
+- AlertEngine
+- dependencies
 - ProjectContextTests
 - package.json
 - EvidenceService
@@ -49,23 +51,24 @@
 - compilerOptions
 - orchestrator.ts
 - evidence.py
+- test_assistant_config.py
 - mcp.ts
 - AssistantEvidenceTests
 - unittest
 - pathlib
-- test_b01_features.py
 - inspect_paderborn.py
 - optimization.test.ts
 - adversarial.test.ts
+- ReviewerSiteTests
 - math
 - reviewer_experience.js
 - numpy
 - DocumentationIndex
 - mountInvestigationAlerts
 - pipeline.test.ts
-- unittest_mock
+- OfflineDashboardTests
 - Selection
-- test_release_campaign.py
+- build_reviewer_site.py
 - SelectedAcquisitionTests
 
 ## God Nodes (most connected - your core abstractions)
@@ -81,8 +84,6 @@
 10. `execute()` - 24 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Next work and maintenance` --references--> `connectEvidence()`  [INFERRED]
-  PROJECT_MEMORY.md → assistant/src/mcp.ts
 - `Locate only the relevant components` --references--> `Store`  [INFERRED]
   PROJECT_MEMORY.md → src/factoryguard/release/store.py
 - `Persistent context bootstrap` --references--> `graphify()`  [INFERRED]
@@ -91,38 +92,44 @@
   scripts/build_reviewer_site.py → src/factoryguard/alerts/journal.py
 - `AlertTests` --uses--> `Store`  [INFERRED]
   tests/test_alerts.py → src/factoryguard/release/store.py
+- `ready()` --calls--> `AlertEngine`  [INFERRED]
+  tests/test_alerts.py → src/factoryguard/alerts/engine_v2.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (68 total, 33 thin omitted)
+## Communities (72 total, 35 thin omitted)
 
 ### Community 0 - "alerts/evaluate.py"
 Cohesion: 0.12
 Nodes (13): AlertEngine, canonical(), channel_value(), fingerprint(), finite(), load_policy(), Policy, replay() (+5 more)
 
 ### Community 1 - "acquire_selected_paderborn.py"
-Cohesion: 0.07
-Nodes (32): Authorized bounded selection milestone, Authorized forecasting prototype, Claims and next milestone, Current development release authorization, Data integrity and leakage prevention, Development and verification, graphify, Persistent context bootstrap (+24 more)
+Cohesion: 0.06
+Nodes (39): Authorized bounded selection milestone, Authorized forecasting prototype, Claims and next milestone, Current development release authorization, Data integrity and leakage prevention, Development and verification, graphify, Persistent context bootstrap (+31 more)
 
 ### Community 2 - "ForecastTests"
-Cohesion: 0.07
-Nodes (20): evaluate(), guard_run(), Replay, replay_frame(), make_server(), do_GET(), do_POST(), respond() (+12 more)
+Cohesion: 0.10
+Nodes (14): evaluate(), guard_run(), issue(), Replay, replay_frame(), make_server(), do_GET(), do_POST() (+6 more)
 
 ### Community 3 - "test_selection.py"
 Cohesion: 0.15
 Nodes (10): candidates(), FiniteGate, fit_candidate(), predict(), prepare(), splits(), candidate(), config() (+2 more)
 
+### Community 4 - "engine_v2.py"
+Cohesion: 0.15
+Nodes (11): canonical(), channel_value(), fingerprint(), finite(), load_policy(), Policy, dashboard_bundle(), evaluate() (+3 more)
+
 ### Community 5 - "Store"
-Cohesion: 0.10
-Nodes (19): FactoryGuard project memory, Locate only the relevant components, Next work and maintenance, Purpose and hard boundaries, Session and verification commands, Verified state and evidence, export(), compare() (+11 more)
+Cohesion: 0.11
+Nodes (16): FactoryGuard project memory, Locate only the relevant components, Next work and maintenance, Purpose and hard boundaries, Session and verification commands, Verified state and evidence, export(), encode() (+8 more)
 
 ### Community 6 - "b01_plots.py"
-Cohesion: 0.19
+Cohesion: 0.22
 Nodes (4): condition_groups(), _label(), plot_comparisons(), cross_support()
 
 ### Community 7 - "DevelopmentAssessmentTests"
-Cohesion: 0.23
+Cohesion: 0.21
 Nodes (3): burst_rows(), raw_manifest(), DevelopmentAssessmentTests
 
 ### Community 8 - "ref_playwright"
@@ -150,36 +157,40 @@ Cohesion: 0.23
 Nodes (8): enhance(), friendly(), invalidateChangedPeriod(), investigationReport(), periodIdentity(), referenceIdentifiers(), view(), volatileNotes
 
 ### Community 26 - "event"
-Cohesion: 0.06
-Nodes (24): build(), AlertEngine, canonical(), channel_value(), fingerprint(), finite(), load_policy(), Policy (+16 more)
+Cohesion: 0.25
+Nodes (6): replay(), activate(), AlertTests, event(), policy(), ready()
 
 ### Community 31 - "features_paderborn.py"
 Cohesion: 0.25
 Nodes (4): ChannelFeatures, feature_schema(), extract_b01(), main()
 
-### Community 32 - "scripts"
-Cohesion: 0.40
-Nodes (5): scripts, build, live-smoke, start, test
+### Community 32 - "AlertV2Tests"
+Cohesion: 0.16
+Nodes (5): LocalNotifications, AlertV2Tests, disjoint(), policy(), ready()
+
+### Community 35 - "dependencies"
+Cohesion: 0.33
+Nodes (6): dependencies, fastify@5.12.8, @modelcontextprotocol/sdk@1.32.2, zod@4.6.7, fastify, zod
 
 ### Community 37 - "package.json"
-Cohesion: 0.13
-Nodes (19): dependencies, fastify@5.12.8, @modelcontextprotocol/sdk@1.32.2, zod@4.6.7, devDependencies, tsx@4.23.15, @types/node@26.6.6, typescript@7.0.2 (+11 more)
+Cohesion: 0.12
+Nodes (18): devDependencies, tsx@4.23.15, @types/node@26.6.6, typescript@7.0.2, engines, node, name, private (+10 more)
 
 ### Community 38 - "EvidenceService"
 Cohesion: 0.25
 Nodes (3): evaluate(), EvidenceService, run_workflow()
 
 ### Community 39 - "provider.ts"
-Cohesion: 0.11
-Nodes (22): openai@7.53.0, providerContext(), Answer, ContextPackage, ANSWER_JSON_SCHEMA, ProviderDiagnostic, providerDiagnostic(), ProviderFailure (+14 more)
+Cohesion: 0.13
+Nodes (18): openai@7.53.0, Answer, ContextPackage, ANSWER_JSON_SCHEMA, ProviderDiagnostic, providerDiagnostic(), ProviderFailure, redact() (+10 more)
 
 ### Community 40 - "env"
 Cohesion: 0.07
-Nodes (27): env, runs-on, steps, strategy, FACTORYGUARD_PYTHON, MPLBACKEND, OMP_NUM_THREADS, OPENBLAS_NUM_THREADS (+19 more)
+Nodes (28): continue-on-error, env, runs-on, steps, strategy, FACTORYGUARD_PYTHON, MPLBACKEND, OMP_NUM_THREADS (+20 more)
 
 ### Community 42 - "assess_development.py"
-Cohesion: 0.22
-Nodes (6): assess_table(), combined_load_check(), main(), plot_cross(), plot_history(), raw_storage_root()
+Cohesion: 0.29
+Nodes (5): assess_table(), combined_load_check(), main(), plot_cross(), plot_history()
 
 ### Community 43 - "README.md"
 Cohesion: 0.25
@@ -190,36 +201,36 @@ Cohesion: 0.13
 Nodes (7): disable(), enable(), flush(), write(), mark(), create_server(), get_investigation_summary()
 
 ### Community 45 - "contracts.ts"
-Cohesion: 0.15
-Nodes (13): priority(), alertData, alertSignal, claim, envelopeSchema, errorSummary, EvidenceRecord, expectedUnits (+5 more)
+Cohesion: 0.10
+Nodes (22): assembleContext(), priority(), providerContext(), alertData, alertSignal, answerSchema, claim, envelopeSchema (+14 more)
 
 ### Community 46 - "compilerOptions"
 Cohesion: 0.20
 Nodes (9): compilerOptions, module, moduleResolution, outDir, rootDir, skipLibCheck, strict, target (+1 more)
 
 ### Community 47 - "orchestrator.ts"
-Cohesion: 0.18
-Nodes (16): assembleContext(), answerSchema, requestSchema, validateCitations(), Activity, Dependencies, investigate(), call() (+8 more)
+Cohesion: 0.31
+Nodes (9): validateCitations(), Activity, Dependencies, investigate(), call(), InvestigationFailure, publicActivity(), OfflineFixtureProvider (+1 more)
 
 ### Community 48 - "evidence.py"
 Cohesion: 0.16
-Nodes (6): passages(), search_tokens(), sha(), tokens(), atomic_json(), protect_output()
+Nodes (5): search_tokens(), tokens(), atomic_json(), protect_output(), raw_storage_root()
 
 ### Community 52 - "mcp.ts"
 Cohesion: 0.08
-Nodes (23): loadLocalConfig(), LOCAL_NAMES, REPOSITORY_ROOT, requireLiveCredentials(), withoutCredentials(), manifest, assert, {chromium} (+15 more)
+Nodes (17): assert, {chromium}, fs, path, assert, {chromium}, fs, path (+9 more)
 
 ### Community 57 - "inspect_paderborn.py"
-Cohesion: 0.27
-Nodes (5): inspect_b01(), main(), _plot_excerpts(), _plot_overview(), peak_rss_mib()
+Cohesion: 0.18
+Nodes (6): plot_readings(), inspect_b01(), main(), _plot_excerpts(), _plot_overview(), peak_rss_mib()
 
 ### Community 58 - "optimization.test.ts"
-Cohesion: 0.12
-Nodes (5): waitForInvestigation(), envelope, request, Stream, sandbox
+Cohesion: 0.11
+Nodes (7): waitForInvestigation(), envelope, next(), request, Stream, sandbox, next()
 
 ### Community 59 - "adversarial.test.ts"
-Cohesion: 0.20
-Nodes (4): TOOL_NAMES, EvidenceClient, base, snapshot
+Cohesion: 0.18
+Nodes (5): requestSchema, TOOL_NAMES, EvidenceClient, base, snapshot
 
 ### Community 62 - "math"
 Cohesion: 0.50
@@ -227,35 +238,35 @@ Nodes (7): bearing(), circle(), hero(), rect(), shell(), text(), workflow()
 
 ### Community 65 - "numpy"
 Cohesion: 0.05
-Nodes (73): main(), generate(), main(), main(), main(), clean(), condition_key(), digest() (+65 more)
+Nodes (75): main(), generate(), main(), main(), main(), clean(), condition_key(), digest() (+67 more)
 
 ### Community 66 - "DocumentationIndex"
-Cohesion: 0.23
-Nodes (3): DocumentationIndex, SyntheticAssistantAdversarialTests, DocumentationWorkflowTests
+Cohesion: 0.15
+Nodes (5): DocumentationIndex, passages(), sha(), SyntheticAssistantAdversarialTests, DocumentationWorkflowTests
 
 ### Community 69 - "pipeline.test.ts"
-Cohesion: 0.19
-Nodes (14): selectionSchema, connectEvidence(), drainEvidenceStderr(), EvidenceDiagnostic, evidenceEnvironment(), EvidenceToolError, root(), ROOT (+6 more)
+Cohesion: 0.16
+Nodes (19): loadLocalConfig(), LOCAL_NAMES, REPOSITORY_ROOT, requireLiveCredentials(), withoutCredentials(), manifest, connectEvidence(), drainEvidenceStderr() (+11 more)
 
 ## Knowledge Gaps
 - **1 isolated node(s):** `factoryguard`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 422 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **33 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 424 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Store` connect `Store` to `numpy`, `event`, `pathlib`?**
-  _High betweenness centrality (0.241) - this node is a cross-community bridge._
+- **Why does `AssistantEvidenceTests` connect `AssistantEvidenceTests` to `test_assistant_evidence.py`, `DocumentationIndex`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **What connects `factoryguard` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `alerts/evaluate.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.12063492063492064 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11522048364153627 - nodes in this community are weakly interconnected._
+- **Why does `EvidenceService` connect `EvidenceService` to `DocumentationIndex`, `Selection`, `mcp_server.py`, `evidence.py`, `AssistantEvidenceTests`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Should `acquire_selected_paderborn.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.07337662337662337 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05555555555555555 - nodes in this community are weakly interconnected._
+- **Why does `PaderbornTests` connect `PaderbornTests` to `test_b01_features.py`?**
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Should `ForecastTests` be split into smaller, more focused modules?**
-  _Cohesion score 0.07380520266182698 - nodes in this community are weakly interconnected._
-- **Should `test_selection.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.14962121212121213 - nodes in this community are weakly interconnected._
-- **Should `Store` be split into smaller, more focused modules?**
-  _Cohesion score 0.09959183673469388 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09528214616096208 - nodes in this community are weakly interconnected._

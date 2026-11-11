@@ -105,25 +105,30 @@ directories. Reproducibility: `docs/development_release.md`.
 
 ## Next work and maintenance
 
-PR #8 Windows follow-up: `f942f64` completed with 6/8 jobs passing; both Windows
-assistant jobs failed 15/47 tests, zero skips. Development/core/static CI passes
-on Windows/Linux; Linux assistant CI passes. Missing Pydantic was fixed by locked
-optional test dependencies after the core-only build, without core package changes.
-Transport/thread/polling changes did not establish the remaining timeout's cause.
-Closeout: `reports/local/pr8-ci/diagnostic-f942f64-final.md`.
+PR #8 prototype platform closeout (2026-11-11): owner explicitly defers Windows
+assistant support. Its unchanged tests remain visible, with Windows-only job-level
+failure allowance; Linux assistant and both development/core jobs stay blocking.
+Linux assistant CI at `7ee0d12` passes 47 TS / 180 Python / 40 retrieval (zero skips).
+Local macOS Python 3.12.16 / Node 24.22.1 passes the same checks/build; not macOS CI.
+Windows N01 fails alone and in-suite: 15.24–15.33 s in alert-engine import, snapshot
+inside NumPy native loading (`multiarray.py:11`, importlib `create_module`), replay
+1–4 ms then frame received after unchanged 15 s deadline. Native cause unresolved;
+15/47 suite failures, no skips. No more Windows debugging in this release.
 
-Current bounded diagnostic instruments actual `connectEvidence` and the `python -m`
-MCP entrypoint used by N01. Python execution/import/replay, serialization, writes/
-flush and client receipt/validation emit only bounded static phases/timings/byte
-counts; stack locations contain no locals, payloads or environment. Diagnostic
-mode is explicit test-only; ordinary application calls do not enable it. Shared
-N01 assertions run alone and in the full suite in the same Windows CI environment;
-the full suite remains mandatory even when isolation fails. No timeout/threshold,
-dependency-boundary or scope change. Local build, isolated N01 and unfiltered
-47 TS tests pass. CI evidence and any final correction/stop decision are recorded
-under `reports/local/pr8-ci-actual/`; see PR #8 checks and
-`docs/results/investigation-alerts-v2/ci-followup.md`. Do not infer Windows success
-from local tests; stop if actual-path diagnostics cannot establish the cause.
+Both Ubuntu DNS-affected development jobs passed one authorized retry each:
+43061396890/job 130716701748 and 43061386018/job 130716735202 (180 Python tests and
+reviewer browser workflow/direct file). Fresh offline Chrome check passes alerts,
+acknowledgment distinct from clearance, replay/channel isolation, actual downloaded
+JSON/provenance and matching alert citation; desktop/mobile captured, 3.939 s,
+one offline deterministic fixture, zero paid calls/errors/external requests.
+All 51 frozen hashes match. Final-head CI and exact SHA are recorded in PR #8 and
+`reports/local/pr8-platform-closeout/`; support/commands/limits in
+`docs/results/investigation-alerts-v2/platform-closeout.md`. Original diagnostics
+under `reports/local/pr8-ci-actual/` preserved. No runtime source changes here.
+Master currently has no branch protection/rulesets; integration cannot administer
+settings. Required workflow policy is not claimed as repository-enforced gating.
+Owner must configure test(ubuntu), test(windows), assistant(ubuntu) if enforcing.
+PR remains draft/unmerged; final readiness requires checking its final head.
 
 Investigation alerts v2 final checkpoint (2026-11-10): pure deterministic Python,
 no LLM/key for detection. One frozen candidate, unchanged v1 thresholds/calibration,

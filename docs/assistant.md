@@ -6,6 +6,34 @@ independently. No forecasting model is retrained. The static site has no assista
 backend or credentials. Shared dashboard markup has an honest static unavailable
 state; only the local assistant service injects the API integration script.
 
+## Prototype platform support
+
+| Component/platform | Release scope | Observed verification |
+| --- | --- | --- |
+| Linux assistant | Supported prototype path | PR #8 CI: 47 TypeScript, 180 Python tests and 40 frozen lexical retrieval cases pass, zero skips |
+| Local macOS assistant | Locally verified | Python 3.12.16/Node 24.22.1: build, 47 TypeScript, 180 Python and 40 retrieval cases pass; not macOS CI |
+| Windows core/static dashboard | Retained release gate | Development workflow remains blocking; no failure allowance |
+| Windows assistant | **Unsupported for this prototype release** | Compatibility job still executes unchanged and reports failures, but is non-blocking at workflow level |
+
+Windows actual-path diagnostics place 15.24–15.33 seconds in the alert-engine
+import; a five-second snapshot is inside NumPy native-extension loading. Replay
+then takes 1–4 ms and the response reaches the client after the unchanged
+15-second tool deadline. N01 fails alone and in the full suite (15/47 failures,
+zero skips). The underlying native delay remains unresolved. Passing transport
+preflights do not establish Windows assistant support. No further Windows debugging
+is part of this release. [Diagnostic record](results/investigation-alerts-v2/ci-followup.md).
+
+Linux assistant and both development/core jobs remain blocking workflow checks.
+Their check names are `assistant (ubuntu-latest)`, `test (ubuntu-latest)` and
+`test (windows-latest)`; Windows `assistant (windows-latest)` is advisory.
+At closeout, `master` has no branch protection/rulesets; the connected integration
+cannot administer those settings. Repository-enforced required checks must be
+configured by the owner; workflow failure policy alone is not branch protection.
+
+This is an **investigation-alert prototype**. Missing fault ground truth prevents
+validated fault-detection, sensitivity and false-alarm-rate claims. Local/offline
+integration checks do not establish real-model answer quality or production safety.
+
 ## Setup and one-command startup
 
 Use the existing CPython 3.12 environment and Node.js >=22:
