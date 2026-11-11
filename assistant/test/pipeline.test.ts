@@ -1,3 +1,5 @@
+import { realEvidenceSummary } from "./real-evidence.js";
+import { waitForInvestigation } from "./helpers.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, mkdtempSync } from "node:fs";
@@ -45,24 +47,7 @@ execFileSync(
   { cwd: ROOT, stdio: "pipe", env: withoutCredentials() },
 );
 
-test("N01 real MCP discovers seven tools and executes a scoped Python summary", async () => {
-  const c = await connectEvidence(
-    request.selection,
-    AbortSignal.timeout(20000),
-  );
-  try {
-    assert.equal(c.tools.length, 7);
-    const r: any = await c.call(
-      "get_investigation_summary",
-      {},
-      AbortSignal.timeout(15000),
-    );
-    assert.equal(r.records[0].data.count, 8);
-    assert.equal(r.records[0].data.forecast.n, 7);
-  } finally {
-    await c.close();
-  }
-});
+test("N01 real MCP discovers seven tools and executes a scoped Python summary", realEvidenceSummary);
 test("N02 mandatory retrieval and assembled evidence precede the first generation call", async () => {
   let calls = 0;
   const events: any[] = [];
@@ -365,12 +350,7 @@ test("N11 API → MCP → Python → fixture response, SSE progress and validati
     });
     assert.equal(accepted.statusCode, 202);
     const id = accepted.json().request_id;
-    let state: any;
-    for (let i = 0; i < 100; i++) {
-      state = (await app.inject("/api/investigations/" + id)).json();
-      if (state.status !== "running") break;
-      await new Promise((r) => setTimeout(r, 50));
-    }
+    const state = await waitForInvestigation(app, id);
     assert.equal(state.status, "completed");
     assert.equal(state.result.context.selection.experiment, "B01");
     const progress = await app.inject("/api/investigations/" + id + "/events");
@@ -421,12 +401,7 @@ test("N13 explicit cancellation API reports failure and shuts down subprocess", 
       method: "POST",
       url: "/api/investigations/" + id + "/cancel",
     });
-    let state: any;
-    for (let i = 0; i < 100; i++) {
-      state = (await app.inject("/api/investigations/" + id)).json();
-      if (state.status !== "running") break;
-      await new Promise((r) => setTimeout(r, 20));
-    }
+    const state = await waitForInvestigation(app, id);
     assert.equal(state.status, "failed");
     assert.equal(state.error.code, "cancelled");
   } finally {

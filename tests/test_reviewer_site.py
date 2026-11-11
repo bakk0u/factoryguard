@@ -12,6 +12,11 @@ spec=importlib.util.spec_from_file_location('reviewer',ROOT/'scripts/build_revie
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
 class ReviewerSiteTests(unittest.TestCase):
+    def test_private_alert_journal_cannot_be_written_into_browser_export(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ValueError,'outside browser assets'):
+                module.build(tmp,Path(tmp)/'private.sqlite')
+            self.assertFalse((Path(tmp)/'private.sqlite').exists())
     def test_reviewer_sources_include_guidance_without_generation_and_scrub_build_child(self):
         with tempfile.TemporaryDirectory() as tmp:
             with patch.dict('os.environ',{'OPENAI_API_KEY':'synthetic-build-secret'}), patch.object(module.subprocess,'check_output',return_value='fixture-commit\n') as git:

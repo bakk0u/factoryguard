@@ -96,8 +96,8 @@ let browser;
  await page.locator('#queueSearch').fill('');await page.locator('#queueFilter').selectOption('all');
  await page.locator('[data-nav="2"]').click();assert.match(await page.locator('[data-view="2"]').innerText(),/not held-out/);
  await page.locator('[data-nav="4"]').click();assert.match(await page.locator('[data-view="4"]').innerText(),/remain incomplete/);
- assert.equal(await page.locator('[data-component]').count(),14);
- const expected={data:'Recorded experiments',forecasting:'Forecasting',snapshot:'Pinned evidence',dashboard:'Dashboard',orchestrator:'TypeScript orchestrator',mcp:'MCP connection',retrieval:'Python evidence retrieval',context:'RAG / context assembly',generation:'OpenAI generation',validation:'Citation validation',answer:'Answer + evidence',traces:'Local traces',hybrid:'Hybrid retrieval',hosting:'Restricted hosted demo'};
+ assert.equal(await page.locator('[data-component]').count(),15);
+ const expected={data:'Recorded experiments',forecasting:'Forecasting',snapshot:'Pinned evidence',alerts:'Investigation alerts',dashboard:'Dashboard',orchestrator:'TypeScript orchestrator',mcp:'MCP connection',retrieval:'Python evidence retrieval',context:'RAG / context assembly',generation:'OpenAI generation',validation:'Citation validation',answer:'Answer + evidence',traces:'Local traces',hybrid:'Hybrid retrieval',hosting:'Restricted hosted demo'};
  for(const [id,title] of Object.entries(expected)){
    await page.locator(`[data-component="${id}"]`).focus();await page.keyboard.press('Enter');
    assert.equal(await page.locator('#componentTitle').innerText(),title);
@@ -107,14 +107,15 @@ let browser;
    if(id==='hosting')assert.match(await page.locator('.component-status').innerText(),/Future · not implemented/i);
    if(id==='hybrid')assert.match(await page.locator('.component-status').innerText(),/unevaluated/i);
    await page.locator('#architectureDetail summary').click();
-   const link=await page.locator('#architectureDetail a').getAttribute('href');assert.ok(fs.existsSync(path.resolve(link.split('/blob/master/')[1])),`source exists for ${id}`);
+   if(id==='alerts'){assert.equal(await page.locator('#openLocalAlertPolicy').count(),1);assert.ok(fs.existsSync('src/factoryguard/alerts/engine_v2.py'));}
+   else{const link=await page.locator('#architectureDetail a').getAttribute('href');assert.ok(fs.existsSync(path.resolve(link.split('/blob/master/')[1])),`source exists for ${id}`);}
    await page.locator('#backToDiagram').click();assert.equal(await page.locator(`[data-component="${id}"]`).evaluate(el=>el===document.activeElement),true);
  }
  assert.equal(posts.length,1,'diagram interactions never submit an investigation');
  await page.locator('[data-component="dashboard"]').click();await page.evaluate(()=>scrollTo(0,0));
  await page.screenshot({path:path.join(output,'engineering-desktop.png'),fullPage:true});
  await page.locator('[data-nav="2"]').click();await page.screenshot({path:path.join(output,'methods-desktop.png'),fullPage:true});
- checks.push('Layout 3 revealed-only Attention rail/filter, concise Start, desktop parallel columns; all 14 architecture components open correct explanations/examples/sources by keyboard, future and unverified states distinct, no diagram POST');
+ checks.push('Layout 3 revealed-only Attention rail/filter, concise Start, desktop parallel columns; all 15 architecture components open correct explanations/examples/sources by keyboard, future and unverified states distinct, no diagram POST');
  for(const width of [1024,390]){
    await page.setViewportSize({width,height:844});
    for(const view of ['0','1','3','2','4']){

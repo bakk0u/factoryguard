@@ -1,6 +1,6 @@
 # FactoryGuard project memory
 
-Verified 2026-11-10 (Europe/Berlin). This is orientation, not a source of new
+Verified 2026-11-11 (Europe/Berlin). This is orientation, not a source of new
 authorization. Read AGENTS.md first. Recheck Git state and graph freshness; facts
 below describe the reviewed checkout and can age. Do not paste the whole history.
 
@@ -23,16 +23,13 @@ Runs are separate bearings; A/C are vibration channels. Preserve synthetic demo.
 
 ## Verified state and evidence
 
-- Publication preparation 2026-11-10: `feature/assistant-setup-layout3` is based on
-  master `c23c79d` (PR #6), following assistant PR #5. Current owner authorization
-  permits the scoped assistant/setup/dashboard commit, feature push, draft PR to
-  master and sanitized artifacts on `review-handoff`; no merge or deployment.
-  Check live Git/PR state. Handoff policy is `docs/coordination/STATUS.md` on
-  `review-handoff`; preserve its reviewer-owned `REVIEW.md`. Pages requires an
-  explicit manual `PUBLISH` dispatch; feature/PR pushes only run offline CI checks.
-- PR #1 merged in `fc772e5`. Reviewer/report work: `bb718c4`; source-review fixes:
-  `f10b225`, `bb718c4`; site artifact upload: `d6a69a9`. Release docs: `5491b34`,
-  `c2c791e`; public verification record: `77445c8`, live link: `2b9108f`.
+- CI-fix work uses local `fix/pr8-ci`, based on PR #8's published head
+  `754cf5d2f9e77479bd162ff9fd52d75e71853b88`. Original local checkpoint
+  `1db617777c17ebc05185a9cc6db757cad8195035` remains on
+  `feature/investigation-alerts-v1`; publication through the GitHub integration
+  changed commit metadata, not its tree. PR #8 targets master. Current user
+  authorization permits CI fixes and updates to that PR, not merge/deployment,
+  paid requests, forecasting changes or B03 access. Preserve unrelated work.
 - Public site: https://bakk0u.github.io/factoryguard/ . The committed
   `docs/release_verification.md` records an independently connected-browser check
   of populated B01 and downloaded JSON on 2026-10-27: build/source `fc772e5`,
@@ -46,18 +43,9 @@ Runs are separate bearings; A/C are vibration channels. Preserve synthetic demo.
   in reciprocal B01/B02 **development selection**, not held-out accuracy or fault
   detection. B01 alpha .2, B02 .5, B04 diagnostic .2; final pooled rule .5 is
   separate. All evaluated variants remain, including unfavorable ones.
-- Prior handover: 116 Python tests; exact exported-event and comparison-row
-  preservation; hosted browser regression checks. Earlier independently reported
-  Windows/Ubuntu CI: d5be7be, run 40402759560. Do not infer later CI passes.
-- Context integration check on 2026-11-07: all **122 local tests passed** (116
-  existing + 6 context integrity/isolation tests). Local AST graph: 688 nodes,
-  1,926 relationships; `export() → Store` verified EXTRACTED. Incremental no-change
-  update and CLI query/path/explain retrieval succeeded. No new remote CI claim.
-- API operations previously returned Forbidden; Git transport worked. Direct
-  `file://` tests were blocked by local managed Chromium policy; CI requires them.
-  Release v0.3.0 was proposed (package version .3.0); tag/release/About state must
-  be rechecked, not assumed from the old proposed notes. No software LICENSE is
-  declared in the reviewed root; dataset descriptors are attributed CC BY 4.0.
+- Earlier remote/public checks are historical. Current local checks below do not
+  imply new CI, hosted verification or a live-model quality evaluation. Detailed
+  release history is in Git and `docs/project_status.md`.
 
 ## Locate only the relevant components
 
@@ -68,6 +56,7 @@ Runs are separate bearings; A/C are vibration channels. Preserve synthetic demo.
 | Reference bins / notices / sustained windows | `release/context.py`, `release/investigation.py` |
 | Portable UI and reviewer-only controls | `release/dashboard.html`, `site/reviewer.js` |
 | Static build, snapshot integrity | `scripts/build_reviewer_site.py`, `site/source-manifest.json` |
+| Deterministic alerts / journal / evaluation | `src/factoryguard/alerts/{engine_v2,journal,evaluate_v2}.py` (v1 modules preserved), `configs/investigation_alerts_v2*.json`, `docs/investigation_alert_protocol_v2.md`, `site/alerts.js` |
 | Optional evidence assistant | `assistant/src/` (Fastify/MCP client/Responses orchestration), `src/factoryguard/assistant/` (Python read-only evidence/MCP/index/workflows), `docs/assistant.md` |
 | Streaming loading / burst features | `src/factoryguard/data/paderborn.py`, `features/b01.py`, `pipelines/features_paderborn.py` |
 | Frozen campaign / causal features / audit | `release/campaign.py`, `release/modeling.py`, `release/reporting.py`, `models/selection.py` |
@@ -81,18 +70,9 @@ a long historical log; read only relevant milestones. Source overrides stale pro
 
 ## Session and verification commands
 
-User preference: at the start of every session and before each new prompt, run
-the status and baseline query below. After making changes, run the context update
-before handoff. If stale, update before retrying the query; report unavailable
-tooling honestly. Additional queries should be specific to the actual task.
-
-Automatic-loading contract: launch Codex from the repository root on a branch
-containing this integration. Codex loads root AGENTS instructions; they direct
-the agent to read this file and run commands. Memory is not automatically inlined
-and the optional hook does not execute startup commands. A fresh native prompt
-diagnostic was blocked here by the Codex runtime's read-only filesystem; no
-end-to-end future-session auto-load claim is made. Fresh clones need `setup` for
-the ignored tool environment. No missing tool silently falls back to a fake graph.
+Before each new prompt run status and the baseline query below. After material
+changes run update. Missing/stale tools must be reported; no invented graph edges.
+Start Codex from this root; AGENTS directs memory/bootstrap, not an automatic hook.
 
 Run from repository root. Existing `.venv` is the application environment
 (CPython 3.12, requirements-lock.txt; campaign tests add requirements-campaign.txt).
@@ -119,37 +99,89 @@ MPLCONFIGDIR=/tmp/factoryguard-matplotlib XDG_CACHE_HOME=/tmp/factoryguard-cache
 CHROMIUM_PATH=/usr/bin/chromium node scripts/verify_reviewer_workflow.cjs
 ```
 
-Windows: use `.venv\Scripts\python.exe`; omit Linux cache/browser overrides.
-The browser check requires Playwright/Chromium. Do not run it or the full suite
-for every documentation-only change. Match checks to risk; fresh demo output
-paths avoid stale artifacts. Use `docs/development_release.md` for full setup.
-Website notes are browser-local, isolated by snapshot+experiment (warned tab-only
-fallback); SQLite persistence applies to the optional local-server app, not Pages.
+Windows: `.venv\Scripts\python.exe`. Match checks to risk; do not repeat the full
+suite for docs-only changes. Browser checks need Playwright/Chrome; use fresh output
+directories. Reproducibility: `docs/development_release.md`.
 
 ## Next work and maintenance
 
-Reviewer redesign / Layout 3 (2026-11-10): canonical replay engine stays in
-`release/dashboard.html` + `site/reviewer.js`; `site/reviewer_experience.js` and
-`site/reviewer.css` add Start here, deterministic five-step B01/A 1–3 guidance,
-verified artifact-derived facts, scoped assistant next to selected-channel plots,
-readable answer sections/citations, queue filters and methods/engineering views.
-`site/layout3.css` adds the approved narrow rail/Attention/workspace layout;
-`site/architecture.js` provides 14 interactive system components with examples,
-source contracts, focus return and distinct future/unevaluated labels. No diagram
-action submits a request. Start has 119 visible words; charts/labels/disclosures
-keep scientific limits accessible. Revealed-only rail filters share queue evidence.
-Build script inlines sources; CSS is freshness-hashed. Static guidance requires no
-key and explicitly marks new generation unavailable. Local assistant defaults to
-fixture mode, suggestions do not submit, and traces stay expandable. No saved AI
-answer or paid generation was used. Existing backend/model/config bounds remain.
-Real Chrome via isolated `.tools/browser` Playwright 1.58.2 passed desktop/mobile,
-keyboard/focus, citation and mocked states; legacy reviewer/notes/report/direct-file
-and MCP-backed fixture browser checks passed. Build, **41 TS / 144 Python / 40 frozen
-cases** passed without skips. Offline local service on `http://127.0.0.1:8786/`;
-no claim of a new live-model check, remote CI or production readiness. Captures:
-`reports/local/layout3/`; details: `docs/results/assistant-v1/layout3.md` (previous
-redesign report/captures preserved). Current checks include all architecture
-components, desktop parallel columns, tablet/mobile/no overflow and static map.
+PR #8 prototype platform closeout (2026-11-11): owner explicitly defers Windows
+assistant support. Its unchanged tests remain visible, with Windows-only job-level
+failure allowance; Linux assistant and both development/core jobs stay blocking.
+Linux assistant CI at `7ee0d12` passes 47 TS / 180 Python / 40 retrieval (zero skips).
+Local macOS Python 3.12.16 / Node 24.22.1 passes the same checks/build; not macOS CI.
+Windows N01 fails alone and in-suite: 15.24–15.33 s in alert-engine import, snapshot
+inside NumPy native loading (`multiarray.py:11`, importlib `create_module`), replay
+1–4 ms then frame received after unchanged 15 s deadline. Native cause unresolved;
+15/47 suite failures, no skips. No more Windows debugging in this release.
+
+Both Ubuntu DNS-affected development jobs passed one authorized retry each:
+43061396890/job 130716701748 and 43061386018/job 130716735202 (180 Python tests and
+reviewer browser workflow/direct file). Fresh offline Chrome check passes alerts,
+acknowledgment distinct from clearance, replay/channel isolation, actual downloaded
+JSON/provenance and matching alert citation; desktop/mobile captured, 3.939 s,
+one offline deterministic fixture, zero paid calls/errors/external requests.
+All 51 frozen hashes match. Final-head CI and exact SHA are recorded in PR #8 and
+`reports/local/pr8-platform-closeout/`; support/commands/limits in
+`docs/results/investigation-alerts-v2/platform-closeout.md`. Original diagnostics
+under `reports/local/pr8-ci-actual/` preserved. No runtime source changes here.
+Master currently has no branch protection/rulesets; integration cannot administer
+settings. Required workflow policy is not claimed as repository-enforced gating.
+Owner must configure test(ubuntu), test(windows), assistant(ubuntu) if enforcing.
+PR remains draft/unmerged; final readiness requires checking its final head.
+
+Investigation alerts v2 final checkpoint (2026-11-10): pure deterministic Python,
+no LLM/key for detection. One frozen candidate, unchanged v1 thresholds/calibration,
+no search or outcome tuning. Counted level confirmations and recovery require
+three disjoint scoring windows; residual/context use distinct current observations.
+Shared anchors/references and serial measurements are not independent evidence.
+Isolated level-window echoes cannot activate alone; level decisions are delayed
+four observations relative to earliest v1 activation. Raw trailing means unchanged.
+
+Signals retain separate eligibility/reasons, score/threshold/units and provenance.
+Availability is full/limited/unavailable (internal full enum remains `available`).
+Condition Watch/Active/Cleared is separate from current supported/unresolved-
+unavailable/hysteresis/recovery-pending assessment. Additional persistent signals
+escalate evidence scope without another activation notification. Acknowledgment is
+not clearance. SQLite journal and portable browser-local acknowledgment stay
+separate; cursor-scoped exports/citations, queue/investigate and notes still work.
+
+A synthetic regression found reset reanchoring could clear an unchanged elevated
+level. Fixed against the frozen no-adaptation requirement: retain active level
+anchor/bin across history reset and subsequent recovery. Failed regression and
+first v2 evaluation retained; one separate correctness recheck, no threshold or
+policy-file change. All eight cells keep identical calibration, episode counts
+and active durations before/after this fix; some assessment details changed.
+V1 engine/config/protocol/report and both evaluations remain byte-identical.
+See `docs/results/investigation-alerts-v2/report.md`; local logs/evaluations and
+final screenshots: `reports/local/alerts-v2/` (`final-browser/`).
+
+Final **180 Python / 44 TS / 40 frozen lexical cases**, TS build/site builds and
+four Chrome workflows pass, zero skips. Legacy browser launcher initially lacked
+`python`; explicit URL argument works. No stalls/retry loops/paid calls. One local
+checkpoint commit includes previously uncommitted v1 prerequisites and final v2;
+Git HEAD and local completion record identify it. All artifacts remain local.
+Graph1158nodes/3119edges before final documentation refresh. Existing services
+left untouched; dedicated offline test service on8788 stopped after checks.
+Reproduce: `env -u OPENAI_API_KEY FACTORYGUARD_ASSISTANT_PORT=8788 .venv/bin/python scripts/start_assistant.py`.
+
+B01 prefix1–150, validation151–263, reserved264–377; B02 prefix1–446,
+validation447–781, reserved782–1116, unchanged inspected development diagnostics.
+No fully available evaluation rows: B01 context unsupported, B02 context partial;
+long active episodes remain. No normal/fault event intervals/onset exist. Precision,
+recall, false alarms and delay remain null, durations observations not hours.
+B04 remains unavailable diagnostic; B03 completely sealed. Prototype complete
+within scope, not validated fault alarms or production. Independent human,
+real-model quality/prompt-injection and restricted-hosting evaluations unverified.
+
+Layout3 source remains `release/dashboard.html` + `site/reviewer.js`,
+`site/reviewer_experience.js`, `site/reviewer.css`, `site/layout3.css` and
+`site/architecture.js` (now15 interactive nodes). Start here, deterministic B01/A
+1–3 guidance, desktop parallel measurements/assistant, mobile order, citations,
+notes/report/queue remain. Suggestions/diagram/investigate never auto-submit.
+Canonical builder inlines source; static mode is useful without a backend/key.
+Prior redesign: `docs/results/assistant-v1/layout3.md`, captures
+`reports/local/layout3/`; final alert screenshots are separate and do not replace it.
 
 XGBoost setup is resolved: Python 3.12.16/macOS 27.2 arm64 uses pinned XGBoost
 3.0.5 and checksum-verified local libomp in `.tools` via
@@ -164,47 +196,27 @@ precedence, model choice and offline default; `.env.local` remains ignored,
 untracked and owner-only. Python/MCP/site-build/Git children exclude credentials.
 Safe provider diagnostics retain selected bounded/redacted status/code/type/
 parameter/request ID/message without raw errors/headers/bodies/causes; SDK logging
-is off. Earlier authorized smoke/credit-balance failures and one successful
-`gpt-5.4-mini-2026-03-17` pipeline check are recorded in `docs/assistant.md`.
-Those historical results do not verify the latest changed dashboard version or
-imply permission for another paid request.
+is off. Historical live checks in `docs/assistant.md` do not validate changed versions or
+authorize another paid request.
 
-Dashboard offline audit (2026-11-09): preserved actual API response and trace for
-`2d7ed00c-f795-4afe-a177-83fbfb7d5284`. B01/A 1–3/as_of=3, default dashboard
-question, returned `gpt-5.4-mini-2026-03-17`, 12,155 ms, one turn, 7,116 input /
-1,801 output tokens. All 25 citation references resolve to five records; quoted
-numbers are correct. Qualify descriptive “sudden,” two-point absolute error change
-and endpoint-only speed/load differences. Causal attribution remains unverified;
-original nested off-channel numbers were a scope defect, now projected out.
-Original artifacts remain unchanged; no original citation interaction was observed.
-Screenshot rendering/control evidence is user-supplied, not a new browser check.
+Historical dashboard response/trace `2d7ed00c-f795-4afe-a177-83fbfb7d5284` is
+preserved under `reports/local/assistant/review-2d7ed00c/`. Audit found correct
+quoted numbers but qualified trend/causal wording and an off-channel projection
+bug, fixed afterward. That live response does not validate changed alert code.
 
-Offline changes: in-flight scope-aware coalescing and lost-connection guards,
-compact response activities, one-pass/bounded context with explicit missing
-truncation/conflict detection, lossless provider provenance/tool-schema compaction,
-refusal/incomplete handling, lexical normalization and idempotent MCP close.
-No evidence cache, pooled MCP or parallel retrieval. Build, 37 TS tests, 18 assistant
-Python tests and 40 frozen cases passed. Full Python suite: 140 run, 139 passed,
-one absent optional-XGBoost error. Result bytes 75,430→27,283; schemas 6,247→1,875;
-assembly median 0.1621→0.0641 ms. Selected values/units/citations preserved;
-canonical context slightly grew. No token/billing savings inferred. No new live
-calls; prior local live server stopped after preserving the response. Changed
-version needs new authorization for live verification. Details/corrections and
-remaining hosted-demo/human/prompt-injection work:
-`docs/results/assistant-v1/dashboard-offline-review.md`; local preserved artifacts
-and measurements: `reports/local/assistant/review-2d7ed00c/`.
+Offline optimization history, measurements, corrections and remaining human/
+prompt-injection/hosting work: `docs/results/assistant-v1/dashboard-offline-review.md`;
+original artifacts: `reports/local/assistant/review-2d7ed00c/`. No evidence cache,
+pooled MCP or parallel retrieval was added. New versions need separate explicit
+live authorization; prior historical model results do not validate changed code.
 
 Assistant workflow contracts/lifecycle: `docs/assistant.md`. Historical assistant
 verification/CI and hybrid/telemetry limitations are in
 `docs/results/assistant-v1/report.md`. Hybrid quality and independent human review
 remain unverified; no model download or paid evaluation is implied by these notes.
 
-Scientific next step remains readiness review, not B03 evaluation:
-freeze method/preprocessing/eligibility/metrics, compare reviewed implementation
-and artifact hashes with the existing plan, independently review measurement
-meaning before signals/outcomes, then obtain separate authorization for one
-evaluation against persistence with unfavorable outcomes retained. Never update
-the plan simply to bypass mismatches.
+B03 remains sealed; the existing readiness plan is not changed by alert work.
+No further implementation/evaluation campaign is authorized by this checkpoint.
 
 After a material change, update only affected facts/pointers/checks here; keep
 this file around 1,500 words or less. Put detailed decisions in docs/ and Git.

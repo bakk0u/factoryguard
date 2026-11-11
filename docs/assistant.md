@@ -6,6 +6,34 @@ independently. No forecasting model is retrained. The static site has no assista
 backend or credentials. Shared dashboard markup has an honest static unavailable
 state; only the local assistant service injects the API integration script.
 
+## Prototype platform support
+
+| Component/platform | Release scope | Observed verification |
+| --- | --- | --- |
+| Linux assistant | Supported prototype path | PR #8 CI: 47 TypeScript, 180 Python tests and 40 frozen lexical retrieval cases pass, zero skips |
+| Local macOS assistant | Locally verified | Python 3.12.16/Node 24.22.1: build, 47 TypeScript, 180 Python and 40 retrieval cases pass; not macOS CI |
+| Windows core/static dashboard | Retained release gate | Development workflow remains blocking; no failure allowance |
+| Windows assistant | **Unsupported for this prototype release** | Compatibility job still executes unchanged and reports failures, but is non-blocking at workflow level |
+
+Windows actual-path diagnostics place 15.24–15.33 seconds in the alert-engine
+import; a five-second snapshot is inside NumPy native-extension loading. Replay
+then takes 1–4 ms and the response reaches the client after the unchanged
+15-second tool deadline. N01 fails alone and in the full suite (15/47 failures,
+zero skips). The underlying native delay remains unresolved. Passing transport
+preflights do not establish Windows assistant support. No further Windows debugging
+is part of this release. [Diagnostic record](results/investigation-alerts-v2/ci-followup.md).
+
+Linux assistant and both development/core jobs remain blocking workflow checks.
+Their check names are `assistant (ubuntu-latest)`, `test (ubuntu-latest)` and
+`test (windows-latest)`; Windows `assistant (windows-latest)` is advisory.
+At closeout, `master` has no branch protection/rulesets; the connected integration
+cannot administer those settings. Repository-enforced required checks must be
+configured by the owner; workflow failure policy alone is not branch protection.
+
+This is an **investigation-alert prototype**. Missing fault ground truth prevents
+validated fault-detection, sensitivity and false-alarm-rate claims. Local/offline
+integration checks do not establish real-model answer quality or production safety.
+
 ## Setup and one-command startup
 
 Use the existing CPython 3.12 environment and Node.js >=22:
@@ -42,6 +70,39 @@ Layout 3 keeps measurements beside the assistant on desktop and uses concise
 labels/disclosures. Its interactive Engineering diagram explains the actual
 retrieval-before-generation path and distinguishes future/unevaluated components;
 diagram interactions make no API or model request.
+
+MCP numerical subprocesses use explicit UTF-8 and one BLAS/OpenMP/MKL thread,
+while retaining the SDK's safe system environment and excluding the generation
+key. Timeout diagnostics identify initialize, discovery or tool-call phases without
+dumping child stderr or environment. Production MCP/request budgets remain 15/60
+seconds. See the [cross-platform CI follow-up](results/investigation-alerts-v2/ci-followup.md).
+MCP stdout stays buffered beneath the SDK's UTF-8 wrapper, which explicitly flushes
+each message. Enabling Python unbuffered mode can truncate short Windows pipe
+writes; the client would receive an incomplete JSON frame and time out. Piped
+MCP stderr is continuously discarded so diagnostics cannot block tool responses;
+raw child diagnostics are never forwarded to logs or traces.
+
+### Deterministic investigation alerts
+
+The local dashboard also shows Python-produced investigation-alert state,
+monitoring availability, values/thresholds in V and a versioned transition ledger.
+Detection works without an LLM; **Investigate evidence** only selects a period and
+populates a question. A separate explicit submission can explain retrieved alert
+evidence afterward. The assistant cannot activate/clear an alert or set thresholds.
+Acknowledgment never clears a condition. Missing evidence never implies health.
+
+Portable-view acknowledgments are browser-local; the Python server's alert API
+persists its own acknowledgments in a separate private journal. No database is
+copied into browser assets. MCP evidence remains channel/period/cursor bounded;
+calibration thresholds are withheld before the prefix completes. All current
+evaluation rows have limited/unavailable monitoring. V2 counts disjoint level
+windows, retains an active episode's fixed level anchor across gaps, and requires
+fresh recovery evidence. Current support, unavailable assessment, hysteresis and
+recovery are shown separately from episode state. Shared baselines and serial
+readings remain correlated. These are investigation prompts, not validated faults.
+See the [frozen v2 protocol](investigation_alert_protocol_v2.md) and
+[final verification/results](results/investigation-alerts-v2/report.md).
+The original [v1 record](results/investigation-alerts-v1/report.md) is preserved.
 
 ### Optional XGBoost test setup on macOS
 

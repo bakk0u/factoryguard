@@ -28,7 +28,8 @@ if __name__ == '__main__':
     if not (ROOT/'assistant/node_modules/tsx/dist/cli.mjs').is_file():
         p.error('Run npm ci --prefix assistant first')
     DocumentationIndex(ROOT/'reports/local/assistant/docs.sqlite').refresh(embeddings=a.embeddings)
-    subprocess.run([sys.executable,str(ROOT/'scripts/build_reviewer_site.py'),'--output',str(ROOT/'reports/local/assistant-site')],cwd=ROOT,check=True,env=child_environment())
+    subprocess.run([sys.executable,str(ROOT/'scripts/build_reviewer_site.py'),'--output',str(ROOT/'reports/local/assistant-site'),
+                    '--alert-journal',str(ROOT/'reports/local/assistant/alerts.sqlite')],cwd=ROOT,check=True,env=child_environment())
     node=shutil.which('node')
     if not node: p.error('Node.js >=22 is required')
     version = subprocess.check_output([node, '--version'], env=child_environment(), text=True)

@@ -27,6 +27,18 @@ the optional local service upgrades it to fixture or explicitly live mode. Citat
 controls open values/units and stable source provenance in a focusable panel;
 Escape closes the panel and returns focus. Detailed traces remain expandable.
 
+The local alert extension shows deterministic condition state separately from
+monitoring availability, with values/units, version and expandable transitions.
+**Investigate evidence** selects a period/question without submission; acknowledge
+records review without clearing. Replay hides later episodes. Portable acknowledgments
+are browser-local, and exports include the visible ledger. V2 counts disjoint level
+windows, reports each signal's eligibility and separates current support from
+unresolved/unavailable assessment. Recovery needs fresh evidence; gaps cannot
+replace an active level episode's anchor. Unsupported context and correlated
+baseline limitations stay visible. This is an investigation-alert
+prototype, not validated fault detection; see the
+[final verification report](results/investigation-alerts-v2/report.md).
+
 **Methods & results** contains the baseline/selected method explanation, scoped
 development results, filterable full comparisons, coverage and provenance.
 **Engineering** explains the architecture, local setup and implemented versus

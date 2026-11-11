@@ -1,3 +1,4 @@
+import { waitForInvestigation } from "./helpers.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import OpenAI from "openai";
@@ -151,12 +152,7 @@ test("local API failure response exposes only sanitized provider diagnostics", a
     const accepted = await app.inject({ method: "POST", url: "/api/investigations", payload: request });
     assert.equal(accepted.statusCode, 202);
     const id = accepted.json().request_id;
-    let state: any;
-    for (let i = 0; i < 100; i++) {
-      state = (await app.inject(`/api/investigations/${id}`)).json();
-      if (state.status !== "running") break;
-      await new Promise(r => setTimeout(r, 50));
-    }
+    const state = await waitForInvestigation(app, id);
     assert.equal(state.status, "failed");
     assert.equal(state.error.code, "provider_failure");
     assert.deepEqual(state.error.provider_error, diagnostic);

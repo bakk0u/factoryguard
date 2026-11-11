@@ -1,0 +1,16 @@
+{
+  "stage": "frozen before alert implementation/evaluation results",
+  "files": {
+    "configs/investigation_alerts_v1.json": "b5ab48eccd5178f2a035a8df48c2b48eb6330e78902b304a0d6f3c0d96dd9d3c",
+    "docs/investigation_alert_protocol.md": "edd16b96c48f31d630e880a9b08ce52344bdb531b469f983867f2b8bed69ffcf"
+  },
+  "candidate_count": 1,
+  "evaluation_inspected": false,
+  "B03": "sealed; reserve plan unchanged",
+  "pre_evaluation_clarifications": [
+    {
+      "prior_protocol_sha256": "b0a304df3edf35b0f0bc8d49e4f65bb1622ed0911996235531f4120ff1272bd1",
+      "reason": "Development annotation-schema audit identified the existing selected-channel zero-variance quality flag; explicitly withhold monitoring for it. Before any real alert evaluation, no threshold/persistence change or tuning."
+    }
+  ]
+}

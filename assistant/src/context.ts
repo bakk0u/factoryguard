@@ -110,6 +110,7 @@ export function providerContext(context: ContextPackage) {
   return { ...context, facts: context.facts.map(compact), passages: context.passages.map(compact), sources };
 }
 function priority(r: EvidenceRecord) {
+  if (r.kind === "alert") return 2.5; // Keep deterministic availability/state with quality evidence.
   return r.kind === "period"
     ? 0
     : r.kind === "state"

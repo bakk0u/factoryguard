@@ -1,0 +1,11 @@
+{
+  "stage": "frozen before v2 implementation and development evaluation",
+  "candidate_count": 1,
+  "evaluation_inspected": false,
+  "files": {
+    "configs/investigation_alerts_v2.json": "e386cb6a3c20d820c7c0674c80299892996ae334e3a515482fc6b7dadcc8e9e9",
+    "docs/investigation_alert_protocol_v2.md": "6b444539bafd4aed74bc350a5d0541567a1a111641511afd128ef5fd3b1bd99e"
+  },
+  "thresholds_and_calibration": "unchanged v1 numerical rules",
+  "comparison": "already inspected development diagnostics only"
+}

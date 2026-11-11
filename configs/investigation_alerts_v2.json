@@ -1,0 +1,30 @@
+{
+  "version": "investigation-alerts-v2",
+  "activation_quantile": 0.99,
+  "minimum_calibration": 20,
+  "minimum_reference": 20,
+  "numeric_floor_v": 1e-09,
+  "context_iqr_multiplier": 3.0,
+  "clear_fraction": 0.6,
+  "activation_persistence": 3,
+  "clearing_persistence": 3,
+  "window": 3,
+  "gap_limit_csv_s": 24,
+  "splits": {
+    "B01": {
+      "total": 377,
+      "calibration_stop": 150,
+      "validation_stop": 263
+    },
+    "B02": {
+      "total": 1116,
+      "calibration_stop": 446,
+      "validation_stop": 781
+    }
+  },
+  "diagnostic_only": [
+    "B04"
+  ],
+  "fresh_evidence": "disjoint_scoring_observations",
+  "episode_assessment": "current_support_and_fresh_recovery"
+}

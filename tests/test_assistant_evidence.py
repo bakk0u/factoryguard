@@ -25,13 +25,18 @@ import importlib.abc, sys, tempfile
 from pathlib import Path
 class BlockOptional(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, *args):
-        if fullname.split('.')[0] in ('mcp', 'fastembed', 'onnxruntime'):
+        if fullname.split('.')[0] in ('mcp', 'pydantic', 'pydantic_core', 'fastembed', 'onnxruntime'):
             raise ImportError('Optional dependency intentionally blocked')
 sys.meta_path.insert(0, BlockOptional())
 from factoryguard.release.application import demo
+from scripts.build_reviewer_site import build
 with tempfile.TemporaryDirectory() as temp:
     path=demo(Path(temp)/'demo')
     assert (path/'replay.sqlite').is_file()
+    site=build(Path(temp)/'site')
+    html=(site/'index.html').read_text(encoding='utf-8')
+    assert 'const alertReplay=' in html
+    assert 'investigation-alerts-v2' in html
 '''
         subprocess.run([sys.executable, '-c', code], check=True, capture_output=True)
 
