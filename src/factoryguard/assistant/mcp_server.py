@@ -4,6 +4,7 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 from factoryguard.assistant.evidence import EvidenceService, Selection, LIMITS
 from factoryguard.assistant.retrieval import DocumentationIndex, ROOT
+from factoryguard.assistant.diagnostics import enable, disable, mark
 
 
 def create_server(service=None, index=None):
@@ -29,7 +30,14 @@ def create_server(service=None, index=None):
     @server.tool()
     def get_investigation_summary(selection: Selection) -> dict:
         """Python-computed selected-period RMS and scored forecast/persistence errors."""
-        return service.get_investigation_summary(selection)
+        mark('python_tool_enter')
+        try:
+            result = service.get_investigation_summary(selection)
+            mark('python_tool_return')
+            return result
+        except Exception:
+            mark('python_tool_error')
+            raise
 
     @server.tool()
     def get_data_quality_report(selection: Selection) -> dict:
@@ -52,4 +60,8 @@ def create_server(service=None, index=None):
 
 
 if __name__ == '__main__':
-    create_server().run(transport='stdio')
+    enable()
+    try:
+        create_server().run(transport='stdio')
+    finally:
+        disable()

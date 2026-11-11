@@ -29,9 +29,16 @@ jobs:
       - run: npm ci --prefix assistant
       - run: python -m factoryguard.assistant.workflows index
       - run: npm run build --prefix assistant
+      - name: Actual N01 MCP test alone
+        id: isolated_mcp
+        working-directory: assistant
+        run: node --import tsx --test --test-timeout=60000 test/isolated-mcp.ts
       - name: MCP platform preflight
+        if: ${{ !cancelled() && steps.isolated_mcp.outcome != 'skipped' }}
         working-directory: assistant
         run: node --import tsx --test --test-timeout=60000 test/stdio.test.ts
-      - run: npm test --prefix assistant
+      - name: Full assistant suite including the same N01
+        if: ${{ !cancelled() && steps.isolated_mcp.outcome != 'skipped' }}
+        run: npm test --prefix assistant
       - run: python -m unittest discover -s tests -v
       - run: python -m factoryguard.assistant.evaluate

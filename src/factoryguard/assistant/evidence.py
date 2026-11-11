@@ -9,6 +9,7 @@ import sqlite3
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from factoryguard.assistant.diagnostics import mark
 
 from factoryguard.assistant.retrieval import ROOT, sha
 
@@ -192,14 +193,19 @@ class EvidenceService:
                               ('context__measured_static_load_n', 'N'),
                               ('context__measured_dynamic_peak_n', 'N'),
                               ('feature__T1_above_room_c', 'degC'), ('feature__T2_above_room_c', 'degC'))}
+        mark('python_summary_computed')
         return self.envelope(s, [self.record(s, 'period', f'{s.start}-{s.stop}-asof-{s.as_of}', data), self.alert_record(s, events)],
                              [] if scored else [{'code': 'no_settled_pairs', 'detail': 'No scored forecast comparisons in the selected period'}])
 
     def alert_record(self, s, events):
         """Derived alerts are causal, read-only and scoped; no journal writes or model calls."""
+        mark('python_alert_import_begin')
         from factoryguard.alerts.engine_v2 import replay, load_policy, fingerprint
+        mark('python_alert_import_end')
         policy = load_policy(self.root)
+        mark('python_alert_replay_begin')
         result = replay(events[:s.stop], s.experiment, s.channel, policy)
+        mark('python_alert_replay_end')
         frame = result['frames'][-1]
         transitions = [t for t in result['transitions'] if s.start <= t['position'] <= s.stop]
         body = {k: frame[k] for k in ('position','run','channel','state','availability','reasons','signals',

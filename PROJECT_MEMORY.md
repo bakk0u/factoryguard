@@ -105,27 +105,25 @@ directories. Reproducibility: `docs/development_release.md`.
 
 ## Next work and maintenance
 
-PR #8 CI follow-up (2026-11-11): development jobs installed only campaign/core
-packages then discovered an optional Pydantic-dependent test; add existing locked
-assistant dependencies for the full test phase, after core build/browser checks.
-Runtime requirements remain optional. Strengthened isolation test blocks Pydantic,
-MCP and embedding imports while running the demo and alert-enabled static build.
-Windows real MCP calls timed out; child environments now explicitly bound numerical
-threads and UTF-8, with fixed-code initialize/discovery/tool timeout diagnostics.
-API tests wait for terminal state within the unchanged request deadline; all
-assertions and real MCP coverage remain. Updated Windows logs isolated timeouts
-to tool responses after ~1s discovery. Keep buffered stdout beneath SDK UTF-8 wrapping; child-buffering and large
-Unicode regressions pass, including Windows, but did not resolve real evidence
-call timeouts. Production stderr was piped but unread; consume/discard it to
-prevent backpressure without logging raw diagnostics. A negative SDK reproducer
-blocks without a consumer; the positive Unicode regression now forces >400 KB
-of synthetic stderr before its response. Runtime timeout bounds stay unchanged. Windows still timed out after those
-transport fixes; a test-only scoped preflight emits sanitized Python stack
-locations (no raw diagnostics/locals/env) to identify the actual blocking call. First CI fix made all development jobs green but
-did not by itself resolve Windows tool calls; original failed runs retained. Local 180 Python / 47 TS / 40 frozen
-retrieval cases and build pass, no skips. Actual OS CI status is on PR #8 checks;
-final job records: `reports/local/pr8-ci/`. Source details:
-`docs/results/investigation-alerts-v2/ci-followup.md`. No frozen policy/result edits.
+PR #8 Windows follow-up: `f942f64` completed with 6/8 jobs passing; both Windows
+assistant jobs failed 15/47 tests, zero skips. Development/core/static CI passes
+on Windows/Linux; Linux assistant CI passes. Missing Pydantic was fixed by locked
+optional test dependencies after the core-only build, without core package changes.
+Transport/thread/polling changes did not establish the remaining timeout's cause.
+Closeout: `reports/local/pr8-ci/diagnostic-f942f64-final.md`.
+
+Current bounded diagnostic instruments actual `connectEvidence` and the `python -m`
+MCP entrypoint used by N01. Python execution/import/replay, serialization, writes/
+flush and client receipt/validation emit only bounded static phases/timings/byte
+counts; stack locations contain no locals, payloads or environment. Diagnostic
+mode is explicit test-only; ordinary application calls do not enable it. Shared
+N01 assertions run alone and in the full suite in the same Windows CI environment;
+the full suite remains mandatory even when isolation fails. No timeout/threshold,
+dependency-boundary or scope change. Local build, isolated N01 and unfiltered
+47 TS tests pass. CI evidence and any final correction/stop decision are recorded
+under `reports/local/pr8-ci-actual/`; see PR #8 checks and
+`docs/results/investigation-alerts-v2/ci-followup.md`. Do not infer Windows success
+from local tests; stop if actual-path diagnostics cannot establish the cause.
 
 Investigation alerts v2 final checkpoint (2026-11-10): pure deterministic Python,
 no LLM/key for detection. One frozen candidate, unchanged v1 thresholds/calibration,

@@ -85,3 +85,23 @@ are the source of truth for Windows/Linux verification. Final run/job states and
 the published/local SHA mapping are saved in ignored
 `reports/local/pr8-ci/`. Prior failed runs/log evidence are retained; no CI rerun
 is substituted for correcting a known failure. No deployment workflow is changed.
+
+## Bounded actual-path comparison
+
+The `f942f64` closeout found no emitted stack because the separate preflight passed.
+The next diagnostic keeps production behavior/timeouts unchanged and instruments
+N01's actual `connectEvidence` → `python -m factoryguard.assistant.mcp_server` path.
+An explicit test observer enables bounded phases at Python execution, alert import/
+replay, completed response serialization, write/flush, client frame/result receipt
+and validation. Only phase labels, times, byte counts and sanitized stack locations
+are emitted; raw stderr, evidence, locals and environment are discarded. It reports
+on both success and failure. Ordinary application calls do not enable the observer
+or Python diagnostic wrapper, and SDK debug logging stays disabled.
+
+The original N01 assertions are shared without alteration between an isolated
+one-test entrypoint and the normal unfiltered suite. Both execute in the same CI
+job with the same Python/Node versions, locked dependencies and environment. There
+is no test-name filtering/skip; full-suite execution is mandatory after an attempted
+isolated test, even if it failed. The job still fails if either command fails.
+This is one diagnostic comparison; a correction requires captured evidence. No
+further speculative transport or unrelated performance change is authorized.

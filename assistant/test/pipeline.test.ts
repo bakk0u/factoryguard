@@ -1,3 +1,4 @@
+import { realEvidenceSummary } from "./real-evidence.js";
 import { waitForInvestigation } from "./helpers.js";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -46,27 +47,7 @@ execFileSync(
   { cwd: ROOT, stdio: "pipe", env: withoutCredentials() },
 );
 
-test("N01 real MCP discovers seven tools and executes a scoped Python summary", async (t) => {
-  const started=performance.now();
-  const c = await connectEvidence(
-    request.selection,
-    AbortSignal.timeout(20000),
-  );
-  try {
-    t.diagnostic(`MCP initialize/discovery completed in ${Math.round(performance.now()-started)} ms`);
-    assert.equal(c.tools.length, 7);
-    const r: any = await c.call(
-      "get_investigation_summary",
-      {},
-      AbortSignal.timeout(15000),
-    );
-    t.diagnostic(`MCP summary completed in ${Math.round(performance.now()-started)} ms total`);
-    assert.equal(r.records[0].data.count, 8);
-    assert.equal(r.records[0].data.forecast.n, 7);
-  } finally {
-    await c.close();
-  }
-});
+test("N01 real MCP discovers seven tools and executes a scoped Python summary", realEvidenceSummary);
 test("N02 mandatory retrieval and assembled evidence precede the first generation call", async () => {
   let calls = 0;
   const events: any[] = [];
