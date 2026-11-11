@@ -50,7 +50,9 @@ dumping child stderr or environment. Production MCP/request budgets remain 15/60
 seconds. See the [cross-platform CI follow-up](results/investigation-alerts-v2/ci-followup.md).
 MCP stdout stays buffered beneath the SDK's UTF-8 wrapper, which explicitly flushes
 each message. Enabling Python unbuffered mode can truncate short Windows pipe
-writes; the client would receive an incomplete JSON frame and time out.
+writes; the client would receive an incomplete JSON frame and time out. Piped
+MCP stderr is continuously discarded so diagnostics cannot block tool responses;
+raw child diagnostics are never forwarded to logs or traces.
 
 ### Deterministic investigation alerts
 

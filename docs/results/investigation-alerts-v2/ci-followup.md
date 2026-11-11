@@ -46,6 +46,19 @@ changes production output limits. This follows Python's documented
 Thread limits/polling fixes alone were not
 sufficient; the initial failed run remains part of the diagnosis.
 
+The second Windows CI run passed the buffering and large-Unicode transport tests,
+but real evidence calls still timed out. Thus stdout buffering was not established
+as the cause of those failures. The production transport piped stderr into an
+unread PassThrough, while the successful protocol fixture ignored stderr. A
+bounded negative reproducer confirmed that unread synthetic diagnostic output can
+block a real tool response until timeout. Production now consumes/discards that
+stream without retaining/logging its contents. The shared transport regression
+uses a pipe and forces >400 KB of synthetic stderr before its Unicode response;
+it must complete within the unchanged SDK bounds. Fixed error codes also identify
+known missing-dependency, frozen-policy or native-library tool failures without
+exposing raw Python diagnostics. Original CI failures and intermediate hypotheses
+are retained; no claim of Windows success comes from local tests alone.
+
 API regression tests await a terminal state within the existing 60-second request
 deadline instead of assuming completion after 2–5 seconds. Every completed/failed,
 scope, deduplication, cancellation, trace and redaction assertion remains. Real

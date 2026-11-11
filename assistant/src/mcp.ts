@@ -47,6 +47,11 @@ export class EvidenceToolError extends Error {
     super(code);
   }
 }
+export function drainEvidenceStderr(transport: Pick<StdioClientTransport, "stderr">): void {
+  // A piped but unread PassThrough eventually blocks the Python process. Consume
+  // and discard diagnostics; never retain or forward raw child stderr.
+  transport.stderr?.on("data", () => {});
+}
 export async function connectEvidence(
   selection: Selection,
   signal: AbortSignal,
@@ -66,6 +71,7 @@ export async function connectEvidence(
     stderr: "pipe",
     env: evidenceEnvironment(),
   });
+  drainEvidenceStderr(transport);
   const client = new Client({
     name: "factoryguard-investigation",
     version: "0.1.0",
@@ -106,6 +112,12 @@ export async function connectEvidence(
               ? "snapshot_mismatch"
               : message.includes("index stale")
                 ? "stale_documentation"
+                : message.includes("frozen alert policy changed")
+                  ? "alert_policy_mismatch"
+                : message.includes("no module named")
+                  ? "evidence_dependency_unavailable"
+                : message.includes("dll load failed")
+                  ? "numerical_library_unavailable"
                 : message.includes("embedding")
                   ? "embeddings_unavailable"
                   : message.includes("revealed") ||

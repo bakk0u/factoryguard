@@ -114,10 +114,12 @@ Windows real MCP calls timed out; child environments now explicitly bound numeri
 threads and UTF-8, with fixed-code initialize/discovery/tool timeout diagnostics.
 API tests wait for terminal state within the unchanged request deadline; all
 assertions and real MCP coverage remain. Updated Windows logs isolated timeouts
-to tool responses after ~1s discovery. Python unbuffered stdout bypassed the
-BufferedWriter needed by SDK UTF-8 wrapping to complete short pipe writes. Remove
-that flag; SDK still flushes each message. Child-buffering and large Unicode
-round-trip regressions cover it. First CI fix made all development jobs green but
+to tool responses after ~1s discovery. Keep buffered stdout beneath SDK UTF-8 wrapping; child-buffering and large
+Unicode regressions pass, including Windows, but did not resolve real evidence
+call timeouts. Production stderr was piped but unread; consume/discard it to
+prevent backpressure without logging raw diagnostics. A negative SDK reproducer
+blocks without a consumer; the positive Unicode regression now forces >400 KB
+of synthetic stderr before its response. Runtime timeout bounds stay unchanged. First CI fix made all development jobs green but
 did not by itself resolve Windows tool calls; original failed runs retained. Local 180 Python / 46 TS / 40 frozen
 retrieval cases and build pass, no skips. Actual OS CI status is on PR #8 checks;
 final job records: `reports/local/pr8-ci/`. Source details:
