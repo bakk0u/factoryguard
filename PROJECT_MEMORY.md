@@ -119,8 +119,10 @@ Unicode regressions pass, including Windows, but did not resolve real evidence
 call timeouts. Production stderr was piped but unread; consume/discard it to
 prevent backpressure without logging raw diagnostics. A negative SDK reproducer
 blocks without a consumer; the positive Unicode regression now forces >400 KB
-of synthetic stderr before its response. Runtime timeout bounds stay unchanged. First CI fix made all development jobs green but
-did not by itself resolve Windows tool calls; original failed runs retained. Local 180 Python / 46 TS / 40 frozen
+of synthetic stderr before its response. Runtime timeout bounds stay unchanged. Windows still timed out after those
+transport fixes; a test-only scoped preflight emits sanitized Python stack
+locations (no raw diagnostics/locals/env) to identify the actual blocking call. First CI fix made all development jobs green but
+did not by itself resolve Windows tool calls; original failed runs retained. Local 180 Python / 47 TS / 40 frozen
 retrieval cases and build pass, no skips. Actual OS CI status is on PR #8 checks;
 final job records: `reports/local/pr8-ci/`. Source details:
 `docs/results/investigation-alerts-v2/ci-followup.md`. No frozen policy/result edits.

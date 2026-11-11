@@ -59,6 +59,14 @@ known missing-dependency, frozen-policy or native-library tool failures without
 exposing raw Python diagnostics. Original CI failures and intermediate hypotheses
 are retained; no claim of Windows success comes from local tests alone.
 
+The stderr correction's Windows rerun still timed out, so it was not established
+as the root cause either. A test-only scoped-summary preflight now captures bounded
+Python faulthandler locations on a slow/failing call. Only file basenames, line
+numbers and function names are emitted; raw stderr, locals, inputs and environment
+are discarded. It executes before the full suite to isolate platform failures
+quickly, while the unchanged full suite still runs after a successful preflight.
+Production debug logging remains disabled and protocol budgets are unchanged.
+
 API regression tests await a terminal state within the existing 60-second request
 deadline instead of assuming completion after 2–5 seconds. Every completed/failed,
 scope, deduplication, cancellation, trace and redaction assertion remains. Real
@@ -68,7 +76,7 @@ discovery and summary timing, allowing actual Windows behavior to be assessed.
 
 ## Verification
 
-Local macOS: TypeScript build, **46/46 TS tests**, **180/180 Python tests**, the
+Local macOS: TypeScript build, **47/47 TS tests**, **180/180 Python tests**, the
 strengthened optional-import isolation test and **40/40 frozen lexical retrieval
 cases** passed with no skips. Local success does not establish Windows success.
 

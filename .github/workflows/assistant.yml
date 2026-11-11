@@ -29,6 +29,9 @@ jobs:
       - run: npm ci --prefix assistant
       - run: python -m factoryguard.assistant.workflows index
       - run: npm run build --prefix assistant
+      - name: MCP platform preflight
+        working-directory: assistant
+        run: node --import tsx --test --test-timeout=60000 test/stdio.test.ts
       - run: npm test --prefix assistant
       - run: python -m unittest discover -s tests -v
       - run: python -m factoryguard.assistant.evaluate
