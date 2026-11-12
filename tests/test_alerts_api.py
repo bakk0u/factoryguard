@@ -53,7 +53,20 @@ class AlertAPITests(unittest.TestCase):
                     ack=json.load(urlopen(request));self.assertEqual(len(ack['acknowledgments']),1)
                     self.assertEqual(ack['frames'],result['frames'])
                     self.assertEqual(store.state('B01')['events'],before)
+                    old_stream=ack['journal_stream']
                     store.reset('B01');reset=json.load(urlopen(base+'/api/alerts?run=B01&channel=A'))
                     self.assertEqual(reset['frames'],[]);self.assertEqual(reset['acknowledgments'],[])
+                    for _ in range(50):store.step('B01',artifact(),{},return_history=False)
+                    replayed=json.load(urlopen(base+'/api/alerts?run=B01&channel=A&as_of=50'))
+                    self.assertEqual(replayed['episodes'][0]['id'],episode)
+                    self.assertNotEqual(replayed['journal_stream'],old_stream)
+                    self.assertEqual(replayed['acknowledgments'],[],
+                                     'Old acknowledgment must not follow a reset and replay')
+                    request=Request(base+'/api/alerts/acknowledge',data=body,
+                                    headers={'Content-Type':'application/json'})
+                    again=json.load(urlopen(request))
+                    self.assertEqual(len(again['acknowledgments']),1)
+                    self.assertNotEqual(again['journal_stream'],old_stream)
+                    self.assertEqual(store.state('B01')['events'],before)
             finally:
                 server.shutdown();server.server_close();thread.join(timeout=5)
