@@ -78,6 +78,19 @@ class ReleaseAppTests(unittest.TestCase):
             try:
                 self.assertEqual(json.load(urlopen(base+'/health'))['B03'],'sealed')
                 self.assertEqual(json.load(urlopen(base+'/api/state?run=B01'))['events'],[])
+                # An attacker-controlled Host must be rejected even for GET,
+                # regardless of whether the request originates on loopback.
+                for path in ('/health','/api/state?run=B01'):
+                    with self.assertRaises(HTTPError) as e:
+                        urlopen(Request(base+path,headers={'Host':'rebound.invalid'}))
+                    self.assertEqual(e.exception.code,403)
+                hostile=Request(base+'/api/step',data=b'{"run":"B01"}',
+                                headers={'Content-Type':'application/json',
+                                         'Host':'rebound.invalid',
+                                         'Origin':'http://rebound.invalid'})
+                with self.assertRaises(HTTPError) as e:urlopen(hostile)
+                self.assertEqual(e.exception.code,403)
+                self.assertEqual(Store(out/'replay.sqlite').state('B01')['revealed'],0)
                 req=Request(base+'/api/step',data=b'{"run":"B01"}',headers={'Content-Type':'application/json'})
                 state=json.load(urlopen(req));self.assertEqual(state['revealed'],1)
                 self.assertEqual(len(state['events']),1);self.assertIsNone(state['events'][0]['resolved'])

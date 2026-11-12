@@ -87,7 +87,7 @@ Experiments are separate bearing runs. A/C are vibration channels on the same ru
 
 Exponential smoothing was selected from a bounded comparison with persistence, Ridge, randomized trees, gradient boosting and XGBoost. The dashboard overview shows the best evaluated variant within each family; it does not claim exhaustive optimization. Every evaluated variant remains available, including worse results.
 
-[**Read the model card ↗**](docs/model_card.md) · [Complete results](docs/results/release-v3/results.md) · [Verification record](docs/release_verification.md)
+[**Read the model card ↗**](docs/model_card.md) · [Complete results](docs/results/release-v3/results.md) · [Forecast uncertainty audit](docs/forecast_uncertainty.md) · [Verification record](docs/release_verification.md)
 
 | Bearing runs | Role | Boundary |
 | :--- | :--- | :--- |
@@ -133,7 +133,8 @@ The CI artifact can be extracted and its `index.html` opened without installing 
 | [Model card](docs/model_card.md) | Selection results, interpretation and limitations. |
 | [Reviewer-site guide](docs/reviewer_site.md) | Investigation workflow, notes and exports. |
 | [B03-readiness checklist](docs/b03_readiness.md) | Requirements for any future reserve evaluation. |
-| [Proposed v0.3.0 release notes](docs/releases/v0.3.0.md) | Release scope and handover context. |
+| [Current v0.4.0 prototype release notes](docs/releases/v0.4.0.md) | Alert/assistant scope, verification and operational boundaries. |
+| [Historical v0.3.0 release](https://github.com/bakk0u/factoryguard/releases/tag/v0.3.0) | Published prior recorded-investigation milestone. |
 
 <details>
 <summary><b>Data attribution & licensing</b></summary>

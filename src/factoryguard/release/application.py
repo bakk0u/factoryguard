@@ -108,11 +108,21 @@ def server(workspace,port=8765):
         raise ValueError('Fixed development references changed; restore the original workspace references')
     meta['reference_sha256']=actual_reference_hash
     class Handler(BaseHTTPRequestHandler):
+        def trusted_host(self):
+            # A loopback bind alone does not prevent DNS-rebinding requests.
+            hosts=self.headers.get_all('Host',[])
+            allowed={f'127.0.0.1:{self.server.server_port}',f'localhost:{self.server.server_port}'}
+            if len(hosts)!=1 or hosts[0] not in allowed:
+                self.reply({'error':'untrusted host'},403)
+                return False
+            return True
+
         def reply(self,value,status=200,kind='application/json; charset=utf-8'):
             body=(value if isinstance(value,str) else json.dumps(clean(value),ensure_ascii=False,allow_nan=False)).encode('utf-8')
             self.send_response(status);self.send_header('Content-Type',kind);self.send_header('Content-Length',str(len(body)))
             self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff');self.end_headers();self.wfile.write(body)
         def do_GET(self):
+            if not self.trusted_host():return
             try:
                 route=urlparse(self.path)
                 if route.path=='/':self.reply(html(),kind='text/html; charset=utf-8')
@@ -129,6 +139,7 @@ def server(workspace,port=8765):
                 else:self.reply({'error':'not found'},404)
             except (ValueError,KeyError) as exc:self.reply({'error':str(exc)},400)
         def do_POST(self):
+            if not self.trusted_host():return
             try:
                 # Same-origin local controls only; no uploads, path arguments or arbitrary model loading.
                 origin=self.headers.get('Origin')

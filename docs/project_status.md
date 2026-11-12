@@ -1,5 +1,18 @@
 # Current project status: development release v3
 
+## v0.4.0 prototype closeout candidate — 2026-11-12
+
+PR #9 follows the merged PR #8 alert-engine/evidence-assistant checkpoint.
+It contains a legacy loopback Host security guard, reset-generation-scoped
+alert acknowledgments with regression tests, and a checksum-checked B01/B02
+chronological forecast uncertainty diagnostic that changes no model or
+threshold. A new release-note draft separates optional local assistant from
+public static Pages and distinguishes the supported Linux/macOS prototype
+path from advisory/unsupported Windows assistant. The existing published
+v0.3.0 release is not replaced. This section documents proposed changes:
+CI, merge, tag and Pages status must be checked separately; neither checks nor
+publication are asserted by documentation alone. B03 remains sealed.
+
 ## PR #8 prototype platform closeout — 2026-11-11
 
 Windows assistant support is explicitly deferred: its unchanged tests remain

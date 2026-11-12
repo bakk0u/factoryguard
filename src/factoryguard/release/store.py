@@ -80,7 +80,14 @@ class Store:
             if type(as_of) is not int or not 0<=as_of<=state['revealed']:
                 raise ValueError('Alert cursor must already be revealed')
             result=replay(state['events'][:as_of],run,channel)
-            snapshot=fingerprint({k:json.loads(v) for k,v in con.execute('SELECT key,value FROM meta')})
+            # Each reset creates a new local replay session. Preserve prior journal
+            # records, but never reuse their acknowledgments for a new traversal.
+            generation=0
+            if con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='alert_replays'").fetchone():
+                row=con.execute('SELECT generation FROM alert_replays WHERE run=?',(run,)).fetchone()
+                generation=row[0] if row else 0
+            metadata={k:json.loads(v) for k,v in con.execute('SELECT key,value FROM meta')}
+            snapshot=fingerprint({'workspace_metadata':metadata,'local_replay_generation':generation,'journal_scope':2})
             journal=AlertJournal(self.path.with_name('alerts.sqlite'))
             stream=journal.append(result,snapshot)
             if acknowledge is not None:
@@ -100,6 +107,9 @@ class Store:
         with self.connect() as con:
             con.execute('BEGIN IMMEDIATE')
             self._state(con,run)
+            con.execute('CREATE TABLE IF NOT EXISTS alert_replays (run TEXT PRIMARY KEY, generation INTEGER NOT NULL)')
+            con.execute('INSERT INTO alert_replays(run,generation) VALUES (?,1) '
+                        'ON CONFLICT(run) DO UPDATE SET generation=generation+1',(run,))
             con.execute('DELETE FROM events WHERE run=?',(run,))
             con.execute('UPDATE cursors SET position=0 WHERE run=?',(run,))
             return self._state(con,run)
