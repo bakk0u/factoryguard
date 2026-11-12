@@ -87,7 +87,7 @@ Experiments are separate bearing runs. A/C are vibration channels on the same ru
 
 Exponential smoothing was selected from a bounded comparison with persistence, Ridge, randomized trees, gradient boosting and XGBoost. The dashboard overview shows the best evaluated variant within each family; it does not claim exhaustive optimization. Every evaluated variant remains available, including worse results.
 
-[**Read the model card ↗**](docs/model_card.md) · [Complete results](docs/results/release-v3/results.md) · [Verification record](docs/release_verification.md)
+[**Read the model card ↗**](docs/model_card.md) · [Complete results](docs/results/release-v3/results.md) · [Forecast uncertainty audit](docs/forecast_uncertainty.md) · [Verification record](docs/release_verification.md)
 
 | Bearing runs | Role | Boundary |
 | :--- | :--- | :--- |
