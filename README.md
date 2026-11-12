@@ -133,7 +133,8 @@ The CI artifact can be extracted and its `index.html` opened without installing 
 | [Model card](docs/model_card.md) | Selection results, interpretation and limitations. |
 | [Reviewer-site guide](docs/reviewer_site.md) | Investigation workflow, notes and exports. |
 | [B03-readiness checklist](docs/b03_readiness.md) | Requirements for any future reserve evaluation. |
-| [Proposed v0.3.0 release notes](docs/releases/v0.3.0.md) | Release scope and handover context. |
+| [Current v0.4.0 prototype release notes](docs/releases/v0.4.0.md) | Alert/assistant scope, verification and operational boundaries. |
+| [Historical v0.3.0 release](https://github.com/bakk0u/factoryguard/releases/tag/v0.3.0) | Published prior recorded-investigation milestone. |
 
 <details>
 <summary><b>Data attribution & licensing</b></summary>
