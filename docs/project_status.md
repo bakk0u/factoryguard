@@ -1,17 +1,33 @@
 # Current project status: development release v3
 
-## v0.4.0 prototype closeout candidate — 2026-11-12
+## v0.4.0 prototype merged checkpoint — 2026-11-12
 
-PR #9 follows the merged PR #8 alert-engine/evidence-assistant checkpoint.
-It contains a legacy loopback Host security guard, reset-generation-scoped
-alert acknowledgments with regression tests, and a checksum-checked B01/B02
-chronological forecast uncertainty diagnostic that changes no model or
-threshold. A new release-note draft separates optional local assistant from
-public static Pages and distinguishes the supported Linux/macOS prototype
-path from advisory/unsupported Windows assistant. The existing published
-v0.3.0 release is not replaced. This section documents proposed changes:
-CI, merge, tag and Pages status must be checked separately; neither checks nor
-publication are asserted by documentation alone. B03 remains sealed.
+PR #9 merged into `master` at
+[`1acfd44d78b4570d76677b4b97d98218ab5851a5`](https://github.com/bakk0u/factoryguard/commit/1acfd44d78b4570d76677b4b97d98218ab5851a5),
+after PR #8's deterministic investigation-alert and optional local assistant
+work. The release package version is now `0.4.0`; the existing published
+`v0.3.0` tag/release is preserved. An actual GitHub v0.4.0 release or new
+Pages deployment is **not claimed**.
+
+The merge includes the local replay API Host guard, reset/replay acknowledgment
+scope fix, HTTP and replay regressions, and a read-only SHA256-pinned
+[B01/B02 chronological uncertainty audit](forecast_uncertainty.md).
+The exploratory fixed nominal-90% bands covered only 58.1%/65.2% on
+B01 A/C and 68.5%/74.3% on B02 A/C (smoothing; later development
+observations), illustrating **uncalibrated uncertainty**. This is not
+independent coverage or fault detection. No model fits, alerts thresholds,
+B04 correction or B03 access occurred.
+
+The final PR head passed all three blocking CI jobs:
+[`test (ubuntu-latest)`, `test (windows-latest)`, and
+`assistant (ubuntu-latest)`](https://github.com/bakk0u/factoryguard/pull/9).
+The final Linux assistant had 47 TypeScript, 183 Python tests; the
+development suite had 183 Python tests. The Windows assistant remains
+explicitly unsupported/advisory with its existing genuine N01 failure.
+The GitHub-side integration did not run local Graphify or inspect the
+user's uncommitted checkout. Repo-level branch protection still requires
+owner settings, distinct from workflow job policy.
+
 
 ## PR #8 prototype platform closeout — 2026-11-11
 
