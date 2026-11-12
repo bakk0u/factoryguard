@@ -4,6 +4,38 @@ Verified 2026-11-11 (Europe/Berlin). This is orientation, not a source of new
 authorization. Read AGENTS.md first. Recheck Git state and graph freshness; facts
 below describe the reviewed checkout and can age. Do not paste the whole history.
 
+## Current merged checkpoint — 2026-11-12
+
+- **Master includes PR #8 and PR #9.** PR #9 merged at
+  `1acfd44d78b4570d76677b4b97d98218ab5851a5`; package version is
+  `0.4.0`. All three required PR-head check jobs passed:
+  `test (ubuntu-latest)`, `test (windows-latest)`,
+  `assistant (ubuntu-latest)`. Linux assistant: 47 TypeScript and
+  183 Python tests; development Python: 183 tests. Windows assistant's
+  documented N01/NumPy timeout remains advisory/unsupported. Do not
+  misreport it as passing.
+- Legacy loopback `Host` validation, replay-generation-scoped alert
+  acknowledgments, and reset/replay/host regressions are merged.
+  `scripts/audit_forecast_uncertainty.py` verifies pinned replay SHA256
+  and computes descriptive first-quarter-calibration/later-coverage bands
+  on B01/B02 only; *not* calibrated 90% uncertainty or an alarm rule.
+  Linux observed smoothing empirical coverage: B01 A/C 58.1/65.2%;
+  B02 A/C 68.5/74.3%. Saved forecasts/thresholds unchanged.
+- Current release-note source: `docs/releases/v0.4.0.md`. Published
+  `v0.3.0` release is historical and unchanged. As of this checkpoint,
+  **v0.4.0 tag/public GitHub release and Pages redeployment have not been
+  verified or performed**; do not treat source-version bump as publication.
+  Public Pages is static; the optional AI assistant remains local.
+- B03 is still sealed; B04 remains diagnostic-only. No new data
+  acquisition, training, B03 access, paid calls, or alert retuning.
+  Do not treat old historical authorizations below as current permission.
+- Runtime checks in this note are GitHub Actions checks of the PR head,
+  not a fresh local clone. The connected integration did not access
+  the owner's uncommitted local checkout. Graphify could not be run
+  through the GitHub connector; refresh local context on next checkout.
+- Earlier sections below predate the PR #9 merge; their statements
+  that PR #8 is still draft or unmerged are **historical**.
+
 ## Purpose and hard boundaries
 
 Recorded laboratory bearing-condition investigation: RMS forecasts/deviations,
