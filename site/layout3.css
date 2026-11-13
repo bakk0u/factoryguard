@@ -40,3 +40,4 @@ footer{margin-left:calc(var(--rail) + var(--attention));padding:20px 30px;font-s
 .replay-details{font-size:11px;color:var(--muted);margin-bottom:12px}.replay-details p{font-size:12px}.run-limitation{font-size:11px;margin:0 0 15px}.inspection-detail{font-size:13px;margin-bottom:12px}.component-detail{scroll-margin-top:20px}
 
 .review-stages>span{height:1px;background:#25475d;color:transparent}
+.result-visual+.result-visual{margin-top:10px}
