@@ -1,4 +1,20 @@
-# Current project status: development release v3
+# Current project status
+
+## v0.5.0: held-out evaluation and closeout (2026-11-13)
+
+| Item | Status | Evidence |
+| :--- | :--- | :--- |
+| Independent forecasting evaluation | **Done, once** | B03: 14.2% lower MAE than persistence; [result](results/b03-holdout/README.md) |
+| Pipeline review and reproduction | **Done** | Features and all campaign metrics reproduced from raw data; [review](results/b03-holdout/review.md) |
+| Measurement validity | **Done, one item open** | B04 speed resolved as a logging artefact; dynamic load open; [review](results/measurement-validity/README.md) |
+| Uncertainty calibration | **Done, independently checked** | 89.5% / 89.4% coverage on B03 at a 90% target; [details](uncertainty_calibration.md) |
+| Alert performance validation | **Closed as not measurable** | No dated fault or verified-normal labels exist; [details and future protocol](alert_validation.md) |
+| Software licence | **Done** | MIT |
+| Live LLM assistant evaluation | See [assistant guide](assistant.md) for current status | |
+
+The sections below are the historical record and predate the reserve evaluation.
+
+# Development release v3
 
 ## Reviewer export directory guard — 2026-11-13 (proposed)
 

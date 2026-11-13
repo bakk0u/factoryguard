@@ -1,0 +1,14 @@
+{
+  "reviewer": "Claude (AI assistant), working in a fresh environment with no access to the original development workspace; independent of the tools that implemented the pipeline. Not a human domain expert.",
+  "authorization": "Repository owner authorized one frozen B03 evaluation on 2026-11-13, after being asked explicitly and told it is irreversible; recorded in docs/results/b03-holdout/review.md.",
+  "documentation_evidence": "Dataset description v2 (25 March 2024) pp. 3-8; B03_log.pdf pp. 1-2 (archive MD5 6c16eaa8d837b31da69fab1675521ddb): vibration saved in volts, conversion 10 g/V, gain 0 dB, 128 kHz, 1.6 s, about 12 s pause; commanded speed 2400-3000 rpm, static load 3300-3800 N, dynamic amplitude 500-1400 N at 2 Hz, combined 4300-4900 N; warm-up 10 min at 750 rpm, 2500 N, no dynamic load; automatic stop when housing temperature exceeded 110 C. Only the log was read before execution; no signal, feature, trend or outcome was inspected.",
+  "plan_sha256": "e7f2a0f7f6be1a3798c9a002890e17aa0b9f4ab1397572c444744121eb81186f",
+  "review_complete": true,
+  "independent_documentation_review": true,
+  "units_volts_10g_per_v_0db": true,
+  "documented_128khz_1p6s": true,
+  "warmup_and_command_ranges_match_frozen_policy": true,
+  "ordinal_alignment_and_clock_limits_accepted": true,
+  "termination_not_used_as_label": true,
+  "no_feature_or_outcome_inspection_for_model_selection": true
+}

@@ -1,0 +1,52 @@
+{
+  "protocol": "uncertainty-calibration-v1",
+  "nominal_level": 0.9,
+  "forecast": {
+    "id": "smoothing_0.5",
+    "group": "smoothing",
+    "kind": "smoothing",
+    "features": "current",
+    "formulation": "direct",
+    "params": {
+      "alpha": 0.5
+    },
+    "rank": 1
+  },
+  "selected": {
+    "id": "aci_rel_w240_g0.02",
+    "kind": "rolling",
+    "window": 240,
+    "relative": true,
+    "gamma": 0.02
+  },
+  "selection_rule": "(written before any result existed):\n  * forecasts are the frozen release method (exponential smoothing, alpha 0.5) on the common mask;\n  * each candidate is run on B01 warm-started only with B02's errors, and on B02 warm-started\n    only with B01's errors, channels A and C separately (four cells);\n  * primary criterion: smallest mean absolute gap between coverage and the 90% target over the\n    four cells; candidates within 0.01 of the best are tied;\n  * tie-break 1: smallest mean interval (Winkler) score relative to the fixed-transfer baseline;\n  * tie-break 2: the simpler candidate (no adaptive step before adaptive, larger window first).",
+  "development_runs": [
+    "B01",
+    "B02"
+  ],
+  "warm_start_for_new_runs": "B01 then B02 common-mask errors, in that order",
+  "pairs_sha256": {
+    "B01": "fb7ed287f4b6e9f5d73b581df41e1a34c63a304c815587d31f8e2e0d1b74e29f",
+    "B02": "e04d8a0af960cc591dfc7279ea9e18e320e11df0a7606207de83eb3027abac0d"
+  },
+  "tied_candidates": [
+    "aci_abs_w120_g0.02",
+    "aci_abs_w240_g0.02",
+    "aci_abs_w30_g0.005",
+    "aci_abs_w30_g0.02",
+    "aci_abs_w60_g0.005",
+    "aci_abs_w60_g0.02",
+    "aci_rel_w120_g0.005",
+    "aci_rel_w120_g0.02",
+    "aci_rel_w240_g0.005",
+    "aci_rel_w240_g0.02",
+    "aci_rel_w30_g0.005",
+    "aci_rel_w30_g0.02",
+    "aci_rel_w60_g0.005",
+    "aci_rel_w60_g0.02",
+    "rolling_abs_w30",
+    "rolling_rel_w120",
+    "rolling_rel_w60"
+  ],
+  "status": "selected on development runs; independent coverage is whatever the frozen application measures"
+}

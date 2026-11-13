@@ -2,3 +2,4 @@
 * text=auto eol=lf
 # Preserve attributed demo CSV bytes and their published derived-file hashes.
 *.csv -text whitespace=cr-at-eol
+docs/results/uncertainty-calibration-v1/*.csv -text

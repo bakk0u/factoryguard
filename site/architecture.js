@@ -7,7 +7,7 @@ function mountFactoryGuardArchitecture(container, repo) {
       'Training-prefix calibration and chronological development blocks; thresholds are not fault probabilities. Append-only local episodes/transitions and in-app delivery; no external notification or machine control.', 'src/factoryguard/alerts/engine_v2.py'],
     data: ['Recorded experiments', 'Laboratory measurements', 'Implemented',
       'Separate bearing runs record vibration, temperature, speed and load.',
-      'B01/B02: development. B04: diagnostic. B03 stays sealed.',
+      'B01/B02: development. B04: diagnostic. B03: sealed reserve, evaluated once.',
       'Derived features retain units, quality flags and gaps. Raw recordings are not sent to the assistant.', 'docs/dataset_assessment.md'],
     forecasting: ['Forecasting', 'Past-only prediction', 'Implemented',
       'Python compares repeat-last with selected exponential smoothing. Results are already computed.',

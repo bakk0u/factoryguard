@@ -1,0 +1,38 @@
+{
+  "B01": {
+    "recordings": 326,
+    "median_measured_over_commanded": 1.002791783799974,
+    "median_prominence_at_measured": 60.40631731776371,
+    "median_prominence_at_commanded": 65.93098652079743,
+    "median_prominence_at_half_measured_control": 2.5651781022526627,
+    "median_prominence_at_double_measured_control": 8.058413376008641,
+    "share_measured_more_prominent_than_commanded": 0.3496932515337423,
+    "free_estimate_within_1hz_of_measured": 0.8680981595092024,
+    "free_estimate_within_1hz_of_commanded": 0.9570552147239264,
+    "free_estimate_within_1hz_of_half_measured": 0.0
+  },
+  "B02": {
+    "recordings": 1065,
+    "median_measured_over_commanded": 1.0027284084595276,
+    "median_prominence_at_measured": 70.74091275915544,
+    "median_prominence_at_commanded": 71.2074188922963,
+    "median_prominence_at_half_measured_control": 3.0690842346294347,
+    "median_prominence_at_double_measured_control": 24.896363235951284,
+    "share_measured_more_prominent_than_commanded": 0.19342723004694837,
+    "free_estimate_within_1hz_of_measured": 1.0,
+    "free_estimate_within_1hz_of_commanded": 1.0,
+    "free_estimate_within_1hz_of_half_measured": 0.0
+  },
+  "B04": {
+    "recordings": 1064,
+    "median_measured_over_commanded": 0.49920735861489984,
+    "median_prominence_at_measured": 2.5427955018918675,
+    "median_prominence_at_commanded": 46.35107258739034,
+    "median_prominence_at_half_measured_control": 1.7186141639440136,
+    "median_prominence_at_double_measured_control": 46.45417549755531,
+    "share_measured_more_prominent_than_commanded": 0.0,
+    "free_estimate_within_1hz_of_measured": 0.05827067669172932,
+    "free_estimate_within_1hz_of_commanded": 0.900375939849624,
+    "free_estimate_within_1hz_of_half_measured": 0.011278195488721804
+  }
+}
