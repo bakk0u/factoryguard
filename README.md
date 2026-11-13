@@ -14,6 +14,38 @@
 
 > **Try it immediately:** the [public dashboard](https://bakk0u.github.io/factoryguard/) needs no installation, sign-in or dataset download. It presents **real, precomputed laboratory results**; it does not connect to live equipment or retrain a model when opened.
 
+## Project status · v0.5.0
+
+The research prototype is implemented and merged into `master`: reproducible
+forecasting, an investigation dashboard, deterministic alerts, SQLite replay and
+an optional evidence-grounded MCP/RAG assistant. The held-out forecasting check
+and prediction-interval evaluation are complete.
+
+| Complete | Evidence |
+| :--- | :--- |
+| **Held-out forecasting** | **14.2% lower MAE** than persistence on B03, evaluated once with the frozen method. |
+| **Prediction intervals** | **89.5% / 89.4% coverage** on channels A/C at a 90% target. |
+| **Reproduction** | B01/B02/B04 feature hashes and all 32-candidate campaign metrics reproduced from raw data. |
+| **Engineering verification** | v0.5.0 records **209 passing local Python tests**; pre-merge Linux/Windows core and Linux assistant checks passed. Windows assistant remains advisory and failing. |
+
+[**v0.5.0 release notes**](docs/releases/v0.5.0.md) ·
+[Current status](docs/project_status.md) ·
+[CI runs](https://github.com/bakk0u/factoryguard/actions)
+
+**Remaining limitations:** live LLM answer-quality evaluation is incomplete;
+Windows assistant integration is unsupported; B04 dynamic-load scaling remains
+unresolved. Fault-detection recall, false-alert rates and detection delay cannot
+be established from this dataset's labels. This is a laboratory research
+prototype, with evidence from one held-out bearing; production readiness is
+not established.
+
+**Source and public demo differ:** v0.5.0 is merged source with release notes.
+The latest published GitHub release is still
+[v0.3.0](https://github.com/bakk0u/factoryguard/releases/tag/v0.3.0).
+The public dashboard and historical screenshots predate the local redesign;
+a deployment of the current version has not been verified. The optional
+assistant runs locally and is not hosted on the public static site.
+
 ## Explore the dashboard
 
 Optional local extension: [evidence-grounded investigation assistant](docs/assistant.md)
@@ -25,7 +57,7 @@ Prototype assistant support: Linux CI and local macOS verified; Windows assistan
 integration is unsupported, with a visible non-blocking compatibility job.
 Windows core checks remain blocking. [Platform scope and checks](docs/results/investigation-alerts-v2/platform-closeout.md).
 
-Local prototype: [deterministic investigation alerts v2](docs/results/investigation-alerts-v2/report.md)
+Implemented prototype: [deterministic investigation alerts v2](docs/results/investigation-alerts-v2/report.md)
 combine saved forecast errors, RMS level changes and supported operating context.
 They work without an LLM and expose their evidence and monitoring limitations;
 fault sensitivity and false-alarm rates are not established. Counted level evidence
@@ -47,7 +79,7 @@ uses disjoint windows; unresolved episodes remain visible when assessment is una
   <img src="docs/images/readme/workflow.svg" width="100%" alt="Three investigation steps: locate the change, inspect its context, capture the evidence.">
 </picture>
 
-The local reviewer redesign opens on **Start here → Walk through an investigation**:
+The current local reviewer opens on **Start here → Walk through an investigation**:
 a deterministic B01/A example needs no API key. **Explore measurements** retains
 replay, notes and evidence exports; **AI assistant** sits beside the selected
 measurements. **Methods & results** and **Engineering** provide deeper evidence
@@ -80,7 +112,7 @@ Experiments are separate bearing runs. A/C are vibration channels on the same ru
 
 | Held-out forecast accuracy | Held-out interval coverage | Development selection | Model comparison |
 | :---: | :---: | :---: | :---: |
-| **14.2%** lower MAE than persistence | **89.5%** at a 90% target | **12.83%** lower MAE | **432** comparison rows |
+| **14.2%** lower MAE than persistence | **89.5% / 89.4%** at a 90% target | **12.83%** lower MAE | **432** comparison rows |
 | Sealed run B03, frozen method, evaluated once | Calibrator frozen before B03 was opened | Reciprocal B01/B02, used for selection | Includes unsuccessful variants |
 
 **Interpretation:** the method, metrics and interval calibrator were frozen and committed before the sealed B03 run was opened; B03 was then evaluated **once** ([result](docs/results/b03-holdout/README.md), [pre-execution review](docs/results/b03-holdout/review.md)). The held-out improvement (14.2%) is in line with the development estimate (12.83%). It is one laboratory bearing, a next-burst forecast, and **not fault-detection performance**: when operating conditions did not change between bursts (31 of 611 pairs), smoothing was no better than persistence.
@@ -108,7 +140,7 @@ Exponential smoothing was selected from a bounded comparison with persistence, R
 
 Two development bearings support model selection and one held-out bearing checks it. Timestamps and CSV/MAT alignment are provisional; sensor-range warnings and ambiguous termination information remain. Next-observed-burst forecasts have a variable horizon.
 
-The reviewer handover recorded **116 passing local tests**, preservation of the replay and comparison rows above, plus browser workflow checks. This is the recorded handover, not a claim that this documentation update reran those tests. The [verification record](docs/release_verification.md) distinguishes local checks, independently reported CI and checks still pending.
+The [v0.5.0 verification record](docs/releases/v0.5.0.md) reports **209 passing local Python tests**, including interval-calibration and speed-audit tests. The [closeout PR](https://github.com/bakk0u/factoryguard/pull/12) records passing pre-merge Linux/Windows core and Linux assistant checks; Windows assistant failures remain advisory. These are recorded checks, not a claim that this README update reran the suite. The earlier [verification record](docs/release_verification.md) preserves historical dashboard and handover checks.
 
 </details>
 
@@ -143,7 +175,7 @@ The CI artifact can be extracted and its `index.html` opened without installing 
 | [Measurement validity](docs/results/measurement-validity/README.md) | Units, timing and the B04 speed question, checked against raw spectra. |
 | [Alert validation status](docs/alert_validation.md) | What can and cannot be claimed about alerts, and the protocol for labelled data. |
 | [B03-readiness checklist](docs/b03_readiness.md) | The gates that were completed before the reserve evaluation. |
-| [Current v0.4.0 prototype release notes](docs/releases/v0.4.0.md) | Alert/assistant scope, verification and operational boundaries. |
+| [Current v0.5.0 source release notes](docs/releases/v0.5.0.md) | Held-out forecasting, calibrated intervals, reproduction and remaining limitations. |
 | [Historical v0.3.0 release](https://github.com/bakk0u/factoryguard/releases/tag/v0.3.0) | Published prior recorded-investigation milestone. |
 
 <details>
