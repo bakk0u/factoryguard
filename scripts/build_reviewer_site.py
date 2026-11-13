@@ -8,12 +8,14 @@ import os
 from pathlib import Path
 import subprocess
 from factoryguard.release.application import html as dashboard
+from factoryguard.release.export_guard import validate_export_directory
 
 ROOT = Path(__file__).resolve().parents[1]
 
 def build(output, alert_journal=None):
     if alert_journal and Path(alert_journal).resolve().is_relative_to(Path(output).resolve()):
         raise ValueError('Keep private alert databases outside browser assets')
+    output = validate_export_directory(output, repository_root=ROOT)
     source = ROOT / 'site/source'
     manifest = json.loads((ROOT / 'site/source-manifest.json').read_text())
     for name, expected in manifest['files'].items():
@@ -57,3 +59,4 @@ if __name__ == '__main__':
     if args.alert_journal and Path(args.alert_journal).resolve().is_relative_to(Path(args.output).resolve()):
         parser.error('Keep the private alert database outside browser assets')
     print(build(args.output,args.alert_journal))
+

@@ -12,6 +12,24 @@ spec=importlib.util.spec_from_file_location('reviewer',ROOT/'scripts/build_revie
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
 class ReviewerSiteTests(unittest.TestCase):
+    def test_mixed_output_is_rejected_without_exporting_private_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            private = Path(tmp) / 'private.sqlite'
+            private.write_bytes(b'private journal sentinel')
+            with self.assertRaisesRegex(ValueError, 'choose a clean output'):
+                module.build(tmp)
+            self.assertEqual(private.read_bytes(), b'private journal sentinel')
+            self.assertEqual({p.name for p in Path(tmp).iterdir()}, {'private.sqlite'})
+
+    def test_existing_generated_export_can_be_rebuilt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            module.build(tmp)
+            first = (Path(tmp) / 'index.html').read_bytes()
+            module.build(tmp)
+            self.assertEqual((Path(tmp) / 'index.html').read_bytes(), first)
+            self.assertEqual({p.name for p in Path(tmp).iterdir()},
+                             {'index.html', 'source-manifest.json', '.nojekyll'})
+
     def test_private_alert_journal_cannot_be_written_into_browser_export(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(ValueError,'outside browser assets'):
@@ -55,3 +73,4 @@ class ReviewerSiteTests(unittest.TestCase):
             for state in payload['states'].values():
                 self.assertNotIn('notes',state)
             self.assertTrue(any(e['interval_s'] and e['interval_s']>24 for e in payload['states']['B01']['events']))
+
