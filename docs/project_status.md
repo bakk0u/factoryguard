@@ -1,5 +1,22 @@
 # Current project status: development release v3
 
+## Reviewer export directory guard — 2026-11-13 (proposed)
+
+The static builder now checks its destination before reading the snapshot or
+writing files. A new/empty directory or a previous three-file reviewer export is
+accepted; mixed folders, directories with private/stale files, symlinked output
+files and source/data paths are rejected without deleting existing contents.
+This prevents unrelated files from accompanying an exported/published folder.
+Source: `src/factoryguard/release/export_guard.py`; usage: [reviewer-site guide](reviewer_site.md).
+
+Observed in a partial connector-materialized source tree: 12 focused standard-
+library tests passed, zero skips, plus compilation of the changed Python files.
+Two actual-builder regressions were added for mixed-folder rejection and rebuild
+compatibility; full application/Windows/browser CI is pending on the PR.
+The local git clone was blocked by network approval cancellation; Graphify status
+and query report missing provenance, and no full-checkout verification is claimed.
+Saved results, models, alert thresholds, B03, release tags and Pages are unchanged.
+
 ## v0.4.0 prototype merged checkpoint — 2026-11-12
 
 PR #9 merged into `master` at

@@ -114,6 +114,16 @@ Visit `http://localhost:8080/reviewer-site/`, or open the generated `index.html`
 directly. Direct-file storage support depends on browser policy. The
 `factoryguard-reviewer-site` CI artifact contains this complete static site.
 
+Use a new or empty output directory, or rebuild a previous reviewer export that
+contains only `index.html`, `source-manifest.json` and `.nojekyll` as regular
+files. The builder rejects mixed folders, nested directories and symlinked output
+files before reading the saved snapshot or writing the export. This prevents
+old notes, credentials or SQLite files from being carried into a published folder.
+Existing files are preserved on rejection: choose another output path rather than
+deleting a folder whose contents you have not reviewed. Repository source/data
+directories and the repository root cannot be used as export destinations.
+This is an accident-prevention check, not a sandbox for concurrent filesystem changes.
+
 `node scripts/verify_reviewer_workflow.cjs` runs the actual browser workflow after
 building (requires Playwright 1.62.1 and its Chromium). It starts a static server
 automatically. CI runs Windows/Ubuntu tests, browser checks, demos and export.

@@ -4,6 +4,20 @@ Verified 2026-11-11 (Europe/Berlin). This is orientation, not a source of new
 authorization. Read AGENTS.md first. Recheck Git state and graph freshness; facts
 below describe the reviewed checkout and can age. Do not paste the whole history.
 
+## Proposed follow-up — 2026-11-13
+
+Reviewer-export destination guard: `src/factoryguard/release/export_guard.py`
+is called before snapshot reads/writes in `scripts/build_reviewer_site.py`.
+Only new/empty folders or the three generated regular files are accepted;
+mixed/private leftovers, symlinked targets and source/data destinations fail
+without deletion. `tests/test_export_guard.py`: 12 local tests pass, zero skips;
+two actual-builder regressions added in `tests/test_reviewer_site.py`, CI pending.
+Partial source materialized through the connector; local cloning was blocked by
+network approval cancellation. Context status/query fail on missing graph
+provenance; no Graphify refresh or full local suite is claimed. No models, raw
+data, B03, thresholds, published releases or Pages changed. Details and current
+verification: `docs/project_status.md`, reviewer-site guide.
+
 ## Current merged checkpoint — 2026-11-12
 
 - **Master includes PR #8 and PR #9.** PR #9 merged at
