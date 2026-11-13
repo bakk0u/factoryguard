@@ -50,5 +50,35 @@ coverage and coverage by quarter, for the frozen calibrator and for both fixed b
 Nothing is re-selected or tuned on B03. B04 is reported as a diagnostic only because its
 speed/load scaling is unresolved.
 
+## Results
+
+Development (reciprocal B01/B02, used for selection) and independent application of the
+frozen calibrator. Target coverage 90%.
+
+| Run | Role | Channel | Frozen adaptive: coverage | Worst 100-forecast window | Last quarter | Fixed transfer: coverage / last quarter | Fixed early same-run: coverage / last quarter |
+| :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: |
+| **B03** | **Independent, applied once** | A | **89.5%** | 85% | 88.2% | 93.8% / 75.0% | 81.3% / 51.8% |
+| **B03** | **Independent, applied once** | C | **89.4%** | 84% | 86.8% | 94.1% / 76.3% | 84.3% / 52.6% |
+| B04 | Diagnostic only | A | 89.8% | 83% | 89.2% | 71.7% / 36.1% | 37.8% / 14.9% |
+| B04 | Diagnostic only | C | 89.8% | 84% | 88.8% | 78.6% / 42.6% | 37.4% / 12.0% |
+
+On B03 the frozen calibrator's interval score was 0.126 V (A) and 0.087 V (C), against
+0.271 / 0.170 for the transferred fixed width and 0.315 / 0.192 for the same-run fixed
+width: closer to target, more stable, and narrower where it could be.
+
+Development figures for every candidate are in `development_summary.csv`; the selected one
+averaged a 0.3-point gap to target across the four development cells with a worst
+100-forecast window of 78%.
+
+**What changed in practice.** A fixed band is set when the bearing is quiet and is then too
+narrow for the rest of the run: about half of late errors fell outside it. Scaling the band
+with the forecast level and correcting it after each resolved forecast keeps coverage near
+target through the late, high-vibration regime on a run the method had never seen.
+
+**Limits.** One independent run. Coverage is marginal over the run, not conditional on any
+operating state; a 100-forecast window fell to 84%. The adaptive step reacts after misses,
+so the first forecasts after an abrupt change are the least protected. B04 agreement is
+encouraging but B04 is not clean evidence.
+
 Interval coverage is a statement about forecast error. It is not a fault probability, an alert
 threshold or a health indicator.

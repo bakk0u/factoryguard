@@ -1,5 +1,22 @@
 # Current model card: development release v3
 
+## Held-out evaluation and calibrated intervals (2026-11-13)
+
+| Evidence | Result | Scope |
+| :--- | :--- | :--- |
+| Development selection, reciprocal B01/B02 | 12.83% lower MAE than persistence | Used for selection; not held-out |
+| **Sealed reserve B03, frozen method, run once** | **14.2% lower MAE** (ratio 0.857 A, 0.859 C; 611 pairs) | Independent bearing run; one case |
+| B03, operating bin unchanged between bursts (n=31) | No gain on A (1.007), worse on C (1.165) | Known limit of smoothing |
+| **Interval coverage on B03, calibrator frozen beforehand** | **89.5% A, 89.4% C** at a 90% target; worst 100-forecast window 84% | Independent; marginal coverage only |
+| Fixed-width intervals on B03 (previous approach) | 81-94% overall, about 52-76% in the last quarter | Shows why fixed bands were replaced |
+
+Details: [B03 result](results/b03-holdout/README.md), [pre-execution review](results/b03-holdout/review.md),
+[interval calibration](uncertainty_calibration.md), [measurement validity](results/measurement-validity/README.md),
+[alert validation status](alert_validation.md). None of this is fault detection, damage onset or RUL.
+
+The sections below describe the method and were written before the reserve evaluation;
+statements that B03 is sealed are historical.
+
 The optional [investigation assistant](assistant.md) retrieves saved evidence and
 explains it; it does not replace/retrain the forecasting rule below. Its default
 offline generator is a labelled fixture. Live LLM factuality and hybrid retrieval

@@ -3,9 +3,15 @@
 - B01/B02 are inspected development runs and only two independent bearings.
   Burst counts do not supply independent experimental replication. Outer results
   select methods and therefore are not final unbiased performance estimates.
-- B04's measured speed/load interpretation remains unresolved; the application
-  preserves it as recorded and makes no loaded-condition comparability claim.
-  B03 remains sealed pending the user's pipeline review and later authorization.
+- B04's logged measured speed is a factor-of-two scaling artefact: raw vibration
+  spectra show the shaft at the commanded speed ([review](results/measurement-validity/README.md)).
+  Its logged dynamic-load peak is still unexplained. Saved B04 data is kept as recorded
+  and flagged; B04 remains diagnostic and no comparability claim is made from it.
+- B03 was evaluated once on 2026-11-13 as the sealed reserve
+  ([result](results/b03-holdout/README.md)). It is one bearing: a case study, not a
+  population estimate, and it can no longer serve as an untouched holdout.
+- Alert performance (recall, false alerts, delay) is not measurable with this dataset's
+  labels and is not claimed ([details](alert_validation.md)).
 - Ordinal CSV/MAT association is provisional; source clocks have unknown event
   semantics/timezone. Forecast horizon is next observed burst, not fixed seconds
   or operating time. Gaps are retained and forecasts expire after the fixed rule.

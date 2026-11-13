@@ -78,12 +78,18 @@ Experiments are separate bearing runs. A/C are vibration channels on the same ru
 
 ## Results & evidence
 
-| Development selection | Preserved replay evidence | Model comparison |
-| :---: | :---: | :---: |
-| **12.83%** MAE improvement | **2,607** observations/predictions/errors | **432** comparison rows |
-| Equal-run/channel average vs persistence | Recorded in reviewer handover | Includes unsuccessful evaluated variants |
+| Held-out forecast accuracy | Held-out interval coverage | Development selection | Model comparison |
+| :---: | :---: | :---: | :---: |
+| **14.2%** lower MAE than persistence | **89.5%** at a 90% target | **12.83%** lower MAE | **432** comparison rows |
+| Sealed run B03, frozen method, evaluated once | Calibrator frozen before B03 was opened | Reciprocal B01/B02, used for selection | Includes unsuccessful variants |
 
-**Interpretation:** the 12.83% figure comes from reciprocal **B01/B02 development evaluations**, used for model selection. It is **not held-out accuracy or fault-detection performance**.
+**Interpretation:** the method, metrics and interval calibrator were frozen and committed before the sealed B03 run was opened; B03 was then evaluated **once** ([result](docs/results/b03-holdout/README.md), [pre-execution review](docs/results/b03-holdout/review.md)). The held-out improvement (14.2%) is in line with the development estimate (12.83%). It is one laboratory bearing, a next-burst forecast, and **not fault-detection performance**: when operating conditions did not change between bursts (31 of 611 pairs), smoothing was no better than persistence.
+
+**Uncertainty:** fixed-width intervals covered only about half of late-run errors. A causal adaptive calibrator selected on B01/B02 reached 89.5% / 89.4% coverage on B03 with less than half the interval score ([method and results](docs/uncertainty_calibration.md)).
+
+**Measurement validity:** B04's logged shaft speed is about half the commanded speed. The rotation frequency visible in the raw vibration spectrum matches the commanded speed in 90% of recordings and the logged one in 6%, so the log column is a scaling artefact, not a different operating regime ([review](docs/results/measurement-validity/README.md)).
+
+**Alerts:** deterministic investigation prompts. The dataset has no dated fault events or verified-normal intervals, so recall, false-alert rate and detection delay cannot be measured and are not claimed ([why, and the acceptance protocol fixed for future labelled data](docs/alert_validation.md)).
 
 Exponential smoothing was selected from a bounded comparison with persistence, Ridge, randomized trees, gradient boosting and XGBoost. The dashboard overview shows the best evaluated variant within each family; it does not claim exhaustive optimization. Every evaluated variant remains available, including worse results.
 
@@ -92,15 +98,15 @@ Exponential smoothing was selected from a bounded comparison with persistence, R
 | Bearing runs | Role | Boundary |
 | :--- | :--- | :--- |
 | **B01 / B02** | Development & selection | Repeatedly inspected and used for selection. |
-| **B04** | Diagnostic only | Unresolved measured speed/load scaling, retained uncorrected. |
-| **B03** | Sealed reserve | No inspection or evaluation authorized by this release task. |
+| **B04** | Diagnostic only | Logged speed shown to be a factor-of-two logging artefact; dynamic-load scaling still open. Retained uncorrected. |
+| **B03** | Held-out reserve | Sealed until 2026-11-13, then evaluated once with the frozen method. No longer an untouched holdout. |
 
 > Forecast deviations and development references do **not** establish damage onset, fault probabilities, bearing health or remaining useful life. Development references are not healthy/safe ranges.
 
 <details>
 <summary><b>Evaluation limitations & verification details</b></summary>
 
-Only two independent development bearings support model selection. Timestamps and CSV/MAT alignment are provisional; sensor-range warnings and ambiguous termination information remain. Next-observed-burst forecasts have a variable horizon.
+Two development bearings support model selection and one held-out bearing checks it. Timestamps and CSV/MAT alignment are provisional; sensor-range warnings and ambiguous termination information remain. Next-observed-burst forecasts have a variable horizon.
 
 The reviewer handover recorded **116 passing local tests**, preservation of the replay and comparison rows above, plus browser workflow checks. This is the recorded handover, not a claim that this documentation update reran those tests. The [verification record](docs/release_verification.md) distinguishes local checks, independently reported CI and checks still pending.
 
@@ -132,7 +138,11 @@ The CI artifact can be extracted and its `index.html` opened without installing 
 | [Architecture](docs/architecture.md) | Data, evaluation, persistence and presentation components. |
 | [Model card](docs/model_card.md) | Selection results, interpretation and limitations. |
 | [Reviewer-site guide](docs/reviewer_site.md) | Investigation workflow, notes and exports. |
-| [B03-readiness checklist](docs/b03_readiness.md) | Requirements for any future reserve evaluation. |
+| [B03 held-out result](docs/results/b03-holdout/README.md) | The single frozen reserve evaluation, with its pre-execution review. |
+| [Interval calibration](docs/uncertainty_calibration.md) | Causal prediction intervals: selection on development runs, independent check on B03. |
+| [Measurement validity](docs/results/measurement-validity/README.md) | Units, timing and the B04 speed question, checked against raw spectra. |
+| [Alert validation status](docs/alert_validation.md) | What can and cannot be claimed about alerts, and the protocol for labelled data. |
+| [B03-readiness checklist](docs/b03_readiness.md) | The gates that were completed before the reserve evaluation. |
 | [Current v0.4.0 prototype release notes](docs/releases/v0.4.0.md) | Alert/assistant scope, verification and operational boundaries. |
 | [Historical v0.3.0 release](https://github.com/bakk0u/factoryguard/releases/tag/v0.3.0) | Published prior recorded-investigation milestone. |
 
@@ -143,9 +153,9 @@ Data: **Osarenren Kennedy Aimiyekagbon, Paderborn University**, [Zenodo 10868257
 
 Cite Javanmardi et al. (2024), *Remaining Useful Lifetime Estimation of Bearings Operating under Time-Varying Conditions*, DOI **10.36001/phme.2024.v8i1.4101**.
 
-Waveforms were reduced to documented burst descriptors, context, warnings and reference summaries; no raw waveforms or B03 data are published. No endorsement is implied. [Attribution details](src/factoryguard/release/demo/ATTRIBUTION.md) describe the smaller bundled B01 demo. The legacy `run_step1.py` demo is synthetic and separate from the website results.
+Waveforms were reduced to documented burst descriptors, context, warnings and reference summaries; no raw waveforms are published. B03 appears only as derived descriptors and forecast pairs in the held-out result. No endorsement is implied. [Attribution details](src/factoryguard/release/demo/ATTRIBUTION.md) describe the smaller bundled B01 demo. The legacy `run_step1.py` demo is synthetic and separate from the website results.
 
-No repository-wide software licence is currently declared; the dataset licence does not assign a software licence.
+Software: [MIT licence](LICENSE). The dataset keeps its own CC BY 4.0 licence; the MIT licence covers this repository's code and documentation only.
 
 </details>
 
