@@ -32,12 +32,9 @@ and prediction-interval evaluation are complete.
 [Current status](docs/project_status.md) ·
 [CI runs](https://github.com/bakk0u/factoryguard/actions)
 
-**Remaining limitations:** live LLM answer-quality evaluation is incomplete;
-Windows assistant integration is unsupported; B04 dynamic-load scaling remains
-unresolved. Fault-detection recall, false-alert rates and detection delay cannot
-be established from this dataset's labels. This is a laboratory research
-prototype, with evidence from one held-out bearing; production readiness is
-not established.
+**Evaluation scope:** next-burst vibration forecasting and calibrated prediction
+intervals, checked on a held-out bearing run. Alerts support evidence-based
+investigation. [Evaluation details and boundaries](#evaluation-details).
 
 **Source and public demo differ:** v0.5.0 is merged source with release notes.
 The latest published GitHub release is still
@@ -136,7 +133,19 @@ Exponential smoothing was selected from a bounded comparison with persistence, R
 > Forecast deviations and development references do **not** establish damage onset, fault probabilities, bearing health or remaining useful life. Development references are not healthy/safe ranges.
 
 <details>
-<summary><b>Evaluation limitations & verification details</b></summary>
+<summary><b>Evaluation details & verification</b></summary>
+
+<a id="evaluation-details"></a>
+
+B04's dynamic-load scaling remains unresolved; its measurements are retained
+uncorrected for diagnostic use. The dataset has no dated fault events or
+verified-normal intervals, so fault-detection recall, false-alert rates and
+detection delay are not measured. Evaluation covers one held-out laboratory
+bearing; live-equipment production operation has not been validated.
+
+Live LLM answer-quality evaluation is incomplete. Linux assistant integration
+is verified in CI and macOS locally; Windows assistant remains unsupported.
+
 
 Two development bearings support model selection and one held-out bearing checks it. Timestamps and CSV/MAT alignment are provisional; sensor-range warnings and ambiguous termination information remain. Next-observed-burst forecasts have a variable horizon.
 
