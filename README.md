@@ -39,8 +39,8 @@ investigation. [Evaluation details and boundaries](#evaluation-details).
 **Source and public demo differ:** v0.5.0 is merged source with release notes.
 The latest published GitHub release is still
 [v0.3.0](https://github.com/bakk0u/factoryguard/releases/tag/v0.3.0).
-The public dashboard and historical screenshots predate the local redesign;
-a deployment of the current version has not been verified. The optional
+The screenshots below show the current local dashboard; the public demo predates
+this redesign. A deployment of the current version has not been verified. The optional
 assistant runs locally and is not hosted on the public static site.
 
 ## Explore the dashboard
@@ -62,12 +62,12 @@ uses disjoint windows; unresolved episodes remain visible when assessment is una
 
 <a href="https://bakk0u.github.io/factoryguard/">
   <picture>
-    <source media="(max-width: 600px)" srcset="docs/images/reviewer-mobile.png">
-    <img src="docs/images/reviewer-desktop.png" width="100%" alt="FactoryGuard dashboard overview. Click to explore the public dashboard.">
+    <source media="(max-width: 600px)" srcset="docs/images/readme/dashboard-v050-mobile.webp">
+    <img src="docs/images/readme/dashboard-v050-desktop.webp" width="100%" alt="FactoryGuard dashboard overview. Click to explore the public dashboard.">
   </picture>
 </a>
 
-<p align="center"><sub>Actual dashboard screenshot · Click the image to explore</sub></p>
+<p align="center"><sub>Current local dashboard · Click to open the public demo (earlier version)</sub></p>
 
 ## From a change to an investigation
 
@@ -83,8 +83,8 @@ measurements. **Methods & results** and **Engineering** provide deeper evidence
 and reproducibility. See the [local reviewer guide](docs/reviewer_site.md).
 The local Layout 3 presentation adds a revealed-notice rail and a clickable
 Engineering system map, with short examples and expandable technical details.
-The public deployment and historical screenshots have not been updated by this
-local redesign.
+The screenshots show this current interface. The public demo remains an earlier
+deployment.
 
 | Investigate | What you can inspect |
 | :--- | :--- |
@@ -97,8 +97,8 @@ local redesign.
 <summary><b>See the investigation view</b></summary>
 
 <picture>
-  <source media="(max-width: 600px)" srcset="docs/images/investigation-mobile.png">
-  <img src="docs/images/investigation-desktop.png" width="100%" alt="Detailed investigation view with selected-period measurements and context.">
+  <source media="(max-width: 600px)" srcset="docs/images/readme/investigation-v050-mobile.webp">
+  <img src="docs/images/readme/investigation-v050-desktop.webp" width="100%" alt="Detailed investigation view with selected-period measurements and context.">
 </picture>
 
 Experiments are separate bearing runs. A/C are vibration channels on the same run.
