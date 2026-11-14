@@ -32,18 +32,15 @@ and prediction-interval evaluation are complete.
 [Current status](docs/project_status.md) ·
 [CI runs](https://github.com/bakk0u/factoryguard/actions)
 
-**Remaining limitations:** live LLM answer-quality evaluation is incomplete;
-Windows assistant integration is unsupported; B04 dynamic-load scaling remains
-unresolved. Fault-detection recall, false-alert rates and detection delay cannot
-be established from this dataset's labels. This is a laboratory research
-prototype, with evidence from one held-out bearing; production readiness is
-not established.
+**Evaluation scope:** next-burst vibration forecasting and calibrated prediction
+intervals, checked on a held-out bearing run. Alerts support evidence-based
+investigation. [Evaluation details and boundaries](#evaluation-details).
 
 **Source and public demo differ:** v0.5.0 is merged source with release notes.
 The latest published GitHub release is still
 [v0.3.0](https://github.com/bakk0u/factoryguard/releases/tag/v0.3.0).
-The public dashboard and historical screenshots predate the local redesign;
-a deployment of the current version has not been verified. The optional
+The screenshots below show the current local dashboard; the public demo predates
+this redesign. A deployment of the current version has not been verified. The optional
 assistant runs locally and is not hosted on the public static site.
 
 ## Explore the dashboard
@@ -65,12 +62,12 @@ uses disjoint windows; unresolved episodes remain visible when assessment is una
 
 <a href="https://bakk0u.github.io/factoryguard/">
   <picture>
-    <source media="(max-width: 600px)" srcset="docs/images/reviewer-mobile.png">
-    <img src="docs/images/reviewer-desktop.png" width="100%" alt="FactoryGuard dashboard overview. Click to explore the public dashboard.">
+    <source media="(max-width: 600px)" srcset="docs/images/readme/dashboard-v050-mobile.webp">
+    <img src="docs/images/readme/dashboard-v050-desktop.webp" width="100%" alt="FactoryGuard dashboard overview. Click to explore the public dashboard.">
   </picture>
 </a>
 
-<p align="center"><sub>Actual dashboard screenshot · Click the image to explore</sub></p>
+<p align="center"><sub>Current local dashboard · Click to open the public demo (earlier version)</sub></p>
 
 ## From a change to an investigation
 
@@ -86,8 +83,8 @@ measurements. **Methods & results** and **Engineering** provide deeper evidence
 and reproducibility. See the [local reviewer guide](docs/reviewer_site.md).
 The local Layout 3 presentation adds a revealed-notice rail and a clickable
 Engineering system map, with short examples and expandable technical details.
-The public deployment and historical screenshots have not been updated by this
-local redesign.
+The screenshots show this current interface. The public demo remains an earlier
+deployment.
 
 | Investigate | What you can inspect |
 | :--- | :--- |
@@ -100,8 +97,8 @@ local redesign.
 <summary><b>See the investigation view</b></summary>
 
 <picture>
-  <source media="(max-width: 600px)" srcset="docs/images/investigation-mobile.png">
-  <img src="docs/images/investigation-desktop.png" width="100%" alt="Detailed investigation view with selected-period measurements and context.">
+  <source media="(max-width: 600px)" srcset="docs/images/readme/investigation-v050-mobile.webp">
+  <img src="docs/images/readme/investigation-v050-desktop.webp" width="100%" alt="Detailed investigation view with selected-period measurements and context.">
 </picture>
 
 Experiments are separate bearing runs. A/C are vibration channels on the same run.
@@ -136,7 +133,19 @@ Exponential smoothing was selected from a bounded comparison with persistence, R
 > Forecast deviations and development references do **not** establish damage onset, fault probabilities, bearing health or remaining useful life. Development references are not healthy/safe ranges.
 
 <details>
-<summary><b>Evaluation limitations & verification details</b></summary>
+<summary><b>Evaluation details & verification</b></summary>
+
+<a id="evaluation-details"></a>
+
+B04's dynamic-load scaling remains unresolved; its measurements are retained
+uncorrected for diagnostic use. The dataset has no dated fault events or
+verified-normal intervals, so fault-detection recall, false-alert rates and
+detection delay are not measured. Evaluation covers one held-out laboratory
+bearing; live-equipment production operation has not been validated.
+
+Live LLM answer-quality evaluation is incomplete. Linux assistant integration
+is verified in CI and macOS locally; Windows assistant remains unsupported.
+
 
 Two development bearings support model selection and one held-out bearing checks it. Timestamps and CSV/MAT alignment are provisional; sensor-range warnings and ambiguous termination information remain. Next-observed-burst forecasts have a variable horizon.
 
