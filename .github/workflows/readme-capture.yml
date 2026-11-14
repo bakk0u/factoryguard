@@ -1,0 +1,49 @@
+name: Capture README dashboard
+on: [push]
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-lock.txt
+      - run: pip install --no-deps -e .
+      - run: python scripts/build_reviewer_site.py --output reports/local/readme-site
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.62.1
+      - run: npx playwright install --with-deps chromium
+      - name: Capture current interface
+        run: |
+          node <<'JS'
+          const {chromium}=require('playwright');
+          const {pathToFileURL}=require('node:url');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:1440,height:1000}});
+            const errors=[];page.on('pageerror',e=>errors.push(e.message));
+            await page.goto(pathToFileURL(process.cwd()+'/reports/local/readme-site/index.html').href);
+            await page.waitForSelector('body[data-experience-ready="true"]');
+            await page.screenshot({path:'reports/local/readme-site/reviewer-desktop.png',fullPage:true});
+            await page.setViewportSize({width:390,height:844});
+            await page.screenshot({path:'reports/local/readme-site/reviewer-mobile.png',fullPage:true});
+            await page.setViewportSize({width:1440,height:1000});
+            await page.locator('#walkthroughAction').click();
+            await page.waitForFunction(()=>!busy&&state.revealed===3);
+            await page.screenshot({path:'reports/local/readme-site/investigation-desktop.png',fullPage:true});
+            await page.setViewportSize({width:390,height:844});
+            await page.screenshot({path:'reports/local/readme-site/investigation-mobile.png',fullPage:true});
+            if(errors.length)throw Error(errors.join('\n'));
+            console.log('Four current-dashboard screenshots; zero page errors; no model calls.');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: readme-dashboard-captures
+          path: reports/local/readme-site/*.png
+          if-no-files-found: error
