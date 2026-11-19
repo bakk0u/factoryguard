@@ -1,5 +1,13 @@
 # Current project status
 
+## Replay consistency checks, 19 November 2026
+
+The replay API reads the cursor and returned events in one SQLite transaction.
+Both the HTTP server and offline exporter verify the stored reference digest before using the data.
+The regression lives in `tests/test_release_application.py`. Local verification passed 210 Python
+tests and 47 TypeScript assistant tests. The bundled synthetic demo validated 1,080 readings.
+The published B03 result is a historical one-time evaluation.
+
 ## v0.5.0: held-out evaluation and closeout (2026-11-13)
 
 | Item | Status | Evidence |

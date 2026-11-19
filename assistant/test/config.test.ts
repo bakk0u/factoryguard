@@ -59,7 +59,7 @@ test("live smoke without explicit process opt-in stops before loading local cred
   const env = withoutCredentials();
   delete env.FACTORYGUARD_ALLOW_LIVE;
   assert.throws(() => execFileSync(process.execPath,
-    [path.join(REPOSITORY_ROOT, "assistant/node_modules/tsx/dist/cli.mjs"), path.join(REPOSITORY_ROOT, "assistant/src/live-smoke.ts")],
+    ["--import", import.meta.resolve("tsx"), path.join(REPOSITORY_ROOT, "assistant/src/live-smoke.ts")],
     { cwd: tmpdir(), env, stdio: "pipe" }), /Live smoke is opt-in/);
 });
 
