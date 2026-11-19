@@ -103,6 +103,17 @@ class ReleaseAppTests(unittest.TestCase):
                 self.assertEqual(Store(out/'replay.sqlite').state('B01')['revealed'],1)
             finally:server.shutdown();server.server_close();thread.join()
 
+    def test_changed_reference_rejected_before_export_or_serve(self):
+        with tempfile.TemporaryDirectory() as d:
+            workspace = app.demo(Path(d) / 'workspace')
+            (workspace / 'references.json').write_text('{}', encoding='utf-8')
+            output = Path(d) / 'report.html'
+            with self.assertRaisesRegex(ValueError, 'references changed'):
+                app.export(workspace, output)
+            self.assertFalse(output.exists())
+            with self.assertRaisesRegex(ValueError, 'references changed'):
+                app.server(workspace, 0)
+
     def test_bundled_demo_contract(self):
         with tempfile.TemporaryDirectory() as d:
             out=app.demo(Path(d)/'démo')

@@ -4,6 +4,14 @@ Verified 2026-11-11 (Europe/Berlin). This is orientation, not a source of new
 authorization. Read AGENTS.md first. Recheck Git state and graph freshness; facts
 below describe the reviewed checkout and can age. Do not paste the whole history.
 
+## Replay consistency checks, 19 November 2026
+
+The replay API reads the cursor and returned events in one SQLite transaction.
+Both the HTTP server and offline exporter verify the stored reference digest before using the data.
+The regression lives in `tests/test_release_application.py`. Local verification passed 210 Python
+tests and 47 TypeScript assistant tests. The bundled synthetic demo validated 1,080 readings.
+The published B03 result is a historical one-time evaluation.
+
 ## Proposed follow-up — 2026-11-13
 
 Reviewer-export destination guard: `src/factoryguard/release/export_guard.py`

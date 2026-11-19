@@ -10,7 +10,7 @@
   <a href="docs/architecture.md">Architecture</a>
 </p>
 
-**Investigate changes in bearing vibration and temperature with the operating context beside them.** FactoryGuard brings together observed signals, forecasts, speed, load, acquisition gaps and measurement warnings in an interactive investigation dashboard.
+FactoryGuard replays bearing measurements one burst at a time. When vibration changes, you can inspect the forecast issued before that burst and check the recorded speed, load and time since the previous measurement.
 
 > **Try it immediately:** the [public dashboard](https://bakk0u.github.io/factoryguard/) needs no installation, sign-in or dataset download. It presents **real, precomputed laboratory results**; it does not connect to live equipment or retrain a model when opened.
 

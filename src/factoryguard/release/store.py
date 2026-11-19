@@ -67,7 +67,10 @@ class Store:
             return [dict(zip(('id','start','stop','text'),r)) for r in con.execute('SELECT id,start,stop,text FROM notes WHERE run=? ORDER BY id',(run,))]
 
     def state(self,run):
-        with self.connect() as con:return self._state(con,run)
+        with self.connect() as con:
+            # The cursor and its events must come from the same replay step.
+            con.execute('BEGIN')
+            return self._state(con,run)
 
     def alerts(self,run,channel='A',as_of=None,acknowledge=None):
         """Separate append-only derived journal; original observations/forecasts unchanged."""

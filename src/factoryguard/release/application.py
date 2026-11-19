@@ -74,13 +74,23 @@ def html(payload=None):
     return template.replace('/*PAYLOAD*/null',json.dumps(clean(payload),ensure_ascii=False,allow_nan=False).replace('<','\\u003c'))
 
 
+def load_references(workspace, metadata):
+    from hashlib import sha256
+    payload = (workspace / 'references.json').read_bytes()
+    checksum = sha256(payload).hexdigest()
+    if metadata.get('reference_sha256', checksum) != checksum:
+        raise ValueError('Fixed development references changed; restore the original workspace references')
+    metadata['reference_sha256'] = checksum
+    return json.loads(payload)
+
+
 def export(workspace,output):
     """Render from a temporary DB clone, preserving the user's persisted cursor."""
     import tempfile
     from factoryguard.util import protect_output
     output=protect_output(output)
     workspace=Path(workspace);store=Store(workspace/'replay.sqlite');meta=store.metadata()
-    refs=read(workspace/'references.json');states={}
+    refs=load_references(workspace,meta);states={}
     with tempfile.TemporaryDirectory() as tmp:
         clone=Store(Path(tmp)/'replay.sqlite')
         with store.connect() as src, clone.connect() as dst:src.backup(dst)
@@ -102,11 +112,7 @@ def export(workspace,output):
 
 def server(workspace,port=8765):
     workspace=Path(workspace);store=Store(workspace/'replay.sqlite');meta=store.metadata()
-    refs=read(workspace/'references.json');artifacts={r:load_artifact(workspace/f'{r}.joblib') for r in meta['runs']}
-    actual_reference_hash=digest(workspace/'references.json')
-    if meta.get('reference_sha256',actual_reference_hash)!=actual_reference_hash:
-        raise ValueError('Fixed development references changed; restore the original workspace references')
-    meta['reference_sha256']=actual_reference_hash
+    refs=load_references(workspace,meta);artifacts={r:load_artifact(workspace/f'{r}.joblib') for r in meta['runs']}
     class Handler(BaseHTTPRequestHandler):
         def trusted_host(self):
             # A loopback bind alone does not prevent DNS-rebinding requests.
